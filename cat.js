@@ -1,15 +1,6 @@
 const Discord = require('discord.io');
-const logger = require('winston');
 const auth = require('./auth.json');
 const fs = require('fs');
-
-// Configure logger settings
-logger.remove(logger.transports.Console);
-logger.add(new logger.transports.Console, {
-  colorize: true
-});
-
-logger.level = 'debug';
 
 // Initialize Discord Bot
 const bot = new Discord.Client({
@@ -24,7 +15,7 @@ let catalogue;
 if (!fs.existsSync(catalogueFile)) {
   fs.writeFile(catalogueFile, '{}', (err) => {
     if (err) {
-      logger.error(err);
+      console.log(err);
       return;
     };
     catalogue = JSON.parse(fs.readFileSync(catalogueFile));
@@ -33,89 +24,32 @@ if (!fs.existsSync(catalogueFile)) {
   catalogue = JSON.parse(fs.readFileSync(catalogueFile))
 }
 
-// No DB is being used here. We're using a file to store the items.
-// Let's load it into memory now so save having to load, parse, and read from
-// it every time a lookup is performed.
-// const catalogue = JSON.parse(fs.readFileSync(catalogueFile));
-
 bot.on('message', function (user, userID, channelID, message, evt) {
-  if (message.includes('!cat')) {
-    if(user === botUsername) return;
-  
+  if (message.includes('!cat') && user !== botUsername) {
     const action = message.split(' ', 2)[1];
     const args = parseInput(message);
 
     switch(action) {
-      case 'search':
-        if (invalidateActionArgs('search', args)) {
-          notifyInvalidArgs(user, channelID);
-          break;
-        }
-
-        const response = formatItemSellers(itemInCatalogue(args.item));
-        bot.sendMessage({
-          to: channelID,
-          message: `Hi, ${user}! ${response}`
-        });
-      break;
       case 'add':
-        if (invalidateActionArgs('add', args)) {
-          notifyInvalidArgs(user, channelID);
-          break;
-        }
-
-        createCatalogueEntry(user, args);
-        bot.sendMessage({
-          to: channelID,
-          message: `Hi, ${user}! That's been added to the catalogue.`
-        });
-      break;
-      case 'remove':
-        if (invalidateActionArgs('remove', args)) {
-          notifyInvalidArgs(user, channelID);
-          break;
-        }
-
-        removeCatalogueEntry(user, args);
-        bot.sendMessage({
-          to: channelID,
-          message: `Hi, ${user}! I've remove that from the catalogue for you.`
-        });
+        addItemToCatalogue(user, args);
+        reply(channelID, `Hi, ${user}! I've added **${toTitleCase(args.item)}** to the catalogue for you.`);
       break;
       default:
-        bot.sendMessage({
-          to: channelID,
-          message: `Hi, ${user}! Here are the list of commands I respond to: \n\n${helpCommands()}`
-        });
-      }
+        reply(channelID, `Hi, ${user}! Here are the list of commands I understand: \n\n${helpCommands()}`)
     }
+  }  
 });
 
-function createCatalogueEntry(user, args) {
-  // It might be that this is a new item entirely, so we'd need to create it
-  // before doing anything with users.
-  const catalogueItem = itemInCatalogue(args.item) || createNewCatalogueEntry(args.item);
-
-  // The user may already have an entry for this item
-  removeUserEntryFromCatalogue(catalogueItem, user);
-
-  catalogueItem.sellers.push({
-    "user": user,
-    "quantity": args.quantity,
-    "costs": args.price,
-    "location": args.location
-  })
-
-  updateLocalCatalogue();
+function reply(channelID, message) {
+  bot.sendMessage({
+    to: channelID,
+    message: message
+  });
 }
 
-function removeCatalogueEntry(user, args) {
-  const catalogueItem = itemInCatalogue(args.item)
-  if (!catalogueItem) return;
-  removeUserEntryFromCatalogue(catalogueItem, user);
-  logger.debug(catalogueItem)
-  if (catalogueItem.sellers.length === 0) removeItemFromCatalogue(args.item);
-  updateLocalCatalogue();
+function newUserCatalogue(user) {
+  catalogue[user] = {inventory: []}
+  return catalogue[user]
 }
 
 function updateLocalCatalogue() {
@@ -124,85 +58,48 @@ function updateLocalCatalogue() {
       console.error(err);
       return;
     };
-    console.log("File has been created");
+    console.log("Catalogue updated.");
   });
 }
 
-function removeUserEntryFromCatalogue(catalogueItem, user) {
-  const sellers = catalogueItem.sellers;
-  const existingSeller = sellers.findIndex(seller => seller.user === user);
-  sellers.splice(existingSeller, 1);
-}
+function addItemToCatalogue(user, args) {
+  const userEntry = catalogue[user] || newUserCatalogue(user);
+  userEntry.inventory.push({
+    item: args.item,
+    quantity: args.quantity,
+    price: args.price,
+    location: args.location
+  });
 
-function removeItemFromCatalogue(item) {
-  delete catalogue[item];
-}
-
-function itemInCatalogue(item) {
-  return catalogue[item];
-}
-
-function formatItemSellers(item) {
-  if (!item) return "I couldn't find that in the catalogue :frowning:";
-  return [
-    `That item is being sold by these sellers:`,
-    item.sellers.map(seller => `\n • **${seller.user}** is selling **${seller.quantity}** for **${seller.costs}** at **${seller.location}**`),
-  ].join("\n");
-}
-
-function createNewCatalogueEntry(item) {
-  catalogue[item] = {"sellers":[]};
-  return catalogue[item];
+  updateLocalCatalogue();
 }
 
 function helpCommands() {
   return [
-    'To **add** an item to the catalogue: `!cat add item:[item] quantity:[quantity] price:[price] location:[location]`',
-    'To **search** for an item in the catalogue: `!cat search item:[item]`',
-    'To **remove** an an item in the catalogue: `!cat remove item:[item]`'
+    'To **add** an item to the catalogue: `!cat add item:[item] quantity:[quantity] price:[price] location:[location]`'
   ].join("\n");
 }
 
 function parseInput(message) {
-  // We want to turn whatever the input is into a usable hash.
-  // We can be sure that certain values will exist in the
-  // input so let's start there.
-  const x = {};
+  const parsedArgs = {};
   const knownArgs = ['item', 'quantity', 'price', 'location'];
-
-  for (let argIndex in knownArgs) {
-    let arg = knownArgs[argIndex];
+  knownArgs.forEach(arg => {
     let match = message.match(`${arg}:\\s?(.*?)(?=(?:\\s\\w*:|$))`);
-    if (match) x[arg] = match[1].trim();
-  }
+    if (match) parsedArgs[arg] = toSafeString(match[1]);
+  })
 
-  return x;
+  return parsedArgs;
 }
 
-function invalidateActionArgs(action, args) {
-  let valid;
-  let expectedArgs;
-
-  const actualArgs = Object.keys(args).sort();
-
-  switch(action) {
-    case 'add':
-      expectedArgs = ['item', 'quantity', 'price', 'location'].sort();
-    break;
-    case 'remove':
-      expectedArgs = ['item'];
-    break;
-    case 'search':
-      expectedArgs = ['item'];
-  }
-
-  valid = (JSON.stringify(expectedArgs) == JSON.stringify(actualArgs)) 
-  return !valid;
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+  );
 }
 
-function notifyInvalidArgs(user, channelID) {
-  bot.sendMessage({
-    to: channelID,
-    message: `Hi, ${user}! Expected fields are missing from the command. See 'help' for the expected formats.`
-  });
+function toSafeString(str) {
+  return str.replace(/[^ \w]+/g, '').trim().toLowerCase();
 }
