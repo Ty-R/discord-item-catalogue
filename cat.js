@@ -34,6 +34,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         addItemToCatalogue(user, args);
         reply(channelID, `Hi, ${user}! I've added **${toTitleCase(args.item)}** to the catalogue for you.`);
       break;
+      case 'search':
+        reply(channelID, botSearchResults(searchCatalogue(args)));
+      break;
       default:
         reply(channelID, `Hi, ${user}! Here are the list of commands I understand: \n\n${helpCommands()}`)
     }
@@ -47,11 +50,6 @@ function reply(channelID, message) {
   });
 }
 
-function newUserCatalogue(user) {
-  catalogue[user] = {inventory: []}
-  return catalogue[user]
-}
-
 function updateLocalCatalogue() {
   fs.writeFile(catalogueFile, JSON.stringify(catalogue), (err) => {
     if (err) {
@@ -63,26 +61,42 @@ function updateLocalCatalogue() {
 }
 
 function addItemToCatalogue(user, args) {
-  const userEntry = catalogue[user] || newUserCatalogue(user);
-  userEntry.inventory.push({
+  const newListing = {
+    seller: user,
     item: args.item,
     quantity: args.quantity,
     price: args.price,
     location: args.location
-  });
+  }
 
+  catalogue.listings.push(newListing);
   updateLocalCatalogue();
+}
+
+function botSearchResults(results) {
+  return [
+    results.map(result => `\n • **${result.seller}** is selling **${result.quantity}** **${result.item}** for **${result.price}** at **${result.location}**`),
+  ].join("\n");
+}
+
+function searchCatalogue(args) {
+  let currentListings = catalogue.listings;
+  if (args.seller) currentListings = currentListings.filter(e => e.seller === args.seller);
+  if (args.item) currentListings = currentListings.filter(e => e.item === args.item);
+  if (args.location) currentListings = currentListings.filter(e => e.location === args.location);
+  return currentListings;
 }
 
 function helpCommands() {
   return [
-    'To **add** an item to the catalogue: `!cat add item:[item] quantity:[quantity] price:[price] location:[location]`'
+    'To **add** an item to the catalogue: `!cat add [filters]`',
+    'To **search** the catalogue: `!cat search [filters]`'
   ].join("\n");
 }
 
 function parseInput(message) {
   const parsedArgs = {};
-  const knownArgs = ['item', 'quantity', 'price', 'location'];
+  const knownArgs = ['item', 'quantity', 'price', 'location', 'seller'];
   knownArgs.forEach(arg => {
     let match = message.match(`${arg}:\\s?(.*?)(?=(?:\\s\\w*:|$))`);
     if (match) parsedArgs[arg] = toSafeString(match[1]);
@@ -101,5 +115,5 @@ function toTitleCase(str) {
 }
 
 function toSafeString(str) {
-  return str.replace(/[^ \w]+/g, '').trim().toLowerCase();
+  return str.replace(/[^ \w]+/g, '').trim();
 }
