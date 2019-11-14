@@ -12,6 +12,7 @@ const bot = new Discord.Client({
 const botUsername = 'Catalogue';
 const catalogueFile = 'catalogue.json';
 const writeActions = ['add', 'remove'];
+let shoutedAt = false;
 let catalogue;
 
 if (!fs.existsSync(catalogueFile)) {
@@ -27,6 +28,13 @@ if (!fs.existsSync(catalogueFile)) {
 }
 
 bot.on('message', function (user, userID, channelID, message, evt) {
+  // The user might accidently have caps on, we don't want this to
+  // not reach the bot, but we could have some fun with it..
+  if (message.includes('!CAT')) {
+    shoutedAt = true;
+    message = message.toLowerCase();
+  }
+  
   if (message.includes('!cat') && user !== botUsername) {
     const action = message.split(' ', 2)[1];
     const args = parseInput(message);
@@ -57,14 +65,17 @@ bot.on('message', function (user, userID, channelID, message, evt) {
       default:
         reply(user, channelID, "I don't understand that. See `!cat help` for more information");
     }
-  }  
+  }
 });
 
 function reply(user, channelID, message) {
+  let prefix = shoutedAt ? `HI, ${user.toUpperCase()}!!` : `Hi, ${toTitleCase(user)}!`
   bot.sendMessage({
     to: channelID,
-    message: `Hi ${toTitleCase(user)}! ${message}`
+    message: `${prefix} ${message}`
   });
+
+  shoutedAt = false;
 }
 
 function updateLocalCatalogue() {
@@ -156,7 +167,7 @@ function searchCatalogue(args) {
   // This is a weird solution but it allows for any combination of these args.
   let currentListings = catalogue.listings;
   if (args.seller) currentListings = currentListings.filter(e => e.seller === args.seller);
-  if (args.item) currentListings = currentListings.filter(e => e.item === args.item);
+  if (args.item) currentListings = currentListings.filter(e => e.item.startsWith(args.item));
   if (args.location) currentListings = currentListings.filter(e => e.location === args.location);
   return currentListings;
 }
