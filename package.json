@@ -6,6 +6,7 @@
   "author": "Ty",
   "dependencies": {
     "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "pluralize": "^8.0.0",
     "winston": "^3.2.1"
   }
 }
