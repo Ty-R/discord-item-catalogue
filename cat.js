@@ -16,12 +16,12 @@ if (!fs.existsSync(catalogueFile)) {
   fs.writeFile(catalogueFile, '{}', (err) => {
     if (err) {
       console.log(err);
-      return;
+      process.exit();
     };
-    catalogue = JSON.parse(fs.readFileSync(catalogueFile));
+    loadCatalogue();
   });
 } else {
-  catalogue = JSON.parse(fs.readFileSync(catalogueFile))
+  loadCatalogue();
 }
 
 bot.on('message', function (user, userID, channelID, message, evt) {
@@ -29,16 +29,21 @@ bot.on('message', function (user, userID, channelID, message, evt) {
     const action = message.split(' ', 2)[1];
     const args = parseInput(message);
 
+    if (action === 'help') {
+      sendCustomHelpMessage(channelID);
+      return;
+    }
+
     switch(action) {
       case 'add':
         addItemToCatalogue(user, args);
         reply(channelID, `Hi, ${user}! I've added **${toTitleCase(args.item)}** to the catalogue for you.`);
-      break;
+        break;
       case 'search':
-        reply(channelID, botSearchResults(searchCatalogue(args)));
-      break;
+        reply(channelID, `Hi, ${user}! ${botSearchResults(searchCatalogue(args))}`);
+        break;
       default:
-        reply(channelID, `Hi, ${user}! Here are the list of commands I understand: \n\n${helpCommands()}`)
+        reply(channelID, "I don't understand that. Type `!cat help` for more information.");
     }
   }  
 });
@@ -50,6 +55,30 @@ function reply(channelID, message) {
   });
 }
 
+function sendCustomHelpMessage(channelID) {
+  bot.sendMessage({
+    to: channelID,
+    message: "Here's some basic information about me.",
+    embed: {
+      "description":"Catalogue is a bot designed to make it easier to keep track of what is being sold, by allowing users to _add_ items to it, and query existing items within it. Click [here](https://github.com/TyRoberts/discord-item-catalogue) for more information.",
+      "color":3447003,
+      "thumbnail": {
+        "url": "https://gamepedia.cursecdn.com/minecraft_gamepedia/8/85/Knowledge_book.png?version=0c9d97dd48215c6faa9e4513f5d87aa8"
+      },
+      "fields": [
+        {
+          "name": "Example: Adding an item to the catalogue",
+          "value": "`!cat add item: diamond`"
+        },
+        {
+          "name": "Example: Searching for an item in the catalogue",
+          "value": "`!cat search item: diamond`"
+        }
+      ]
+    }
+  });
+}
+
 function updateLocalCatalogue() {
   fs.writeFile(catalogueFile, JSON.stringify(catalogue), (err) => {
     if (err) {
@@ -57,14 +86,15 @@ function updateLocalCatalogue() {
       return;
     };
     console.log("Catalogue updated.");
+    loadCatalogue();
   });
 }
 
 function addItemToCatalogue(user, args) {
   const newListing = {
     seller: user,
-    item: args.item,
     quantity: args.quantity,
+    item: args.item,
     price: args.price,
     location: args.location
   }
@@ -75,11 +105,46 @@ function addItemToCatalogue(user, args) {
 
 function botSearchResults(results) {
   return [
-    results.map(result => `\n • **${result.seller}** is selling **${result.quantity}** **${result.item}** for **${result.price}** at **${result.location}**`),
+    `${results.length} listings match that query.\n`,
+    results.map(result => resultMessage(result)).join("\n"),
   ].join("\n");
 }
 
+function resultMessage(result) {
+  // Seller and item will be present in a result,
+  // but the other args are optional, so we need,
+  // to create a 'modular' message.
+  let quantity;
+  let price;
+  let location;
+  const message = []
+
+  Object.keys(result).forEach(arg => {
+    switch(arg) {
+      case 'seller':
+        message.push(`• **${result.seller}** is selling`);
+        break;
+      case 'quantity':
+        message.push(`**${result.quantity}**`);
+        break;
+      case 'item':
+        message.push(`**${result.item}**`);
+        break;
+      case 'price':
+        message.push(`for **${result.price}**`);
+        break;
+      case 'location':
+        message.push(`at **${result.location}**`);
+        break;
+    }
+  });
+
+  return message.join(' ');
+}
+
 function searchCatalogue(args) {
+  // When a search is done, we don't know which args will be passed in which order.
+  // This is a weird solution but it allows for any combination of these args.
   let currentListings = catalogue.listings;
   if (args.seller) currentListings = currentListings.filter(e => e.seller === args.seller);
   if (args.item) currentListings = currentListings.filter(e => e.item === args.item);
@@ -89,8 +154,9 @@ function searchCatalogue(args) {
 
 function helpCommands() {
   return [
-    'To **add** an item to the catalogue: `!cat add [filters]`',
-    'To **search** the catalogue: `!cat search [filters]`'
+    'Here are the list of commands I understand:',
+    '• To **add** an item to the catalogue: `!cat add [filters]`',
+    '• To **search** the catalogue: `!cat search [filters]`'
   ].join("\n");
 }
 
@@ -116,4 +182,8 @@ function toTitleCase(str) {
 
 function toSafeString(str) {
   return str.replace(/[^ \w]+/g, '').trim();
+}
+
+function loadCatalogue() {
+  catalogue = JSON.parse(fs.readFileSync(catalogueFile));
 }
