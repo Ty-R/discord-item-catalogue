@@ -31,37 +31,40 @@ bot.on('message', function (user, userID, channelID, message, evt) {
     const action = message.split(' ', 2)[1];
     const args = parseInput(message);
 
+    // More often than not 
+    user = user.toLowerCase();
+
     if (action === 'help') {
       sendCustomHelpMessage(channelID);
       return;
     }
 
     if (writeActions.includes(action) && !args.item) {
-      reply(channelID, `Calling \`${action}\` requires an item. See \`!cat help\` for more information `);
+      reply(user, channelID, `Calling \`${action}\` requires an item. See \`!cat help\` for more information `);
       return;
     }
 
     switch(action) {
       case 'add':
-        reply(channelID, `Hi, ${user}! ${addItemToCatalogue(user, args)}`);
+        reply(user, channelID, `${addItemToCatalogue(user, args)}`);
         break;
       case 'remove':
-        reply(channelID, `Hi, ${user}! ${removeItemFromCatalogue(user, args)}`);
+        reply(user, channelID, `${removeItemFromCatalogue(user, args)}`);
         break;
       case 'search':
         const { resultCount, results } = botSearchResults(searchCatalogue(args));
-        reply(channelID, `Hi, ${user}! That query returned ${pluralize('result', resultCount, true)} \n\n${results}`);
+        reply(user, channelID, `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`);
         break;
       default:
-        reply(channelID, "I don't understand that. See `!cat help` for more information");
+        reply(user, channelID, "I don't understand that. See `!cat help` for more information");
     }
   }  
 });
 
-function reply(channelID, message) {
+function reply(user, channelID, message) {
   bot.sendMessage({
     to: channelID,
-    message: message
+    message: `Hi ${toTitleCase(user)}! ${message}`
   });
 }
 
@@ -79,7 +82,7 @@ function updateLocalCatalogue() {
 function addItemToCatalogue(user, args) {
   const existing = searchCatalogue({seller: user, item: args.item}).length > 0;
 
-  if (existing) return `You're already have a **${args.item}** listing.`;
+  if (existing) return `You already have a **${toTitleCase(args.item)}** listing.`;
   createNewCatalogueEntry(user, args);
   return `I've added **${toTitleCase(args.item)}** to the catalogue for you`;
 }
@@ -104,7 +107,7 @@ function removeItemFromCatalogue(user, args) {
     return `I've removed your **${args.item}** listing`;
   }
 
-  return `I couldn't find a **${args.item}** that belongs to you.`;
+  return `I couldn't find a listing for **${args.item}** that belongs to you.`;
 }
 
 function deleteCatalogueEntry(listing) {
@@ -129,19 +132,19 @@ function resultMessage(result) {
   Object.keys(result).forEach(arg => {
     switch(arg) {
       case 'seller':
-        message.push(`• **${result.seller}** is selling`);
+        message.push(`• **${toTitleCase(result.seller)}** is selling`);
         break;
       case 'quantity':
         message.push(`**${result.quantity}**`);
         break;
       case 'item':
-        message.push(`**${result.item}**`);
+        message.push(`**${toTitleCase(result.item)}**`);
         break;
       case 'price':
-        message.push(`for **${result.price}**`);
+        message.push(`for **${toTitleCase(result.price)}**`);
         break;
       case 'location':
-        message.push(`at **${result.location}**`);
+        message.push(`at **${toTitleCase(result.location)}**`);
         break;
     }
   });
