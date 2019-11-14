@@ -1,6 +1,7 @@
 const Discord = require('discord.io');
 const auth = require('./auth.json');
 const fs = require('fs');
+const pluralize = require('pluralize');
 
 // Initialize Discord Bot
 const bot = new Discord.Client({
@@ -37,13 +38,14 @@ bot.on('message', function (user, userID, channelID, message, evt) {
     switch(action) {
       case 'add':
         addItemToCatalogue(user, args);
-        reply(channelID, `Hi, ${user}! I've added **${toTitleCase(args.item)}** to the catalogue for you.`);
+        reply(channelID, `Hi, ${user}! I've added **${toTitleCase(args.item)}** to the catalogue for you`);
         break;
       case 'search':
-        reply(channelID, `Hi, ${user}! ${botSearchResults(searchCatalogue(args))}`);
+        const { resultCount, results } = botSearchResults(searchCatalogue(args));
+        reply(channelID, `Hi, ${user}! That query returned ${pluralize('result', resultCount, true)} \n\n${results}`);
         break;
       default:
-        reply(channelID, "I don't understand that. Type `!cat help` for more information.");
+        reply(channelID, "I don't understand that. Type `!cat help` for more information");
     }
   }  
 });
@@ -58,7 +60,7 @@ function reply(channelID, message) {
 function sendCustomHelpMessage(channelID) {
   bot.sendMessage({
     to: channelID,
-    message: "Here's some basic information about me.",
+    message: "Here's some basic information about me",
     embed: {
       "description":"Catalogue is a bot designed to make it easier to keep track of what is being sold, by allowing users to _add_ items to it, and query existing items within it. Click [here](https://github.com/TyRoberts/discord-item-catalogue) for more information.",
       "color":3447003,
@@ -104,19 +106,16 @@ function addItemToCatalogue(user, args) {
 }
 
 function botSearchResults(results) {
-  return [
-    `${results.length} listings match that query.\n`,
-    results.map(result => resultMessage(result)).join("\n"),
-  ].join("\n");
+  return {
+    resultCount: results.length,
+    results: results.map(result => resultMessage(result)).join("\n"),
+  }
 }
 
 function resultMessage(result) {
   // Seller and item will be present in a result,
   // but the other args are optional, so we need,
   // to create a 'modular' message.
-  let quantity;
-  let price;
-  let location;
   const message = []
 
   Object.keys(result).forEach(arg => {
