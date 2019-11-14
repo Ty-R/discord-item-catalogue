@@ -31,7 +31,6 @@ bot.on('message', function (user, userID, channelID, message, evt) {
     const action = message.split(' ', 2)[1];
     const args = parseInput(message);
 
-    // More often than not 
     user = user.toLowerCase();
 
     if (action === 'help') {
