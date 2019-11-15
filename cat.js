@@ -11,7 +11,7 @@ const bot = new Discord.Client({
 
 const botUsername = 'Catalogue';
 const catalogueFile = 'catalogue.json';
-const writeActions = ['add', 'remove'];
+const writeActions = ['add', 'remove', 'update'];
 let shoutedAt = false;
 let catalogue;
 
@@ -124,9 +124,10 @@ function updateItemInCatalogue(user, args) {
 }
 
 function updateCatalogueItem(listing, args) {
-  listing.quantity = args.quantity;
-  listing.price = args.price;
-  listing.location = args.location;
+  if (args.new_item) listing.item = args.new_item;
+  if (args.quantity) listing.quantity = args.quantity;
+  if (args.price) listing.price = args.price;
+  if (args.location) listing.location = args.location;
 
   updateLocalCatalogue();
 }
@@ -184,7 +185,7 @@ function searchCatalogue(args) {
 
 function parseInput(message) {
   const parsedArgs = {};
-  const knownArgs = ['item', 'quantity', 'price', 'location', 'seller'];
+  const knownArgs = ['item', 'quantity', 'price', 'location', 'seller', 'new_item'];
   knownArgs.forEach(arg => {
     let match = message.match(`${arg}:\\s?(.*?)(?=(?:\\s\\w*:|$))`);
     if (match) parsedArgs[arg] = toSafeString(match[1]);
