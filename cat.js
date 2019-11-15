@@ -55,6 +55,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
       case 'add':
         reply(user, channelID, `${addItemToCatalogue(user, args)}`);
         break;
+      case 'update':
+        reply(user, channelID, updateItemInCatalogue(user, args));
+        break;
       case 'remove':
         reply(user, channelID, `${removeItemFromCatalogue(user, args)}`);
         break;
@@ -110,6 +113,24 @@ function createNewCatalogueEntry(user, args) {
   updateLocalCatalogue();
 }
 
+function updateItemInCatalogue(user, args) {
+  const listing = searchCatalogue({seller: user, item: args.item})[0];
+  if (listing) {
+    updateCatalogueItem(listing, args);
+    return `I've updated your **${args.item}** listing`;
+  }
+
+  return `I couldn't find a listing for **${args.item}** that belongs to you.`;
+}
+
+function updateCatalogueItem(listing, args) {
+  listing.quantity = args.quantity;
+  listing.price = args.price;
+  listing.location = args.location;
+
+  updateLocalCatalogue();
+}
+
 function removeItemFromCatalogue(user, args) {
   const listing = searchCatalogue({seller: user, item: args.item})[0];
   if (listing) {
@@ -137,27 +158,16 @@ function resultMessage(result) {
   // Seller and item will be present in a result,
   // but the other args are optional, so we need,
   // to create a 'modular' message.
-  const message = []
+  const message = [
+    `• **${toTitleCase(result.seller)}** is selling`,
+    `**${toTitleCase(result.item)}**`,
 
-  Object.keys(result).forEach(arg => {
-    switch(arg) {
-      case 'seller':
-        message.push(`• **${toTitleCase(result.seller)}** is selling`);
-        break;
-      case 'quantity':
-        message.push(`**${result.quantity}**`);
-        break;
-      case 'item':
-        message.push(`**${toTitleCase(result.item)}**`);
-        break;
-      case 'price':
-        message.push(`for **${toTitleCase(result.price)}**`);
-        break;
-      case 'location':
-        message.push(`at **${toTitleCase(result.location)}**`);
-        break;
-    }
-  });
+  ]
+  const presentArgs = Object.keys(result);
+
+  if (presentArgs.includes('quantity')) message.push(`**(${result.quantity})**`);
+  if (presentArgs.includes('price')) message.push(`for **${toTitleCase(result.price)}**`);
+  if (presentArgs.includes('location')) message.push(`at **${toTitleCase(result.location)}**`);
 
   return message.join(' ');
 }
