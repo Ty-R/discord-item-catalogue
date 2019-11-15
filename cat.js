@@ -65,6 +65,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         const { resultCount, results } = botSearchResults(searchCatalogue(args));
         reply(user, channelID, `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`);
         break;
+      case 'c:reload':
+        loadCatalogue();
+        break;
       default:
         reply(user, channelID, "I don't understand that. See `!cat help` for more information");
     }
@@ -72,7 +75,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 });
 
 function reply(user, channelID, message) {
-  let prefix = shoutedAt ? `HI, ${user.toUpperCase()}!!` : `Hi, ${toTitleCase(user)}!`
+  let prefix = shoutedAt ? `HI, ${user.toUpperCase()}!!` : `Hi, ${toTitleCase(user)}!`;
   bot.sendMessage({
     to: channelID,
     message: `${prefix} ${message}`
@@ -88,7 +91,6 @@ function updateLocalCatalogue() {
       return;
     };
     console.log("Catalogue updated.");
-    loadCatalogue();
   });
 }
 
@@ -107,7 +109,9 @@ function createNewCatalogueEntry(user, args) {
     item: args.item,
     price: args.price,
     location: args.location
-  }
+  };
+
+  Object.keys(newListing).forEach((key) => (newListing[key] == null) && delete newListing[key]);
 
   catalogue.listings.push(newListing);
   updateLocalCatalogue();
@@ -144,7 +148,7 @@ function removeItemFromCatalogue(user, args) {
 
 function deleteCatalogueEntry(listing) {
   const index = catalogue.listings.indexOf(listing);
-  catalogue.listings.splice(index, 1)
+  catalogue.listings.splice(index, 1);
   updateLocalCatalogue();
 }
 
@@ -152,7 +156,7 @@ function botSearchResults(results) {
   return {
     resultCount: results.length,
     results: results.map(result => resultMessage(result)).join("\n"),
-  }
+  };
 }
 
 function resultMessage(result) {
@@ -162,8 +166,8 @@ function resultMessage(result) {
   const message = [
     `• **${toTitleCase(result.seller)}** is selling`,
     `**${toTitleCase(result.item)}**`,
+  ];
 
-  ]
   const presentArgs = Object.keys(result);
 
   if (presentArgs.includes('quantity')) message.push(`**(${result.quantity})**`);
@@ -189,7 +193,7 @@ function parseInput(message) {
   knownArgs.forEach(arg => {
     let match = message.match(`${arg}:\\s?(.*?)(?=(?:\\s\\w*:|$))`);
     if (match) parsedArgs[arg] = toSafeString(match[1]);
-  })
+  });
 
   return parsedArgs;
 }
@@ -209,6 +213,7 @@ function toSafeString(str) {
 
 function loadCatalogue() {
   catalogue = JSON.parse(fs.readFileSync(catalogueFile));
+  console.log('Catalogue loaded from file.');
 }
 
 function sendCustomHelpMessage(channelID) {
@@ -216,7 +221,7 @@ function sendCustomHelpMessage(channelID) {
     to: channelID,
     message: "Here's some basic information about me",
     embed: {
-      "description":"Catalogue is a bot designed to make it easier to keep track of what is being sold, by allowing users to _add_ items to it, and query existing items within it. Click [here](https://github.com/TyRoberts/discord-item-catalogue) for more information.",
+      "description":"Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them. Click [here](https://github.com/TyRoberts/discord-item-catalogue) for more information.",
       "color":3447003,
       "thumbnail": {
         "url": "https://gamepedia.cursecdn.com/minecraft_gamepedia/8/85/Knowledge_book.png?version=0c9d97dd48215c6faa9e4513f5d87aa8"
