@@ -6,49 +6,40 @@ Catalogue is a bot designed to make it easier to keep track of who is selling wh
 
 The simplest way to add a listing, is:
 
-`!cat add item: [item]`
+`!cat add [item]:[price]`
 
-This command also supports other arguments such as: `quantity:`, `price:`, `location:`. All of these are optional, and any of them can be added. An example of a more detailed catalogue addition:
+Specifying a location is also supported by following the above with `@[location]`, a full example might be:
 
-`!cat add item: book quantity: 5 price: 5 gold location: spawn`
+`!cat add book:5 gold @spawn`
 
 ### Searching for listings
 
 The simplest way to search for a listing, is:
 
-`!cat search item: [item]`
+`!cat search [item]`
 
-This command also supports other arguments such as: `seller:`, `location:`. These arguments, along with `item:` can be used freely to search the catalogue:
+It's possible to change the focus of the search using flags:
 
-`!cat search item: book`
+* `-i` - searches by item
+* `-u` - searches by user
+* `-l` - searches by location
 
-`!cat search item: book seller: John`
+Some examples:
 
-`!cat search seller: John`
+`!cat search book`
 
-`!cat search location: spawn`
+`!cat search -u bob`
 
-`!cat search item: book seller: John location: spawn`
-
-Searching is essentially filtering - it starts with the entire catalogue, then applies one filter after the other. `item: book seller: John` would first filter all listings down to `item: book` then filter that list by `seller: John`.
-
-All arguments for search are optional. If no valid arguments are provided then it'd just return all listings.
+`!cat search -l spawn`
 
 ### Updating a listing
 
-A listing is updated by referencing the item with the `item:` argument, then updating it with any arguments that follow, for example:
+Updating works similarly to searching in that the flag you pass determines which field is updated. For example if I wanted to update the item name from book to diamond, I would pass the `-i` flag, for example:
 
-`!cat update item: book price: 10 gold`
-
-This example would update the price of this user's book listing to 10 gold.
-
-This command also supports other arguments such as: `quantity:`, `price:`, `location:`. The item can be renamed with `new_item:`
-
+`!cat update -i book:diamond`
 
 ### Removing a listing
 
 The simplest way to remove a listing, is:
 
-`!cat remove item: [item]`
-
-This command accepts the same argument as adding a listing.
+`!cat remove [item]`
