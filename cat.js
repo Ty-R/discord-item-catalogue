@@ -53,13 +53,13 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 
     switch(action) {
       case 'add':
-        reply(user, channelID, `${addItemToCatalogue(user, args)}`);
+        reply(user, channelID, addItemToCatalogue(user, args));
         break;
       case 'update':
         reply(user, channelID, updateItemInCatalogue(user, args));
         break;
       case 'remove':
-        reply(user, channelID, `${removeItemFromCatalogue(user, args)}`);
+        reply(user, channelID, removeItemFromCatalogue(user, args));
         break;
       case 'search':
         const { resultCount, results } = botSearchResults(searchCatalogue(args));
