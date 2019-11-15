@@ -233,6 +233,10 @@ function sendCustomHelpMessage(channelID) {
         {
           "name": "Example: Searching for an item in the catalogue",
           "value": "`!cat search item: diamond`"
+        },
+        {
+          "name": "Example: Updating an item in the catalogue",
+          "value": "`!cat update item: diamond price: 1 dirt`"
         }
       ]
     }
