@@ -133,6 +133,7 @@ function createNewCatalogueEntry(user, args) {
 }
 
 function updateItemInCatalogue(user, args) {
+  if (['u', 's'].includes(args.flag)) return 'You cannot update the name of the seller!';
   const listing = searchCatalogue(args).find(e => e.seller === user);
   if (listing) {
     updateCatalogueItem(listing, args);
