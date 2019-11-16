@@ -50,8 +50,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
   
   if (message.includes('!cat ')) {
     const args = parseInput(message);
-    console.log(args)
-    if (!args.action || !argsValid(args)) return noComprendo(user, channelID);
+    if (!argsValid(args)) return noComprendo(user, channelID);
 
     user = user.toLowerCase();
 
@@ -73,7 +72,6 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 });
 
 function argsValid(args) {
-  console.log(args)
   switch(args.action) {
     case 'add':
       return !!args.primary && !!args.secondary;
@@ -82,7 +80,9 @@ function argsValid(args) {
     case 'update':
       return !!args.flag && !!args.primary && !!args.secondary;
     case 'search':
-      return !!args.primary
+      return !!args.primary;
+    default:
+      return false;
   }
 }
 
@@ -189,7 +189,8 @@ function resultMessage(result) {
 }
 
 function searchCatalogue(args) {
-  const query = queryFromFlag(args.flag);
+  const query = args.action === 'update' ? 'item' : queryFromFlag(args.flag);
+  console.log(`Searching listings by: ${query}`);
   try {
     return catalogue.listings.filter(e => e[query].includes(args.primary));
   } catch {
@@ -210,6 +211,10 @@ function queryFromFlag(flag) {
       return 'item'
     case 'l': // (l)ocation
       return 'location'
+    case 'p': // (p)rice
+      return 'price'
+    case 'c': // (c)ost (price alt
+      return 'price'
   }
 
   return 'item'; // default to item if no flag is specified
@@ -224,7 +229,7 @@ function parseInput(message) {
     optional: null,
   }
 
-  const re = `!cat (add|search|update|remove)\\s(\\-(u|i)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
+  const re = `!cat (add|search|update|remove)\\s(\\-(.)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.match(re);
   
   if (!matchedArgs) return args;
@@ -252,6 +257,7 @@ function tidyArgs(args) {
     }
   });
 
+  console.log(args)
   return args;
 }
 
