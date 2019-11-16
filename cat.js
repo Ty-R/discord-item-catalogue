@@ -3,7 +3,6 @@ const auth = require('./auth.json');
 const fs = require('fs');
 const pluralize = require('pluralize');
 
-// Initialize Discord Bot
 const bot = new Discord.Client({
   token: auth.token,
   autorun: true
@@ -80,7 +79,7 @@ function argsValid(args) {
     case 'update':
       return !!args.flag && !!args.primary && !!args.secondary;
     case 'search':
-      return !!args.primary;
+      return true;
     default:
       return false;
   }
@@ -113,9 +112,9 @@ function updateLocalCatalogue() {
 function addItemToCatalogue(user, args) {
   const existing = searchCatalogue(args).find(e => e.seller === user);
 
-  if (existing) return `You already have a **${toTitleCase(args.primary)}** listing.`;
+  if (existing) return `You already have a "**${args.primary}**" listing.`;
   createNewCatalogueEntry(user, args);
-  return `I've added **${toTitleCase(args.primary)}** to the catalogue for you`;
+  return `I've added **${args.primary}** to the catalogue for you`;
 }
 
 function createNewCatalogueEntry(user, args) {
@@ -137,10 +136,10 @@ function updateItemInCatalogue(user, args) {
   const listing = searchCatalogue(args).find(e => e.seller === user);
   if (listing) {
     updateCatalogueItem(listing, args);
-    return `I've updated your **${toTitleCase(args.primary)}** listing`;
+    return `I've updated your **${args.primary}** listing`;
   }
 
-  return `I couldn't find a listing for **${toTitleCase(args.primary)}** that belongs to you.`;
+  return `I couldn't find a listing for "**${args.primary}**" that belongs to you.`;
 }
 
 function updateCatalogueItem(listing, args) {
@@ -153,10 +152,10 @@ function removeItemFromCatalogue(user, args) {
   const listing = searchCatalogue(args).find(e => e.seller === user);
   if (listing) {
     deleteCatalogueEntry(listing);
-    return `I've removed your **${args.primary}** listing`;
+    return `I've removed your  **${args.primary}** listing`;
   }
 
-  return `I couldn't find a listing for **${args.primary}** that belongs to you.`;
+  return `I couldn't find a listing for "**${args.primary}**" that belongs to you.`;
 }
 
 function deleteCatalogueEntry(listing) {
@@ -178,12 +177,12 @@ function resultMessage(result) {
   // to create a 'modular' message.
   const message = [
     `• **${toTitleCase(result.seller)}** is selling`,
-    `**${toTitleCase(result.item)}**`,
+    `**${result.item}**`,
   ];
 
   const presentArgs = Object.keys(result);
 
-  if (presentArgs.includes('price')) message.push(`for **${toTitleCase(result.price)}**`);
+  if (presentArgs.includes('price')) message.push(`for **${result.price}**`);
   if (presentArgs.includes('location')) message.push(`at **${toTitleCase(result.location)}**`);
 
   return message.join(' ');
@@ -272,7 +271,7 @@ function toTitleCase(str) {
 }
 
 function toSafeString(str) {
-  return str.replace(/[^ \w]+/g, '').trim().toLowerCase();
+  return str.replace(/[^ \w-]+/g, '').trim().toLowerCase();
 }
 
 function loadCatalogue() {
@@ -285,7 +284,7 @@ function sendCustomHelpMessage(channelID) {
     to: channelID,
     message: "Here's some basic information about me",
     embed: {
-      "description":"Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them. Click [here](https://github.com/TyRoberts/discord-item-catalogue) for more information on usage.",
+      "description":"Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them. Click [here](https://github.com/TyRoberts/discord-item-catalogue#discord-catalogue-bot) for more information on usage.",
       "color":3447003,
       "thumbnail": {
         "url": "https://gamepedia.cursecdn.com/minecraft_gamepedia/8/85/Knowledge_book.png?version=0c9d97dd48215c6faa9e4513f5d87aa8"
