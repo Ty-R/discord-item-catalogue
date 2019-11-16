@@ -35,7 +35,7 @@ Some examples:
 
 Updating a listing takes 3 parts:
 
-1. The flag - used to specify which part of the isting to update (item name, price, location etc.)
+1. The flag - used to specify which part of the listing to update (item name, price, location etc.)
 2. The item - the existing name of the item to update
 3. The new value - this value will be applied to the field specified using the flag
 
