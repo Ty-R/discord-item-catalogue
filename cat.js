@@ -1,17 +1,10 @@
-const Discord = require('discord.io');
+const Discord = require('discord.js');
 const auth = require('./auth.json');
+const client = new Discord.Client();
 const fs = require('fs');
 const pluralize = require('pluralize');
 
-const bot = new Discord.Client({
-  token: auth.token,
-  autorun: true
-});
-
-const botUsername = 'Catalogue';
 const catalogueFile = 'catalogue.json';
-const writeActions = ['add', 'remove', 'update'];
-let shoutedAt = false;
 let catalogue;
 
 if (!fs.existsSync(catalogueFile)) {
@@ -26,46 +19,29 @@ if (!fs.existsSync(catalogueFile)) {
   loadCatalogue();
 }
 
-bot.on('message', function (user, userID, channelID, message, evt) {
-  if (user === botUsername) return;
+client.on('message', message => {
+  if (message.author.bot) return;
+  if (message.content.startsWith('!cat help')) {
+    sendCustomHelpMessage(message.author);
+  } else if (message.content.startsWith('!cat ')) {
+    const user = message.author;
+    const args = parseInput(message.content);
 
-  // The user might accidently have caps on, we don't want this to
-  // not reach the bot, but we could have some fun with it..
-  if (message.includes('!CAT ')) {
-    shoutedAt = true;
-    message = message.toLowerCase();
-  }
-  
-  // Not all commands require args, let's handle them now.
-  if (message.includes('!cat help')) {
-    sendCustomHelpMessage(channelID);
-    return;
-  }
-
-  if (message.includes('c:reload')) {
-    loadCatalogue();
-    return;
-  }
-  
-  if (message.includes('!cat ')) {
-    const args = parseInput(message);
-    if (!argsValid(args)) return noComprendo(user, channelID);
-
-    user = user.toLowerCase();
+    if (!argsValid(args)) return reply(user, "I don't understand that. See `!cat help` for more information");
 
     switch(args.action) {
       case 'add':
-        reply(user, channelID, addItemToCatalogue(user, args));
+        reply(user, addItemToCatalogue(user.username, args));
         break;
       case 'remove':
-        reply(user, channelID, removeItemFromCatalogue(user, args));
+        reply(user, removeItemFromCatalogue(user.username, args));
         break;
       case 'update':
-        reply(user, channelID, updateItemInCatalogue(user, args));
+        reply(user, updateItemInCatalogue(user.username, args));
         break;
       case 'search':
         const { resultCount, results } = botSearchResults(searchCatalogue(args));
-        reply(user, channelID, `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`);
+        reply(user, `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`);
     }
   }
 });
@@ -85,18 +61,8 @@ function argsValid(args) {
   }
 }
 
-function noComprendo(user, channelID) {
-  reply(user, channelID, "I don't understand that. See `!cat help` for more information");
-}
-
-function reply(user, channelID, message) {
-  let prefix = shoutedAt ? `HI, ${user.toUpperCase()}!!` : `Hi, ${toTitleCase(user)}!`;
-  bot.sendMessage({
-    to: channelID,
-    message: `${prefix} ${message}`
-  });
-
-  shoutedAt = false;
+function reply(user, message) {
+  user.send(`Hi, ${user.username}! ${message}`);
 }
 
 function updateLocalCatalogue() {
@@ -112,7 +78,7 @@ function updateLocalCatalogue() {
 function addItemToCatalogue(user, args) {
   const existing = searchCatalogue(args).find(e => e.seller === user);
 
-  if (existing) return `You already have a "**${args.primary}**" listing.`;
+  if (existing) return `You already have a **${args.primary}** listing.`;
   createNewCatalogueEntry(user, args);
   return `I've added **${args.primary}** to the catalogue for you`;
 }
@@ -139,7 +105,7 @@ function updateItemInCatalogue(user, args) {
     return `I've updated your **${args.primary}** listing`;
   }
 
-  return `I couldn't find a listing for "**${args.primary}**" that belongs to you.`;
+  return `I couldn't find a listing for **${args.primary}** that belongs to you.`;
 }
 
 function updateCatalogueItem(listing, args) {
@@ -155,7 +121,7 @@ function removeItemFromCatalogue(user, args) {
     return `I've removed your  **${args.primary}** listing`;
   }
 
-  return `I couldn't find a listing for "**${args.primary}**" that belongs to you.`;
+  return `I couldn't find a listing for **${args.primary}** that belongs to you.`;
 }
 
 function deleteCatalogueEntry(listing) {
@@ -172,20 +138,9 @@ function botSearchResults(results) {
 }
 
 function resultMessage(result) {
-  // Seller and item will be present in a result,
-  // but the other args are optional, so we need,
-  // to create a 'modular' message.
-  const message = [
-    `• **${toTitleCase(result.seller)}** is selling`,
-    `**${result.item}**`,
-  ];
-
-  const presentArgs = Object.keys(result);
-
-  if (presentArgs.includes('price')) message.push(`for **${result.price}**`);
-  if (presentArgs.includes('location')) message.push(`at **${toTitleCase(result.location)}**`);
-
-  return message.join(' ');
+  const message = `• **${result.seller}** is selling **${result.item}** for **${result.price}**`;
+  if (result.location) message + ` at **${result.location}**`;
+  return message;
 }
 
 function searchCatalogue(args) {
@@ -213,21 +168,13 @@ function queryFromFlag(flag) {
       return 'location'
     case 'p': // (p)rice
       return 'price'
-    case 'c': // (c)ost (price alt
-      return 'price'
   }
 
   return 'item'; // default to item if no flag is specified
 }
 
 function parseInput(message) {
-  const args = {
-    action: null,
-    flag: null,
-    primary: null,
-    secondary: null,
-    optional: null,
-  }
+  const args = {}
 
   const re = `!cat (add|search|update|remove)\\s(\\-(.)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.match(re);
@@ -253,7 +200,7 @@ function tidyArgs(args) {
     if (args[key] == null) {
       delete args[key];
     } else {
-      args[key] = toSafeString(args[key]);
+      args[key] = args[key].replace(/[^ \w-]+/g, '').trim();
     }
   });
 
@@ -261,29 +208,15 @@ function tidyArgs(args) {
   return args;
 }
 
-function toTitleCase(str) {
-  return str.replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
-}
-
-function toSafeString(str) {
-  return str.replace(/[^ \w-]+/g, '').trim().toLowerCase();
-}
-
 function loadCatalogue() {
   catalogue = JSON.parse(fs.readFileSync(catalogueFile));
   console.log('Catalogue loaded from file.');
 }
 
-function sendCustomHelpMessage(channelID) {
-  bot.sendMessage({
-    to: channelID,
-    message: "Here's some basic information about me",
-    embed: {
+function sendCustomHelpMessage(user) {
+  user.send({
+    "content": "Here's some basic information about me",
+    "embed": {
       "description":"Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them. Click [here](https://github.com/TyRoberts/discord-item-catalogue#discord-catalogue-bot) for more information on usage.",
       "color":3447003,
       "thumbnail": {
@@ -306,3 +239,5 @@ function sendCustomHelpMessage(channelID) {
     }
   });
 }
+
+client.login(auth.token);
