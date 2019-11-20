@@ -18,10 +18,12 @@ module.exports = {
       };
     }
 
+    const user = message.author.username;
+
     const { resultCount, results } = botSearchResults(catalogueSearch.run(catalogue, args));
     const response = `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`
   
-    message.author.send(response);
+    message.author.send(`Hi, ${user}! ${response}`);
   },
 
   valid(args) {

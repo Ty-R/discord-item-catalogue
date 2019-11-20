@@ -1,6 +1,6 @@
 module.exports = {
   name: 'update',
-  usage: '!cat update <flag> [item]:[term]',
+  usage: '!cat update [option] [item]:[term]',
   execute(message, catalogue, args) {
     const catalogueSearch = require('./../cat_modules/search_catalogue');
     const catalogueUpdate = require('./../cat_modules/update_catalogue');
@@ -37,7 +37,7 @@ module.exports = {
       response = `I couldn't find a listing for **${args.primary}** that belongs to you.`;
     }
 
-    message.author.send(response);
+    message.author.send(`Hi, ${user}! ${response}`);
   },
 
   valid(args) {

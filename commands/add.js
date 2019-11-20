@@ -31,7 +31,7 @@ module.exports = {
       response = `I've added **${args.primary}** to the catalogue for you`;
     }
   
-    message.author.send(response);
+    message.author.send(`Hi, ${user}! ${response}`);
   },
 
   valid(args) {

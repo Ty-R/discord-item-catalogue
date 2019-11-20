@@ -9,8 +9,8 @@ client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	client.commands.set(command.name, command);
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.name, command);
 }
 
 client.on('message', message => {
@@ -27,16 +27,18 @@ client.on('message', message => {
     action.execute(message, catalogue, args);
   } catch (error) {
     console.error(error);
-    message.author.send('there was an error trying to execute that command!');
+    message.author.send("Oops.. something went wrong. Please notify the author with how you did this :slight_smile:");
   }
 });
 
 function promptHelp(message) {
-  message.author.send("I don't understand that. Try `!cat help` for more usage information.")
+  const user = message.author.username;
+  message.author.send(`Hi, ${user}! I don't understand that. See \`!cat help\` for more usage information.`);
 }
 
 function invalidArgsReason(message, usage) {
-  message.author.send(`Usage: \`${usage}\``)
+  const user = message.author.username;
+  message.author.send(`Hi, ${user}! Here's how you use that \`${usage}\``);
 }
 
 let catalogue;
