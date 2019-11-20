@@ -16,9 +16,7 @@ exports.run = (message) => {
     return args;
   }
 
-  const args = {
-    location: null
-  };
+  const args = {};
 
   const re = `!cat (add|search|update|remove|help)\\s?(\\-(.)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.match(re);
