@@ -23,7 +23,7 @@ module.exports = {
     const { resultCount, results } = botSearchResults(catalogueSearch.run(catalogue, args));
     const response = `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`
   
-    message.author.send(`Hi, ${user}! ${response}`);
+    message.channel.send(`Hi, ${user}! ${response}`);
   },
 
   valid(args) {

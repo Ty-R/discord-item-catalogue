@@ -27,18 +27,18 @@ client.on('message', message => {
     action.execute(message, catalogue, args);
   } catch (error) {
     console.error(error);
-    message.author.send("Oops.. something went wrong. Please notify the author with how you did this :slight_smile:");
+    message.channel.send("Oops.. something went wrong. Please notify the author with how you did this :slight_smile:");
   }
 });
 
 function promptHelp(message) {
   const user = message.author.username;
-  message.author.send(`Hi, ${user}! I don't understand that. See \`!cat help\` for more usage information.`);
+  message.channel.send(`Hi, ${user}! I don't understand that. See \`!cat help\` for more usage information.`);
 }
 
 function invalidArgsReason(message, usage) {
   const user = message.author.username;
-  message.author.send(`Hi, ${user}! Here's how you use that \`${usage}\``);
+  message.channel.send(`Hi, ${user}! Here's how you use that \`${usage}\``);
 }
 
 let catalogue;

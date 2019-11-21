@@ -4,7 +4,7 @@ module.exports = {
   execute(message, catalogue, args) {
     const { helpIcon } = require('../config.json');
 
-    message.author.send({
+    message.channel.send({
       "content": "Here's some basic information about me",
       "embed": {
         "description":"Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them. Click [here](https://github.com/TyRoberts/discord-item-catalogue#discord-catalogue-bot) for more information on usage.",
