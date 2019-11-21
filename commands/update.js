@@ -37,7 +37,7 @@ module.exports = {
       response = `I couldn't find a listing for **${args.primary}** that belongs to you.`;
     }
 
-    message.author.send(`Hi, ${user}! ${response}`);
+    message.channel.send(`Hi, ${user}! ${response}`);
   },
 
   valid(args) {
