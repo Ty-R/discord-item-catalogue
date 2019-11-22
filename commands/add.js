@@ -2,7 +2,6 @@ module.exports = {
   name: 'add',
   usage: '!cat add [item]:[price]',
   execute(message, catalogue, args) {
-    console.log('Attempting to add an item to the catalogue.');
     const catalogueSearch = require('./../cat_modules/search_catalogue');
     const catalogueUpdate = require('./../cat_modules/update_catalogue');
 
