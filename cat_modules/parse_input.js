@@ -1,4 +1,5 @@
-exports.run = (message) => {
+exports.run = (message, commands) => {
+  const logger = require('winston');
   function toSafeString(str) {
     return str.replace(/[^ \w-]+/g, '').trim();
   }
@@ -11,14 +12,14 @@ exports.run = (message) => {
         args[key] = toSafeString(args[key]);
       }
     });
-  
-    console.log(args);
+    logger.info(args);
     return args;
   }
 
   const args = {};
+  const actions = commands.map(c => c.name);
 
-  const re = `!cat (add|search|update|remove|help)\\s?(\\-(.)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
+  const re = `!cat (${actions.join('|')})\\s?(\\-(.)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.match(re);
   
   if (!matchedArgs) return args;

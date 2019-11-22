@@ -1,6 +1,8 @@
 const { prefix, token, catalogueFile } = require('./config.json');
 const inputParse = require('./cat_modules/parse_input');
 const Discord = require('discord.js');
+let logger = require('./logger'); 
+logger = require('winston'); // requiring the file above runs the code to create a default logger
 const fs = require('fs');
 
 const client = new Discord.Client();
@@ -16,7 +18,7 @@ for (const file of commandFiles) {
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
-  const args = inputParse.run(message.content);
+  const args = inputParse.run(message.content, client.commands);
   if (!client.commands.has(args.action)) return promptHelp(message);
 
   const action = client.commands.get(args.action);
@@ -26,7 +28,7 @@ client.on('message', message => {
   try {
     action.execute(message, catalogue, args);
   } catch (error) {
-    console.error(error);
+    logger.info(`${error}`);
     message.channel.send("Oops.. something went wrong. Please notify the author with how you did this :slight_smile:");
   }
 });
@@ -45,13 +47,13 @@ let catalogue;
 
 function loadCatalogue() {
   catalogue = JSON.parse(fs.readFileSync(catalogueFile));
-  console.log('Catalogue loaded from file.');
+  logger.info('Catalogue loaded from file.');
 }
 
 if (!fs.existsSync(catalogueFile)) {
   fs.writeFile(catalogueFile, '{"listings": []}', (err) => {
     if (err) {
-      console.log(err);
+      logger.error(err);
       process.exit();
     };
     loadCatalogue();

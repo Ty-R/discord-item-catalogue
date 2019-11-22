@@ -1,14 +1,15 @@
 exports.run = (catalogue) => {
+  const logger = require('winston');
   const fs = require('fs');
   const { catalogueFile } = require('../config.json');
 
-  console.log('Updating local catalogue.');
+  logger.info('Updating local catalogue.');
 
   fs.writeFile(catalogueFile, JSON.stringify(catalogue), (err) => {
     if (err) {
-      console.error(err);
+      logger.error(err);
       return;
     };
-    console.log("Catalogue updated.");
+    logger.info("Catalogue updated.");
   });
 }
