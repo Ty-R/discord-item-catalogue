@@ -42,7 +42,7 @@ Updating a listing takes 3 parts:
 The flags in this case are similar to the ones used in searching:
 
 * `-i` - updates the name of the item
-* `-p` - updated the price of the item
+* `-p` - updates the price of the item
 * `-l` - updates the location of the item
 
 Let's say you have an existing listing where you're selling 32 books for 10 gold at spawn, to update these fields:

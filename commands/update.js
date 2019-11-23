@@ -25,14 +25,14 @@ module.exports = {
     }
 
     const user = message.author.username;
-    const listing = catalogueSearch.run(catalogue, args).find(e => e.seller === user);
+    const listing = catalogueSearch.run(catalogue, args).find(e => e.seller === user && e.item === args.primary);
     let response;
 
     if (['u', 's'].includes(args.flag)) {
       response = 'You cannot update the name of the seller!';
     } else if (listing) {
       updateCatalogueItem(listing, args);
-      response = `I've updated your **${args.primary}** listing`;
+      response = `I've updated that listing for you.`;
     } else {
       response = `I couldn't find a listing for **${args.primary}** that belongs to you.`;
     }
