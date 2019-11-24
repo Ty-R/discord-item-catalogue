@@ -8,7 +8,7 @@ module.exports = {
     function resultMessage(result) {
       let message = `• **${result.seller}** is selling **${result.item}** for **${result.price}**`;
       if (result.location) message = message + ` at **${result.location}**`;
-      return message;
+      return message + "\n";
     }
 
     function botSearchResults(results) {
@@ -18,12 +18,27 @@ module.exports = {
       };
     }
 
+    let listing;
+    const multiMessage = [];
     const user = message.author.username;
+    const results = catalogueSearch.run(catalogue, args);
+    let messageCap = `Hi, ${user}! That query returned ${pluralize('result', results.length, true)} \n\n`;
 
-    const { resultCount, results } = botSearchResults(catalogueSearch.run(catalogue, args));
-    const response = `That query returned ${pluralize('result', resultCount, true)} \n\n${results}`
-  
-    message.channel.send(`Hi, ${user}! ${response}`);
+    results.forEach(result => {
+      listing = resultMessage(result);
+      if ((messageCap.length + listing.length) <= 2000) {
+        messageCap = messageCap + listing
+      } else {
+        multiMessage.push(messageCap);
+        messageCap = '';
+      }
+    });
+
+    multiMessage.push(messageCap);
+
+    multiMessage.forEach(messagePart => {
+      message.channel.send(messagePart)
+    })
   },
 
   valid(args) {
