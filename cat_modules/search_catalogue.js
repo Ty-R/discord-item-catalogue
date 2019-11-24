@@ -24,7 +24,7 @@ exports.run = (catalogue, args) => {
 
   try {
     const listings = catalogue.listings.filter(listing => listing[query]);
-    return listings.filter(listing => listing[query].includes(args.primary));
+    return listings.filter(listing => listing[query].toLowerCase().includes(args.primary.toLowerCase()));
   } catch(error) {
     logger.error(`Search for '${query}' failed: ${error}.`);
     return [];

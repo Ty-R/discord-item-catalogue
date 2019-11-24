@@ -20,7 +20,7 @@ module.exports = {
     }
 
     const user = message.author.username;
-    const existing = catalogueSearch.run(catalogue, args).find(e => e.seller === user && e.item === args.primary);
+    const existing = catalogueSearch.run(catalogue, args).find(e => e.seller === user && e.item.toLowerCase() === args.primary.toLowerCase());
     let response;
 
     if (existing) {
