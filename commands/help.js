@@ -15,15 +15,15 @@ module.exports = {
         "fields": [
           {
             "name": "Example: Adding an item to the catalogue",
-            "value": "`!cat add 64 diamonds:64 iron @spawn`"
+            "value": "`!cat add 1 beacon:32 diamonds @spawn`"
           },
           {
             "name": "Example: Removing an item in the catalogue",
-            "value": "`!cat remove diamond`"
+            "value": "`!cat remove 1 beacon`"
           },
           {
             "name": "Example: Searching the catalogue for an item",
-            "value": "`!cat search diamond`"
+            "value": "`!cat search beacon`"
           }
         ]
       }

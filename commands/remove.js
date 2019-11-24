@@ -12,12 +12,12 @@ module.exports = {
     }
 
     const user = message.author.username;
-    const listing = catalogueSearch.run(catalogue, args).find(e => e.seller === user);
+    const listing = catalogueSearch.run(catalogue, args).find(e => e.seller === user && e.item === args.primary);
     let response;
 
     if (listing) {
       deleteCatalogueEntry(listing);
-      response = `I've removed your  **${args.primary}** listing`;
+      response = `I've removed your **${listing.item}** listing`;
     } else {
       response = `I couldn't find a listing for **${args.primary}** that belongs to you.`;
     }
