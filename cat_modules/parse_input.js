@@ -12,7 +12,7 @@ exports.run = (message, commands) => {
         args[key] = toSafeString(args[key]);
       }
     });
-    logger.info(args);
+    logger.info(JSON.stringify(args));
     return args;
   }
 
