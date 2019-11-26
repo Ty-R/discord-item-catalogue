@@ -1,7 +1,7 @@
 exports.run = (message, commands) => {
   const logger = require('winston');
   function toSafeString(str) {
-    return str.replace(/[^ \w-@*']+/g, '').trim();
+    return str.replace(/[^ \w-@*()\[\]_#,\.']+/g, '').trim();
   }
 
   function tidyArgs(args) {
