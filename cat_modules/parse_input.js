@@ -1,7 +1,7 @@
 exports.run = (message, commands) => {
   const logger = require('winston');
   function toSafeString(str) {
-    return str.replace(/[^ \w-']+/g, '').trim();
+    return str.replace(/[^ \w-@*']+/g, '').trim();
   }
 
   function tidyArgs(args) {
@@ -19,7 +19,7 @@ exports.run = (message, commands) => {
   const args = {};
   const actions = commands.map(c => c.name);
 
-  const re = `!cat (${actions.join('|')})\\s?(\\-(.)\\s)?([^:@]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
+  const re = `!cat (${actions.join('|')})\\s?(\\-(.)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.match(re);
   
   if (!matchedArgs) return args;

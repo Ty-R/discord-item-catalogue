@@ -40,7 +40,7 @@ function promptHelp(message) {
 
 function invalidArgsReason(message, usage) {
   const user = message.author.username;
-  message.channel.send(`Hi, ${user}! Here's how you use that \`${usage}\``);
+  message.channel.send(`Hi, ${user}! Here's how you use that \`${usage}\`. See \`!cat help\` for more usage information.`);
 }
 
 let catalogue;

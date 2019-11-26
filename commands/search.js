@@ -1,9 +1,11 @@
 module.exports = {
   name: 'search',
+  usage: '!cat search [option] [item]',
   description: 'test',
   execute(message, catalogue, args) {
     const pluralize = require('pluralize');
     const catalogueSearch = require('./../cat_modules/search_catalogue');
+    const queryFromFlag = require('../cat_modules/query_from_flag');
 
     function resultMessage(result) {
       let message = `• **${result.seller}** is selling **${result.item}** for **${result.price}**`;
@@ -22,7 +24,7 @@ module.exports = {
     const multiMessage = [];
     const user = message.author.username;
     const results = catalogueSearch.run(catalogue, args);
-    let messageCap = `Hi, ${user}! That query returned ${pluralize('result', results.length, true)} \n\n`;
+    let messageCap = `Hi, ${user}! That ${queryFromFlag.run(args.flag)} search returned ${pluralize('result', results.length, true)} \n\n`;
 
     results.forEach(result => {
       listing = resultMessage(result);
@@ -42,6 +44,6 @@ module.exports = {
   },
 
   valid(args) {
-    return true;
+    return !!args.primary;
   }
 }
