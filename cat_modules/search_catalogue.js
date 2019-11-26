@@ -2,20 +2,19 @@ exports.run = (catalogue, args) => {
   const logger = require('winston');
   const queryFromFlag = require('../cat_modules/query_from_flag');
 
-  const flag = args.flag;
+  let flag = args.flag;
   let query;
 
   if (args.action == 'update') {
-    args.flag = 'i';
+    flag = 'i';
   } else if (args.primary.startsWith('@')) {
     args.primary = args.primary.substring(1);
-    args.flag = 'l';
+    flag = 'l';
   }
 
   args.primary = args.primary.replace('*', '');
 
-  query = queryFromFlag.run(args.flag);
-  args.flag = flag;
+  query = queryFromFlag.run(flag);
 
   logger.info(`Searching catalogue for: "${args.primary}" by: "${query}"`);
 
