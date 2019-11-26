@@ -4,6 +4,7 @@ module.exports = {
   execute(message, catalogue, args) {
     const pluralize = require('pluralize');
     const catalogueSearch = require('./../cat_modules/search_catalogue');
+    const queryFromFlag = require('../cat_modules/query_from_flag');
 
     function resultMessage(result) {
       let message = `• **${result.seller}** is selling **${result.item}** for **${result.price}**`;
@@ -22,7 +23,7 @@ module.exports = {
     const multiMessage = [];
     const user = message.author.username;
     const results = catalogueSearch.run(catalogue, args);
-    let messageCap = `Hi, ${user}! That query returned ${pluralize('result', results.length, true)} \n\n`;
+    let messageCap = `Hi, ${user}! ${queryFromFlag.run(args.flag)} search for **${args.primary}** returned ${pluralize('result', results.length, true)} \n\n`;
 
     results.forEach(result => {
       listing = resultMessage(result);

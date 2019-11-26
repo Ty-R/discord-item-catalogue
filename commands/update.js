@@ -4,22 +4,10 @@ module.exports = {
   execute(message, catalogue, args) {
     const catalogueSearch = require('./../cat_modules/search_catalogue');
     const catalogueUpdate = require('./../cat_modules/update_catalogue');
-
-    function queryFromFlag(flag) {
-      switch(flag) {
-        case 'i':
-          return 'item';
-        case 'l':
-          return 'location';
-        case 'p':
-          return 'price';
-      }
-    
-      return 'item';
-    }
+    const queryFromFlag = require('../cat_modules/query_from_flag');
 
     function updateCatalogueItem(listing, args) {
-      const query = queryFromFlag(args.flag);
+      const query = queryFromFlag.run(args.flag);
       listing[query] = args.secondary;
       catalogueUpdate.run(catalogue);
     }
