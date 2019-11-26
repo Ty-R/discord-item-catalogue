@@ -2,6 +2,7 @@ exports.run = (catalogue, args) => {
   const logger = require('winston');
   const queryFromFlag = require('../cat_modules/query_from_flag');
 
+  const flag = args.flag;
   let query;
 
   if (args.action == 'update') {
@@ -11,7 +12,10 @@ exports.run = (catalogue, args) => {
     args.flag = 'l';
   }
 
+  args.primary = args.primary.replace('*', '');
+
   query = queryFromFlag.run(args.flag);
+  args.flag = flag;
 
   logger.info(`Searching catalogue for: "${args.primary}" by: "${query}"`);
 

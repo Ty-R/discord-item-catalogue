@@ -1,5 +1,6 @@
 module.exports = {
   name: 'search',
+  usage: '!cat search [option] [item]',
   description: 'test',
   execute(message, catalogue, args) {
     const pluralize = require('pluralize');
@@ -23,7 +24,7 @@ module.exports = {
     const multiMessage = [];
     const user = message.author.username;
     const results = catalogueSearch.run(catalogue, args);
-    let messageCap = `Hi, ${user}! ${queryFromFlag.run(args.flag)} search for **${args.primary}** returned ${pluralize('result', results.length, true)} \n\n`;
+    let messageCap = `Hi, ${user}! That ${queryFromFlag.run(args.flag)} search returned ${pluralize('result', results.length, true)} \n\n`;
 
     results.forEach(result => {
       listing = resultMessage(result);
@@ -43,6 +44,6 @@ module.exports = {
   },
 
   valid(args) {
-    return true;
+    return !!args.primary;
   }
 }
