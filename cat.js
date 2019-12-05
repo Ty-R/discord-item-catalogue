@@ -17,7 +17,7 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-db.connect();
+db.connect('./db/catalogue.db');
 
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;

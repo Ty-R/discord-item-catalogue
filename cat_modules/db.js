@@ -2,8 +2,8 @@ const sqlite3 = require('sqlite3').verbose();
 let _db;
 
 module.exports = {
-  connect: function() {
-    _db = new sqlite3.Database('./db/catalogue.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+  connect: function(file) {
+    _db = new sqlite3.Database(file, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
       if (err) {
         console.error(err.message);
       }

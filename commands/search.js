@@ -21,9 +21,14 @@ module.exports = {
       };
     }
 
+    if (args.primary.startsWith('@')) {
+      args.flag = 'l'
+      args.primary = args.primary.substring(1);
+    }
+
     const sql = `SELECT * FROM listings
                  WHERE LOWER(${queryFromFlag.run(args.flag)})
-                 LIKE LOWER("${args.primary.replace('*', '')}%")`
+                 LIKE LOWER("%${args.primary.replace('*', '')}%")`
 
     catalogueSearch.run(sql).then((results) => {
       let listing;

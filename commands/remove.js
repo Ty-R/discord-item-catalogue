@@ -18,14 +18,14 @@ module.exports = {
     listingsSearch.then((listings) => {
       if (listings.length) {
         db.run(`DELETE FROM listings
-                WHERE rowid = ${listing[0].rowid}`, (err) => {
+                WHERE rowid = ${listings[0].rowid}`, (err) => {
           if (err) logger.error(err);
           message.channel.send(`Hi, ${user}! I've removed your **${args.primary}** listing`);
         });
       } else {
         message.channel.send(`Hi, ${user}! I couldn't find a listing for **${args.primary}** that belongs to you.`);
       }
-    }).catch((err) => logger.info('?'));
+    }).catch((err) => logger.error(err));
   },
 
   valid(args) {
