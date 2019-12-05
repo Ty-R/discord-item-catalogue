@@ -5,7 +5,6 @@ module.exports = {
     const sqlite = require('./../cat_modules/db');
     const db = sqlite.load();
     const user = message.author.username;
-    let response;
 
     db.run(`INSERT INTO listings (seller, item, price, location) VALUES (?, ?, ?, ?)`, [user, args.primary, args.secondary, args.location], function(err) {
       if (err) {
