@@ -8,12 +8,12 @@ module.exports = {
         console.error(err.message);
       }
       _db.run(`CREATE TABLE IF NOT EXISTS listings (
-                seller string,
-                item string,
-                price string,
-                location string,
-                CONSTRAINT unq UNIQUE (seller, item))`);
-      console.log('Connected to the catalogue.');
+               seller   TEXT,
+               item     TEXT,
+               price    TEXT,
+               location TEXT,
+               CONSTRAINT unq UNIQUE (seller, item))`);
+      console.log('Catalogue loaded.');
       return _db;
     });
   },

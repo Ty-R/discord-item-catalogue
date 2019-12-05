@@ -6,7 +6,10 @@ module.exports = {
     const db = sqlite.load();
     const user = message.author.username;
 
-    db.run(`INSERT INTO listings (seller, item, price, location) VALUES (?, ?, ?, ?)`, [user, args.primary, args.secondary, args.location], function(err) {
+    const sql = `INSERT INTO listings (seller, item, price, location)
+                 VALUES (?, ?, ?, ?)`
+
+    db.run(sql, [user, args.primary, args.secondary, args.location], function(err) {
       if (err) {
         if (err.code === 'SQLITE_CONSTRAINT') return message.channel.send(`Hi, ${user}! You already have a **${args.primary}** listing.`);
       } else {
