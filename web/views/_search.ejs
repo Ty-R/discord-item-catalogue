@@ -1,0 +1,23 @@
+<div class="row p-5">
+  <div class="col-2"></div>
+  <div class="col">
+    <form method="GET" action="/listings">
+      <div class="input-group">
+        <input type="hidden" id="flag" name="flag" value="item">
+        <input type="text" name="q" class="form-control form-control-lg main-search" placeholder="Search catalogue by item..">
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-outline-secondary"><i class="fa fa-search"></i></button>
+          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <div class="dropdown-menu search-focus">
+            <a class="dropdown-item" data-focus="item" href="#">Search by item</a>
+            <a class="dropdown-item" data-focus="seller" href="#">Search by seller</a>
+            <a class="dropdown-item" data-focus="location" href="#">Search by location</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="col-2"></div>
+</div>

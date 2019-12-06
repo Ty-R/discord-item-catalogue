@@ -11,13 +11,23 @@ db.connect('../db/catalogue.db');
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.use(express.static(__dirname + '/public'));
 
 app.listen(3000, () => console.log("Server started."));
 
 app.get("/", (req, res) => {
-  const sql = "SELECT * FROM listings ORDER BY item"
-  const listings = catalogueSearch.run(sql);
-  listings.then((rows) => {
-    res.render("index", { model: rows, icon: helpIcon });
+  const sql = "SELECT rowid, * FROM listings ORDER BY rowid DESC LIMIT 10"
+  const searchListings = catalogueSearch.run(sql);
+  searchListings.then((listings) => {
+    res.render("index", { listings, helpIcon });
+  }).catch((err) => console.error(err))
+});
+
+app.get("/listings", (req, res) => {
+  const sql = `SELECT * FROM listings WHERE "${req.query.flag}" LIKE "%${req.query.q}%"`
+  console.log(sql)
+  const searchListings = catalogueSearch.run(sql);
+  searchListings.then((listings) => {
+    res.render("listings", { listings, helpIcon });
   }).catch((err) => console.error(err))
 });
