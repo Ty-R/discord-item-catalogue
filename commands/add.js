@@ -1,36 +1,21 @@
 module.exports = {
   name: 'add',
   usage: '!cat add [item]:[price]',
-  execute(message, catalogue, args) {
-    const catalogueSearch = require('./../cat_modules/search_catalogue');
-    const catalogueUpdate = require('./../cat_modules/update_catalogue');
-
-    function createNewCatalogueEntry(user, args) {
-      const newListing = {
-        seller: user,
-        item: args.primary,
-        price: args.secondary,
-        location: args.optional
-      };
-    
-      Object.keys(newListing).forEach((key) => (newListing[key] == null) && delete newListing[key]);
-    
-      catalogue.listings.push(newListing);
-      catalogueUpdate.run(catalogue);
-    }
-
+  execute(message, args) {
+    const sqlite = require('./../cat_modules/db');
+    const db = sqlite.load();
     const user = message.author.username;
-    const existing = catalogueSearch.run(catalogue, args).find(e => e.seller === user && e.item.toLowerCase() === args.primary.toLowerCase());
-    let response;
 
-    if (existing) {
-      response = `You already have a **${args.primary}** listing.`;
-    } else {
-      createNewCatalogueEntry(user, args);
-      response = `I've added **${args.primary}** to the catalogue for you`;
-    }
-  
-    message.channel.send(`Hi, ${user}! ${response}`);
+    const sql = `INSERT INTO listings (seller, item, price, location)
+                 VALUES (?, ?, ?, ?)`
+
+    db.run(sql, [user, args.primary, args.secondary, args.optional], function(err) {
+      if (err) {
+        if (err.code === 'SQLITE_CONSTRAINT') return message.channel.send(`Hi, ${user}! You already have a **${args.primary}** listing.`);
+      } else {
+        return message.channel.send(`Hi, ${user}! I've added **${args.primary}** to the catalogue for you`);
+      }
+    });    
   },
 
   valid(args) {
