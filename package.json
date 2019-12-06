@@ -1,11 +1,13 @@
 {
-  "name": "Catalogue",
+  "name": "catalogue",
   "version": "0.0.1",
-  "description": "Test",
+  "description": "",
   "main": "cat.js",
   "author": "Ty",
   "dependencies": {
     "discord.js": "^11.5.1",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
     "pluralize": "^8.0.0",
     "sqlite3": "^4.1.0",
     "winston": "^3.2.1"
