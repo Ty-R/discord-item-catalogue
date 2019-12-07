@@ -5,6 +5,25 @@
 </h3>
 <% for (const listing of listings) { %>
   <div class="p-3 listing text-center">
-    <span class="var"><%= listing.seller %></span> is selling <span class="var"><%= listing.item %></span> for <span class="var"><%= listing.price %></span> at <span class="var"><%= listing.location %></span>
+    <span class="var"><%= listing.seller %></span> is selling
+    <span class="var"><%= listing.item %></span> for
+    <span class="var"><%= listing.price %></span> 
+    <% if (listing.location) { %>
+      at
+      <span class="var"><%= listing.location %></span>
+    <% } %>
   </div>
 <% } %>
+<div class="row">
+  <div class="col d-flex justify-content-center">
+    <a class="text-muted pag" id="prev" href="javascript://" data-enabled='<%= prev %>'>
+      <i class="fa fa-caret-left"></i>
+      Prev
+    </a>
+    <div class="p-2"></div>
+    <a class="text-muted pag" id="next" href="javascript://" data-enabled='<%= next %>'>
+      Next
+      <i class="fa fa-caret-right"></i>
+    </a>
+  </div>
+</div>

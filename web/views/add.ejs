@@ -1,0 +1,25 @@
+<%- include("_header", { helpIcon }) -%>
+<div class="alert alert-info" role="alert"></div>
+<form method="POST" action="/add-listing" id="add-listing">
+  <div class="form-row">
+    <div class="form-group col">
+      <label for="user">Who are you?</label>
+      <input class="form-control" name="user" placeholder="Bob" autocomplete="off" required>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label for="primary">What are you selling?</label>
+      <input class="form-control" name="primary" placeholder="1 book" autocomplete="off" required>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="secondary">What would you like in return?</label>
+      <input class="form-control" name="secondary" placeholder="5 gold" autocomplete="off" required>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="optional">Where are you selling it?</label>
+      <input class="form-control" name="optional" placeholder="Plot 5" autocomplete="off">
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </div>
+</form>

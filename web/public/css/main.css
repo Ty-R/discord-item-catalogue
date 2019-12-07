@@ -1,5 +1,6 @@
 .var {
-  color: #82a1c3;
+  color: #004896;
+  /* border-bottom: 1px solid */
 }
 
 .header-sm {
@@ -8,4 +9,13 @@
 
 body {
   background: #fafbfc
+}
+
+a[data-enabled=false] {
+  pointer-events: none;
+  color: gainsboro !important;
+}
+
+.alert:empty {
+  display: none;
 }
