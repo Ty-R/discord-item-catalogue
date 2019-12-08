@@ -9,7 +9,7 @@ module.exports = {
     const user = message.author.username;
 
     const sql = `SELECT rowid, * FROM listings
-                 WHERE item = LOWER("${args.primary}")
+                 WHERE item = "${args.primary}"
                  AND seller = "${user}"
                  LIMIT 1`
 
