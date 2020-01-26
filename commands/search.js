@@ -9,8 +9,7 @@ module.exports = {
     const pluralize = require('pluralize');
 
     function resultMessage(result) {
-      let message = `• **${result.seller}** is selling **${result.item}** for **${result.price}**`;
-      if (result.location) message = message + ` at **${result.location}**`;
+      let message = `• **${result.location || result.seller}** is selling **${result.item}** for **${result.price}**`;
       return message + "\n";
     }
 
