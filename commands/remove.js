@@ -3,14 +3,16 @@ module.exports = {
   usage: '!cat remove [item]',
   execute(message, args) {
     const logger = require('winston');
-    const catalogueSearch = require('./../cat_modules/search_catalogue');
-    const sqlite = require('./../cat_modules/db');
+    const catalogueSearch = require('../cat_modules/search_catalogue');
+    const sqlite = require('../cat_modules/db');
+    const { admin_ids } = require('../config.json');
     const db = sqlite.load();
     const user = message.author.username;
+    const admin = admin_ids.includes(message.author.id);
 
-    const sql = `SELECT rowid, * FROM listings
-                 WHERE item = "${args.primary}"
-                 AND seller = "${user}"
+    const sql = `SELECT rowid, '*' FROM listings
+                 WHERE item = "${args.primary}" OR rowid = "${args.primary}"
+                 AND seller ${admin ? "LIKE '%'" : `= "${user}"`}
                  LIMIT 1`
 
     const listingsSearch = catalogueSearch.run(sql);

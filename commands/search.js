@@ -5,11 +5,12 @@ module.exports = {
   execute(message, args) {
     const logger = require('winston');
     const queryFromFlag = require('../cat_modules/query_from_flag');
-    const catalogueSearch = require('./../cat_modules/search_catalogue');
+    const catalogueSearch = require('../cat_modules/search_catalogue');
     const pluralize = require('pluralize');
 
     function resultMessage(result) {
-      return `• **${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
+      const id = args.flag === 'v' ? `[${result.rowid}] ` : ''
+      return `• ${id}**${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
     }
 
     function botSearchResults(results) {
@@ -24,7 +25,7 @@ module.exports = {
       args.primary = args.primary.substring(1);
     }
 
-    const sql = `SELECT * FROM listings
+    const sql = `SELECT rowid, * FROM listings
                  WHERE LOWER(${queryFromFlag.run(args.flag)})
                  LIKE LOWER("%${args.primary.replace('*', '')}%")`
 

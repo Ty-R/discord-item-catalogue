@@ -1,6 +1,6 @@
 exports.run = (sql) => {
   const logger = require('winston');
-  const sqlite = require('./../cat_modules/db');
+  const sqlite = require('./db');
   const db = sqlite.load();
 
   logger.info(sql)
