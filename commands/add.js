@@ -2,7 +2,7 @@ module.exports = {
   name: 'add',
   usage: '!cat add [item]:[price]',
   execute(message, args) {
-    const sqlite = require('./../cat_modules/db');
+    const sqlite = require('../cat_modules/db');
     const db = sqlite.load();
     const user = message.author.username;
 

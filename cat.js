@@ -1,4 +1,4 @@
-const { prefix, token } = require('./config.json');
+const { prefix, token, admin_ids } = require('./config.json');
 const inputParse  = require('./cat_modules/parse_input');
 const db          = require('./cat_modules/db');
 const Discord     = require('discord.js');
@@ -28,6 +28,12 @@ client.on('message', message => {
   const action = client.commands.get(args.action);
 
   if (!action.valid(args)) return invalidArgsReason(message, action.usage);
+
+  // if (!admin_ids.includes(message.author.id)) {
+  //   message.channel.send(`**In dev** Sorry, ${message.author.username}. I'm a local bot for development purposes so the catalogue is currently unavailalble.`);
+
+  //   return;
+  // }
 
   try {
     action.execute(message, args);

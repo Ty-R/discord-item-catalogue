@@ -3,9 +3,9 @@ module.exports = {
   usage: '!cat update [option] [item]:[term]',
   execute(message, args) {
     const logger = require('winston');
-    const catalogueSearch = require('./../cat_modules/search_catalogue');
+    const catalogueSearch = require('../cat_modules/search_catalogue');
     const queryFromFlag = require('../cat_modules/query_from_flag');
-    const sqlite = require('./../cat_modules/db');
+    const sqlite = require('../cat_modules/db');
     const db = sqlite.load();
     const user = message.author.username;
 
