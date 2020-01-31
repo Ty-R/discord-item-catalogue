@@ -19,7 +19,7 @@ exports.run = (message, commands) => {
   const args = {};
   const actions = commands.map(c => c.name);
 
-  const re = `!cat (${actions.join('|')})\\s?(\\-(.)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
+  const re = `!cat (${actions.join('|')})\\s?(\\-(.*)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.match(re);
   
   if (!matchedArgs) return args;
