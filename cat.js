@@ -27,13 +27,11 @@ client.on('message', message => {
 
   const action = client.commands.get(args.action);
 
+  if (action.adminLocked) {
+    if (!admin(message.author)) return;
+  }
+
   if (!action.valid(args)) return invalidArgsReason(message, action.usage);
-
-  // if (!admin_ids.includes(message.author.id)) {
-  //   message.channel.send(`**In dev** Sorry, ${message.author.username}. I'm a local bot for development purposes so the catalogue is currently unavailalble.`);
-
-  //   return;
-  // }
 
   try {
     action.execute(message, args);
@@ -42,6 +40,10 @@ client.on('message', message => {
     message.channel.send("Oops.. something went wrong. Please notify the author with how you did this :slight_smile:");
   }
 });
+
+function admin(user) {
+  return admin_ids.includes(`${user.id}`);
+}
 
 function promptHelp(message) {
   const user = message.author.username;

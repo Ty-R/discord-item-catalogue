@@ -1,7 +1,6 @@
 module.exports = {
   name: 'search',
   usage: '!cat search [option] [item]',
-  description: 'test',
   execute(message, args) {
     const logger = require('winston');
     const queryFromFlag = require('../cat_modules/query_from_flag');
@@ -9,8 +8,15 @@ module.exports = {
     const pluralize = require('pluralize');
 
     function resultMessage(result) {
-      const id = args.flag === 'v' ? `[${result.rowid}] ` : ''
-      return `• ${id}**${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
+      return `• **${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
+    }
+
+    function detailedResultMessage(result) {
+      return `• [**id:** ${result.rowid}, **owner:** ${result.seller}] **${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
+    }
+
+    function verbose() {
+      return (args.flag && args.flag.includes('v'))
     }
 
     function botSearchResults(results) {
@@ -35,7 +41,7 @@ module.exports = {
       let messageCap = `Hi, ${message.author.username}! That ${queryFromFlag.run(args.flag)} search returned ${pluralize('result', results.length, true)} \n\n`;
 
       results.forEach(result => {
-        listing = resultMessage(result);
+        listing = verbose() ? detailedResultMessage(result) : resultMessage(result);
         if ((messageCap.length + listing.length) <= 2000) {
           messageCap = messageCap + listing;
         } else {

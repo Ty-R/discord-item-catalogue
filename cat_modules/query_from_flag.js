@@ -1,5 +1,8 @@
 exports.run = (flag) => {
-  switch(flag) {
+  if (!flag) return 'item';
+  const focusFlag = flag.replace(/v/, '');
+
+  switch(focusFlag) {
     case 's': // (s)eller
       return 'seller';
     case 'u': // (u)ser (seller alt)
