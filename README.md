@@ -71,7 +71,7 @@ For example to remove a book listing you created:
 
 May result in a listing like:
 
-`* [id: 1, owner: Bob] [Shop|user] is selling [item] for [price]`
+`* [id: 1, owner: Bob] Bob's shop is selling 5 books for 1 gold`
 
 This flag can be stacked with the focus flags, for example:
 
