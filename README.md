@@ -60,3 +60,37 @@ The simplest way to remove a listing, is:
 For example to remove a book listing you created:
 
 `!cat remove book`
+
+# Advanced usage
+
+### Detailed search
+
+`v` is an additional flag that can be passed to the search command for a more detailed output. The output is the same but it is prepended with the ID and owner of the listing, for example:
+
+`!cat search -v book`
+
+May result in a listing like:
+
+`* [id: 1, owner: Bob] [Shop|user] is selling [item] for [price]`
+
+This flag can be stacked with the focus flags, for example:
+
+* Detailed item search `!cat search -v book`
+* Detailed user search`!cat search -vu Bob`
+* Detailed location search: `!cat search -vl spawn`
+
+## Removal of listings owned by another user
+
+Admins skip the owner check when removing listings. This is so that inappropriate listings, or listings owned by an inactive user, can be removed. The remove command is identical to the existing one but admins may want to use the IDs instead of item names:
+
+`!cat remove [listing id]`
+
+## Purging a user
+
+If an inactive user has many listings then we can purge them from the catalogue. This is an admin-locked command:
+
+`!cat purge [username]`
+
+## Adding admins
+
+A user can be made an admin by adding their Discord user ID to the config.
