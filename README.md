@@ -79,18 +79,22 @@ This flag can be stacked with the focus flags, for example:
 * Detailed user search`!cat search -vu Bob`
 * Detailed location search: `!cat search -vl spawn`
 
-## Removal of listings owned by another user
+### Removal of listings owned by another user
 
 Admins skip the owner check when removing listings. This is so that inappropriate listings, or listings owned by an inactive user, can be removed. The remove command is identical to the existing one but admins may want to use the IDs instead of item names:
 
 `!cat remove [listing id]`
 
-## Purging a user
+### Purging a user
 
 If an inactive user has many listings then we can purge them from the catalogue. This is an admin-locked command:
 
 `!cat purge [username]`
 
-## Adding admins
+### Adding admins
 
 A user can be made an admin by adding their Discord user ID to the config.
+
+# Help output
+
+`!cat help` will return a message defined in a file called `help.json`. This file doesn't exist by default so it'll need creating. Refer to the Discord API for information on what should be in this file (embedded message), but a file called `help.json.example` would be a good starting point.
