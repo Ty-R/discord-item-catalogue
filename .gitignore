@@ -2,3 +2,4 @@ config.json
 node_modules/
 db/catalogue.db
 cata.log
+help.json
