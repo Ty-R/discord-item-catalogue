@@ -63,11 +63,11 @@ The flags in this case are similar to the ones used in searching:
 * `-p` - updates the price of the item
 * `-l` - updates the location of the item
 
-Let's say you - Bob - have an existing listing where you're selling 32 books for 10 gold at spawn, and the ID of that listing is 10. You'd update each field by for example:
+Let's say you have a listing where you're selling 32 books for 10 gold at spawn, and the ID of that listing is 10. You'd update each field by for example:
 
 * Updating the item: `!cat update -i 10 : 64 books`
 * Updating the price: `!cat update -p 10 : 20 gold`
-* Updating the loction: `!cat update -l 10 :plot 5`
+* Updating the loction: `!cat update -l 10 : plot 5`
 
 ### Removing a listing
 
