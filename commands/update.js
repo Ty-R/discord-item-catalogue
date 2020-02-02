@@ -1,6 +1,6 @@
 module.exports = {
   name: 'update',
-  usage: '!cat update [option] [item]:[term]',
+  usage: '!cat update [option] [listing ID]:[updated value]',
   execute(message, args) {
     const logger = require('winston');
     const catalogueSearch = require('../cat_modules/search_catalogue');
