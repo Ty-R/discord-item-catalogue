@@ -3,7 +3,6 @@ module.exports = {
   usage: '!cat remove [listing ID]',
   execute(message, args) {
     const logger = require('winston');
-    const catalogueSearch = require('../cat_modules/search_catalogue');
     const sqlite = require('../cat_modules/db');
     const { admin_ids } = require('../config.json');
     const db = sqlite.load();
