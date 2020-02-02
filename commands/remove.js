@@ -1,6 +1,6 @@
 module.exports = {
   name: 'remove',
-  usage: '!cat remove [item]',
+  usage: '!cat remove [listing ID]',
   execute(message, args) {
     const logger = require('winston');
     const catalogueSearch = require('../cat_modules/search_catalogue');
@@ -10,24 +10,22 @@ module.exports = {
     const user = message.author.username;
     const admin = admin_ids.includes(message.author.id);
 
-    const sql = `SELECT rowid, '*' FROM listings
-                 WHERE item = "${args.primary}" OR rowid = "${args.primary}"
-                 AND seller ${admin ? "LIKE '%'" : `= "${user}"`}
-                 LIMIT 1`
+    const ids = args.primary.split(', ')
 
-    const listingsSearch = catalogueSearch.run(sql);
+    const sql = `DELETE FROM listings
+                 WHERE rowid in (${ids})
+                 AND seller ${admin ? "LIKE '%'" : `= "${user}"`}`
 
-    listingsSearch.then((listings) => {
-      if (listings.length) {
-        db.run(`DELETE FROM listings
-                WHERE rowid = ${listings[0].rowid}`, (err) => {
-          if (err) logger.error(err);
-          message.channel.send(`Hi, ${user}! I've removed your **${args.primary}** listing`);
-        });
+    db.run(sql, function(err) {
+      if (err) logger.error(err);
+      if (this.changes === 1) {
+        message.channel.send(`Hi, ${user}! I've removed that listing for you.`);
+      } else if (this.changes > 1) {
+        message.channel.send(`Hi, ${user}! I've removed those listings for you.`);
       } else {
-        message.channel.send(`Hi, ${user}! I couldn't find a listing for **${args.primary}** that belongs to you.`);
+        message.channel.send(`Sorry, ${user}. I couldn't find any listings that belonged to you with the IDs given.`);
       }
-    }).catch((err) => logger.error(err));
+    });
   },
 
   valid(args) {

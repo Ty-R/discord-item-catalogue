@@ -21,23 +21,29 @@ db.connect('./db/catalogue.db');
 
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
-
   const args = inputParse.run(message.content, client.commands);
-  if (!client.commands.has(args.action)) return promptHelp(message);
-
   const action = client.commands.get(args.action);
+
+  if (!action) {
+    return promptHelp(message);
+  }
 
   if (action.adminLocked) {
     if (!admin(message.author)) return;
   }
 
-  if (!action.valid(args)) return invalidArgsReason(message, action.usage);
+  // "valid" is determined by the presence of primary and secondary arg values.
+  // If adding a listing we need both primary and secondary (item, price).
+  // If removing we only need the primary (ID).
+  if (!action.valid(args)) {
+    return invalidArgsReason(message, action.usage);
+  }
 
   try {
     action.execute(message, args);
   } catch (error) {
     logger.info(`${error}`);
-    message.channel.send("Oops.. something went wrong. Please notify the author with how you did this :slight_smile:");
+    message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
   }
 });
 
@@ -47,7 +53,7 @@ function admin(user) {
 
 function promptHelp(message) {
   const user = message.author.username;
-  message.channel.send(`Hi, ${user}! I don't understand that. See \`!cat help\` for more usage information.`);
+  message.channel.send(`Sorry, ${user}. I don't understand that. See \`!cat help\` for more usage information.`);
 }
 
 function invalidArgsReason(message, usage) {
