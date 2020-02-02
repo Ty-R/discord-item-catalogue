@@ -31,36 +31,6 @@ Some examples:
 * Searching for all listings by a user called Bob: `!cat search -u Bob`
 * Searching for all listings for items sold at spawn: `!cat search -l spawn`
 
-### Updating a listing
-
-Updating a listing takes 3 parts:
-
-1. The flag - used to specify which part of the listing to update (item name, price, location etc.)
-2. The item - the existing name of the item to update
-3. The new value - this value will be applied to the field specified using the flag
-
-The flags in this case are similar to the ones used in searching:
-
-* `-i` - updates the name of the item
-* `-p` - updates the price of the item
-* `-l` - updates the location of the item
-
-Let's say you have an existing listing where you're selling 32 books for 10 gold at spawn, to update these fields:
-
-* Updating the item: `!cat update -i 32 books:64 books`
-* Updating the price: `!cat update -p 64 books:20 gold`
-* Updating the loction: `!cat update -l 64 books:plot 5`
-
-### Removing a listing
-
-The simplest way to remove a listing, is:
-
-`!cat remove [item]`
-
-For example to remove a book listing you created:
-
-`!cat remove book`
-
 # Advanced usage
 
 ### Detailed search
@@ -78,6 +48,38 @@ This flag can be stacked with the focus flags, for example:
 * Detailed item search `!cat search -v book`
 * Detailed user search`!cat search -vu Bob`
 * Detailed location search: `!cat search -vl spawn`
+
+### Updating a listing
+
+Updating a listing takes 3 parts:
+
+1. The flag - used to specify which part of the listing to update (item name, price, location etc.)
+2. The listing ID - obtainable through the detailed search
+3. The new value - this value will be applied to the field specified using the flag
+
+The flags in this case are similar to the ones used in searching:
+
+* `-i` - updates the name of the item
+* `-p` - updates the price of the item
+* `-l` - updates the location of the item
+
+Let's say you - Bob - have an existing listing where you're selling 32 books for 10 gold at spawn, and the ID of that listing is 10. You'd update each field by for example:
+
+* Updating the item: `!cat update -i 10 : 64 books`
+* Updating the price: `!cat update -p 10 : 20 gold`
+* Updating the loction: `!cat update -l 10 :plot 5`
+
+### Removing a listing
+
+The simplest way to remove a listing, is:
+
+`!cat remove [listing ID]`
+
+## Bulk removal
+
+Sometimes you may want to remove many listings at once. This can be done with a comma-separated list of listing IDs, for example:
+
+`!cat remove 1, 2, 3` would remove listings with IDs of 1, 2, and 3.
 
 ### Removal of listings owned by another user
 
