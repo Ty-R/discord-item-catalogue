@@ -5,6 +5,8 @@ module.exports = {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
     const db = require('../cat_modules/db').load();
 
+    const ids = args.primary.split(',')
+
     let sql = `UPDATE listings
                SET ${fieldFromFlag.run(args.flag)} = ?
                WHERE rowid = "${args.primary}"
