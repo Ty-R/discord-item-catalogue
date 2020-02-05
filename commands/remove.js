@@ -6,7 +6,7 @@ module.exports = {
     const sqlite = require('../cat_modules/db');
     const db = sqlite.load();
 
-    const ids = args.primary.split(', ');
+    const ids = args.primary.split(', ').map(id => `"${id}"`);
     const sql = `DELETE FROM listings
                  WHERE rowid in (${ids})
                  AND seller ${userIsAdmin.run(args.userId) ? "LIKE '%'" : `= "${args.user}"`}`;
