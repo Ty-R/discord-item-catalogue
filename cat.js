@@ -1,8 +1,9 @@
-const { prefix, token, admin_ids } = require('./config.json');
-const inputParse  = require('./cat_modules/parse_input');
-const db          = require('./cat_modules/db');
-const Discord     = require('discord.js');
-const fs          = require('fs');
+const { prefix, token } = require('./config.json');
+const userIsAdmin = require('./cat_modules/admin_check');
+const inputParse = require('./cat_modules/parse_input');
+const Discord = require('discord.js');
+const db = require('./cat_modules/db');
+const fs = require('fs');
 
 let logger = require('./logger'); 
     logger = require('winston'); // requiring the file above runs the code to create a default logger
@@ -21,44 +22,75 @@ db.connect('./db/catalogue.db');
 
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
-  const args = inputParse.run(message.content, client.commands);
+  const args = inputParse.run(message, client.commands);
   const action = client.commands.get(args.action);
 
   if (!action) {
-    return promptHelp(message);
+    return promptHelp(message.channel, args.user);
   }
 
   if (action.adminLocked) {
-    if (!admin(message.author)) return;
+    if (!userIsAdmin.run(args.userId)) {
+      return promptHelp(message.channel, args.user);
+    }
   }
 
-  // "valid" is determined by the presence of primary and secondary arg values.
-  // If adding a listing we need both primary and secondary (item, price).
-  // If removing we only need the primary (ID).
   if (!action.valid(args)) {
-    return invalidArgsReason(message, action.usage);
+    return replyTo(message.channel, args.user, {
+      success: false,
+      message: `Here's how you use that \`${ action.usage}\`. See \`${prefix} help\` for more usage information.`
+    });
   }
 
   try {
-    action.execute(message, args);
+    action.execute(args).then((result) => {
+      replyTo(message.channel, args.user, result);
+    }).catch((err) => {
+      logger.info(err)
+    });
   } catch (error) {
     logger.info(`${error}`);
     message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
   }
 });
 
-function admin(user) {
-  return admin_ids.includes(`${user.id}`);
+function promptHelp(channel, user) {
+  replyTo(channel, user, {
+    success: false,
+    message: `I don't understand that. See \`${prefix} help\` for more usage information.`
+  });
 }
 
-function promptHelp(message) {
-  const user = message.author.username;
-  message.channel.send(`Sorry, ${user}. I don't understand that. See \`!cat help\` for more usage information.`);
+function segmentedResponse(responseMessage) {
+  const segments = [];
+  let currentMessage = '';
+  messageLines = responseMessage.split("\n");
+
+  messageLines.forEach(line => {
+    line 
+    if ((currentMessage.length + line.length) <= 2000) {
+      currentMessage = currentMessage + line + "\n";
+    } else {
+      segments.push(currentMessage);
+      currentMessage = '';
+    }
+  });
+
+  segments.push(currentMessage);
+  return segments;
 }
 
-function invalidArgsReason(message, usage) {
-  const user = message.author.username;
-  message.channel.send(`Hi, ${user}! Here's how you use that \`${usage}\`. See \`!cat help\` for more usage information.`);
+function messageStart(actionSuccess, user) {
+  return actionSuccess ? `Hi, ${user}! ` : `Sorry, ${user}. `
+}
+
+function replyTo(channel, user, result) {
+  if (typeof(result.message) === 'string') {
+    result.message = messageStart(result.success, user) + result.message;
+    segmentedResponse(result.message).forEach(response => channel.send(response));
+  } else {
+    channel.send(result.message);
+  }
 }
 
 client.login(token);

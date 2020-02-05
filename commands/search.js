@@ -1,61 +1,54 @@
 module.exports = {
   name: 'search',
   usage: '!cat search [option] [item]',
-  execute(message, args) {
-    const logger = require('winston');
-    const queryFromFlag = require('../cat_modules/query_from_flag');
-    const catalogueSearch = require('../cat_modules/search_catalogue');
+  execute(args) {
+    const fieldFromFlag = require('../cat_modules/field_from_flag');
     const pluralize = require('pluralize');
+    const sqlite = require('../cat_modules/db');
+    const db = sqlite.load();
 
-    function resultMessage(result) {
-      return `• **${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
-    }
-
-    function detailedResultMessage(result) {
-      return `• [**id:** ${result.rowid}, **owner:** ${result.seller}] **${result.location || result.seller}** is selling **${result.item}** for **${result.price}**` + "\n";
-    }
-
-    function verbose() {
-      return (args.flag && args.flag.includes('v'))
-    }
-
-    function botSearchResults(results) {
-      return {
-        resultCount: results.length,
-        results: results.map(result => resultMessage(result)).join("\n"),
-      };
-    }
+    const field = fieldFromFlag.run(args.flag);
 
     if (args.primary.startsWith('@')) {
-      args.flag = 'l'
+      args.flag = 'l';
       args.primary = args.primary.substring(1);
     }
 
     const sql = `SELECT rowid, * FROM listings
-                 WHERE LOWER(${queryFromFlag.run(args.flag)})
+                 WHERE LOWER(${field})
                  LIKE LOWER("%${args.primary.replace('*', '')}%")`
 
-    catalogueSearch.run(sql).then((results) => {
-      let listing;
-      const multiMessage = [];
-      let messageCap = `Hi, ${message.author.username}! That ${queryFromFlag.run(args.flag)} search returned ${pluralize('result', results.length, true)} \n\n`;
+    function resultMessage(result) {
+      const details = `[**id:** ${result.rowid}, **owner:** ${result.seller}] `;
+      let response = `**${result.location || result.seller}** is selling **${result.item}** for **${result.price}**`;
 
-      results.forEach(result => {
-        listing = verbose() ? detailedResultMessage(result) : resultMessage(result);
-        if ((messageCap.length + listing.length) <= 2000) {
-          messageCap = messageCap + listing;
-        } else {
-          multiMessage.push(messageCap);
-          messageCap = '';
-        }
+      if (verbose()) {
+        response = details + response;
+      }
+
+      return `• ${response}`;
+    }
+
+    function verbose() {
+      return (args.flag && args.flag.includes('v'));
+    }
+
+    const actionResult = new Promise((resolve, reject) => {
+      db.all(sql, (err, listings) => {
+        if (err) reject(err);
+
+        listings = listings.map((listing) => {
+          return resultMessage(listing);
+        });
+
+        resolve({
+          success: true,
+          message: `That ${field} search returned ${pluralize('result', listings.length, true)} \n\n${listings.join("\n")}`
+        });
       });
+    });
 
-      multiMessage.push(messageCap);
-
-      multiMessage.forEach(messagePart => {
-        message.channel.send(messagePart);
-      })
-    }).catch((err) => logger.info(err));
+    return actionResult;
   },
 
   valid(args) {
