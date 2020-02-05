@@ -16,11 +16,15 @@ exports.run = (message, commands) => {
     return args;
   }
 
-  const args = {};
+  const args = {
+    user: message.author.username,
+    userId: message.author.id
+  };
+
   const actions = commands.map(c => c.name);
 
   const re = `!cat (${actions.join('|')})\\s?(\\-(.\\w?)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
-  const matchedArgs = message.match(re);
+  const matchedArgs = message.content.match(re);
   
   if (!matchedArgs) return args;
 
