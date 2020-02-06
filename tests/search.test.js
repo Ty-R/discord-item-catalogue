@@ -32,27 +32,21 @@ describe('Searching', () => {
     return search.execute(args).then(result => expect(result.message).toMatch('That item search returned 0 results'));
   });
 
+  it('should return item results if no flag is given', () => {
+    args.primary = 'book';
+    return search.execute(args).then(result => expect(result.message).toMatch(/That item search returned/));
+  });
+
   it('should return detailed results if -v is given', () => {
     args.primary = 'book';
     args.flag = 'v';
     return search.execute(args).then(result => expect(result.message).toMatch(/id:/));
   });
 
-  it('should return item results if no flag is given', () => {
-    args.primary = 'book';
-    return search.execute(args).then(result => expect(result.message).toMatch(/That item search returned/));
-  });
-
   it('should return user results if -u is given', () => {
     args.primary = 'book';
     args.flag = 'u';
     return search.execute(args).then(result => expect(result.message).toMatch(/That seller search returned/));
-  });
-
-  it('should return location results if -l is given', () => {
-    args.primary = 'book';
-    args.flag = 'l';
-    return search.execute(args).then(result => expect(result.message).toMatch(/That location search returned/));
   });
 
   it('should return location results if -l is given', () => {
