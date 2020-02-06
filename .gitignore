@@ -1,5 +1,5 @@
 config.json
 node_modules/
-db/catalogue.db
+db/*.db
 cata.log
 help.json
