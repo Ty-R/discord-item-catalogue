@@ -1,19 +1,5 @@
 const add = require('../commands/add');
-const sqlite = require('../cat_modules/db');
-const dbFile = 'db/catalogue_test.db';
-
-sqlite.connect(dbFile);
-const db = sqlite.load();
-
-beforeAll(() => {
-  const sql = `INSERT INTO listings (seller, item, price, location)
-               VALUES (?, ?, ?, ?)`;
-  db.run(sql, ['User', '1 book', '5 gold', 'plot 5']);
-});
-
-afterAll(() => {
-  db.run('DELETE FROM listings');
-});
+require('./test.setup')
 
 describe('Adding', () => {
   const args = {

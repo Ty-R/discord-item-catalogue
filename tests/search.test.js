@@ -1,29 +1,15 @@
 const search = require('../commands/search');
-const sqlite = require('../cat_modules/db');
-const dbFile = 'db/catalogue_test.db';
-
-sqlite.connect(dbFile);
-const db = sqlite.load();
-
-beforeAll(() => {
-  const sql = `INSERT INTO listings (seller, item, price, location)
-               VALUES (?, ?, ?, ?)`;
-  db.run(sql, ['User', '1 book', '5 gold', 'plot 5']);
-});
-
-afterAll(() => {
-  db.run('DELETE FROM listings');
-});
+require('./test.setup')
 
 describe('Searching', () => {
   const args = {
-    user:   'Test User',
+    user:   'User',
     userId: '123',
     action: 'search'
   };
 
   it('should return results if listings are found', () => {
-    args.primary = 'book';
+    args.primary = '1 book';
     return search.execute(args).then(result => expect(result.message).toMatch('That item search returned 1 result'));
   });
 
@@ -32,31 +18,26 @@ describe('Searching', () => {
     return search.execute(args).then(result => expect(result.message).toMatch('That item search returned 0 results'));
   });
 
-  it('should return item results if no flag is given', () => {
-    args.primary = 'book';
-    return search.execute(args).then(result => expect(result.message).toMatch(/That item search returned/));
-  });
-
   it('should return detailed results if -v is given', () => {
     args.primary = 'book';
     args.flag = 'v';
-    return search.execute(args).then(result => expect(result.message).toMatch(/id:/));
+    return search.execute(args).then(result => expect(result.message).toMatch('[**id:** 1, **owner:** User]'));
   });
 
   it('should return user results if -u is given', () => {
-    args.primary = 'book';
+    args.primary = 'User';
     args.flag = 'u';
-    return search.execute(args).then(result => expect(result.message).toMatch(/That seller search returned/));
+    return search.execute(args).then(result => expect(result.message).toMatch('That seller search returned'));
   });
 
   it('should return location results if -l is given', () => {
-    args.primary = 'book';
+    args.primary = 'plot 5';
     args.flag = 'l';
-    return search.execute(args).then(result => expect(result.message).toMatch(/That location search returned/));
+    return search.execute(args).then(result => expect(result.message).toMatch('That location search returned'));
   });
 
-  it('should return location listings if @ is given', () => {
+  it('should return location results if @ is given', () => {
     args.primary = '@plot 5';
-    return search.execute(args).then(result => expect(result.message).toMatch(/That location search returned/));
+    return search.execute(args).then(result => expect(result.message).toMatch('That location search returned'));
   });
 });
