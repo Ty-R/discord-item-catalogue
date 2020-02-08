@@ -75,7 +75,7 @@ The simplest way to remove a listing, is:
 
 `!cat remove [listing ID]`
 
-## Bulk removal
+### Bulk removal
 
 Sometimes you may want to remove many listings at once. This can be done with a comma-separated list of listing IDs, for example:
 
