@@ -16,10 +16,7 @@ exports.run = (message, commands) => {
     return args;
   }
 
-  const args = {
-    user: message.author.username,
-    userId: message.author.id
-  };
+  const args = {};
 
   const actions = commands.map(c => c.name);
 

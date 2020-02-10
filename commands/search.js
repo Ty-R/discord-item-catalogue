@@ -4,8 +4,7 @@ module.exports = {
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
     const pluralize = require('pluralize');
-    const sqlite = require('../cat_modules/db');
-    const db = sqlite.load();
+    const db = require('../cat_modules/db').load();
 
     const field = fieldFromFlag.run(args.flag);
 
@@ -33,7 +32,7 @@ module.exports = {
       return (args.flag && args.flag.includes('v'));
     }
 
-    const actionResult = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       db.all(sql, (err, listings) => {
         if (err) reject(err);
 
@@ -47,8 +46,6 @@ module.exports = {
         });
       });
     });
-
-    return actionResult;
   },
 
   valid(args) {

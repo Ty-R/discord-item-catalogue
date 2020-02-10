@@ -3,10 +3,9 @@ module.exports = {
   adminLocked: true,
   usage: '!cat purge [username]',
   execute(args) {
-    const sqlite = require('../cat_modules/db');
-    const db = sqlite.load();
+    const db = require('../cat_modules/db').load();
 
-    const actionResult = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       db.run(`DELETE FROM listings
               WHERE seller = "${args.primary}"`, function(err) {
         if (err) reject(err);
@@ -23,8 +22,6 @@ module.exports = {
         }
       });
     });
-
-    return actionResult;
   },
 
   valid(args) {

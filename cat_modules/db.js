@@ -2,23 +2,27 @@ const sqlite3 = require('sqlite3').verbose();
 let _db;
 
 module.exports = {
-  connect: function(file) {
+  connect(file) {
     _db = new sqlite3.Database(file, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-      if (err) {
-        console.error(err.message);
-      }
+      _db.run(`CREATE TABLE IF NOT EXISTS users (
+               id         INTEGER PRIMARY KEY,
+               discordId  TEXT,
+               name       TEXT,
+               admin      BOOLEAN)`);
+
       _db.run(`CREATE TABLE IF NOT EXISTS listings (
-               seller   TEXT,
+               id       INTEGER PRIMARY KEY,
                item     TEXT,
                price    TEXT,
+               userId   INTEGER,
                location TEXT,
-               CONSTRAINT unq UNIQUE (seller, item))`);
-      console.log('Catalogue loaded.');
-      return _db;
+               FOREIGN KEY(userId) REFERENCES users(id))`);
     });
+
+    return _db;
   },
 
-  load: function() {
+  load() {
     return _db;
   }
 }
