@@ -1,6 +1,5 @@
 const { prefix, token } = require('./config.json');
 const inputParse = require('./cat_modules/parse_input');
-// const FindOrCreateUser = require('./cat_modules/user_create');
 const Discord = require('discord.js');
 const db = require('./cat_modules/db');
 const fs = require('fs');
@@ -57,42 +56,6 @@ client.on('message', message => {
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
     }
   });
-
-  // ;
-  // const action = client.commands.get(args.action);
-  // let currentUser;
-
-  // user.find(message.author.id)//.then((u) => currentUser = u );
-
-  // // if (!action) {
-  // //   return promptHelp(message.channel, name);
-  // // }
-
-  // // if (action.adminLocked || action.write) {
-  // //   if (currentUser && currentUser.admin) {
-  // //     return promptHelp(message.channel, name);
-  // //   }
-  // // }
-
-  // if (!action.valid(args)) {
-  //   return replyTo(message.channel, name, {
-  //     success: false,
-  //     message: `Here's how you use that \`${action.usage}\`. See \`${prefix} help\` for more usage information.`
-  //   });
-  // }
-
-  // if (action.write && !currentUser) user.create(message.author.id, name);
-
-  // try {
-  //   action.execute(args).then((result) => {
-  //     replyTo(message.channel, name, result);
-  //   }).catch((err) => {
-  //     logger.info(err)
-  //   });
-  // } catch (error) {
-  //   logger.info(`${error}`);
-  //   message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
-  // }
 });
 
 function promptHelp(channel, user) {
