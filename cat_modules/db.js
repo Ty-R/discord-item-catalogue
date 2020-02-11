@@ -8,7 +8,7 @@ module.exports = {
                id         INTEGER PRIMARY KEY,
                discordId  TEXT UNIQUE,
                name       TEXT,
-               admin      BOOLEAN)`);
+               admin      BOOLEAN DEFAULT 0)`);
 
       _db.run(`CREATE TABLE IF NOT EXISTS listings (
                id       INTEGER PRIMARY KEY,
@@ -16,7 +16,9 @@ module.exports = {
                price    TEXT,
                userId   INTEGER,
                location TEXT,
-               FOREIGN KEY(userId) REFERENCES users(id))`);
+               FOREIGN KEY(userId)
+               REFERENCES users(id)
+               ON DELETE CASCADE)`);
     });
 
     return _db;

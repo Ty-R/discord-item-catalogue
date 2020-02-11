@@ -1,22 +1,21 @@
 module.exports = {
   name: 'search',
-  usage: '!cat search [option] [item]',
+  usage: '!cat search [option] [search term]',
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
     const db = require('../cat_modules/db').load();
 
     const field = fieldFromFlag.run(args.flag);
-
-    const sql = `SELECT rowid, * FROM listings
-                 WHERE LOWER(${field})
-                 LIKE LOWER("%${args.primary.replace('*', '')}%")`
-
-
-    // Need some fancy joins here to maintain the level of search that is currently possible. Hm..        
-
+    
+    let sql = `SELECT listings.*, users.name 
+               FROM listings
+               INNER JOIN users on users.id = listings.userId
+               WHERE LOWER(${field})
+               LIKE LOWER("%${args.primary.replace('*', '')}%")` 
+ 
     function resultMessage(result) {
-      const details = `[**id:** ${result.rowid}, **owner:** ${result.seller}] `;
-      let response = `**${result.location || result.seller}** is selling **${result.item}** for **${result.price}**`;
+      const details = `[**id:** ${result.id}, **owner:** ${result.name}] `;
+      let response = `**${result.location || result.name}** is selling **${result.item}** for **${result.price}**`;
 
       if (verbose()) {
         response = details + response;

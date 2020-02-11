@@ -11,7 +11,7 @@ module.exports = {
         if (err) reject(err);
         resolve({ 
           success: true,
-          message: `I've added **${args.primary}** to the catalogue for you with an listing ID of **${this.lastID}**. You'll need this ID to remove or update this listing later.`
+          message: `I've added **${args.primary}** to the catalogue for you with an listing ID of **${this.lastID}**.`
         });
       });
     });

@@ -4,7 +4,7 @@ module.exports = {
   execute(args) {
     const db = require('../cat_modules/db').load();
 
-    const ids = args.primary.split(', ').map(id => `"${id}"`);
+    const ids = args.primary.split(',').map(id => `"${id}"`);
     const sql = `DELETE FROM listings
                  WHERE id in (${ids})
                  AND userId = "${args.user.id}"`;

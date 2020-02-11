@@ -4,9 +4,9 @@ exports.run = (flag) => {
 
   switch(focusFlag) {
     case 's': // (s)eller
-      return 'seller';
+      return 'name';
     case 'u': // (u)ser (seller alt)
-      return 'seller';
+      return 'name';
     case 'i': // (i)tem
       return 'item';
     case 'b': // (b)lock (item alt)
