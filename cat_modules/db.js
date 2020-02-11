@@ -6,7 +6,7 @@ module.exports = {
     _db = new sqlite3.Database(file, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
       _db.run(`CREATE TABLE IF NOT EXISTS users (
                id         INTEGER PRIMARY KEY,
-               discordId  TEXT,
+               discordId  TEXT UNIQUE,
                name       TEXT,
                admin      BOOLEAN)`);
 

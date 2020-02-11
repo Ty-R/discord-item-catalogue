@@ -3,19 +3,16 @@ module.exports = {
   usage: '!cat search [option] [item]',
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
-    const pluralize = require('pluralize');
     const db = require('../cat_modules/db').load();
 
     const field = fieldFromFlag.run(args.flag);
 
-    if (args.primary.startsWith('@')) {
-      args.flag = 'l';
-      args.primary = args.primary.substring(1);
-    }
-
     const sql = `SELECT rowid, * FROM listings
                  WHERE LOWER(${field})
                  LIKE LOWER("%${args.primary.replace('*', '')}%")`
+
+
+    // Need some fancy joins here to maintain the level of search that is currently possible. Hm..        
 
     function resultMessage(result) {
       const details = `[**id:** ${result.rowid}, **owner:** ${result.seller}] `;
@@ -36,14 +33,21 @@ module.exports = {
       db.all(sql, (err, listings) => {
         if (err) reject(err);
 
-        listings = listings.map((listing) => {
-          return resultMessage(listing);
-        });
+        if (listings.length > 0) {
+          listings = listings.map((listing) => {
+            return resultMessage(listing);
+          }).join("\n");
 
-        resolve({
-          success: true,
-          message: `That ${field} search returned ${pluralize('result', listings.length, true)} \n\n${listings.join("\n")}`
-        });
+          resolve({
+            success: true,
+            message: `Here's what I found:\n\n${listings}`
+          });
+        } else {
+          resolve({
+            success: false,
+            message: `That ${field} search returned no results.`
+          });
+        }
       });
     });
   },

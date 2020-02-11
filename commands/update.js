@@ -8,7 +8,7 @@ module.exports = {
     let sql = `UPDATE listings
                SET ${fieldFromFlag.run(args.flag)} = ?
                WHERE rowid = "${args.primary}"
-               AND seller = "${args.user}"`;
+               AND userId = "${args.user.id}"`;
 
     return new Promise((resolve, reject) => {
       db.run(sql, args.secondary, function(err) {

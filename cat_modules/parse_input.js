@@ -1,5 +1,9 @@
 exports.run = (message, commands) => {
   const logger = require('winston');
+  const actions = commands.map(c => c.name);
+  const args = {};
+  const re = `!cat (${actions.join('|')})\\s?(\\-(.\\w?)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
+
   function toSafeString(str) {
     return str.replace(/[^ \w-@*()\[\]_#,\.'’]+/g, '').trim();
   }
@@ -16,11 +20,6 @@ exports.run = (message, commands) => {
     return args;
   }
 
-  const args = {};
-
-  const actions = commands.map(c => c.name);
-
-  const re = `!cat (${actions.join('|')})\\s?(\\-(.\\w?)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
   const matchedArgs = message.content.match(re);
   
   if (!matchedArgs) return args;
