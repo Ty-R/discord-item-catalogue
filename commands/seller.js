@@ -1,15 +1,14 @@
 module.exports = {
-  name: 'delete',
-  adminLocked: true,
-  usage: '!cat delete [listing ID]',
+  name: 'seller',
+  usage: '!cat seller name : [seller name]',
   execute(args) {
     const db = require('../cat_modules/db').load();
-
-    const ids = args.primary.split(',').map(id => `"${id}"`);
+    let sql = `UPDATE users
+               SET name = "${args.secondary}"
+               WHERE discordId = "${args.user.discordId}"`;
 
     return new Promise((resolve, reject) => {
-      db.run(`DELETE FROM listings
-              WHERE rowid in (${ids})`, function(err) {
+      db.run(sql, function(err) {
         if (err) reject(err);
         if (this.changes > 0) {
           resolve({
@@ -19,14 +18,14 @@ module.exports = {
         } else {
           resolve({
             success: false,
-            message: 'No listings were removed. If this was unexpected then double check the IDs given.'
+            message: 'Something went wrong.. please try again, or notify the author if this keeps happening.'
           });
         }
-      });
-    });
+      })
+    })
   },
 
   valid(args) {
-    return !!args.primary;
+    return ['name'].includes(args.primary) && !!args.secondary
   }
 }
