@@ -3,15 +3,14 @@ module.exports = {
   usage: '!cat update [option] [listing ID]:[updated value]',
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
-    const sqlite = require('../cat_modules/db');
-    const db = sqlite.load();
+    const db = require('../cat_modules/db').load();
 
     let sql = `UPDATE listings
                SET ${fieldFromFlag.run(args.flag)} = ?
                WHERE rowid = "${args.primary}"
-               AND seller = "${args.user}"`;
+               AND userId = "${args.user.id}"`;
 
-    const actionResult = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       db.run(sql, args.secondary, function(err) {
         if (err) reject(err);
         if (this.changes > 0) {
@@ -27,8 +26,6 @@ module.exports = {
         }
       });
     });
-
-    return actionResult;
   },
 
   valid(args) {

@@ -1,13 +1,11 @@
 module.exports = {
-  name: 'remove',
-  usage: '!cat remove [listing ID]',
+  name: 'seller',
+  usage: '!cat seller name : [seller name]',
   execute(args) {
     const db = require('../cat_modules/db').load();
-
-    const ids = args.primary.split(',').map(id => `"${id}"`);
-    const sql = `DELETE FROM listings
-                 WHERE id in (${ids})
-                 AND userId = "${args.user.id}"`;
+    let sql = `UPDATE users
+               SET name = "${args.secondary}"
+               WHERE discordId = "${args.user.discordId}"`;
 
     return new Promise((resolve, reject) => {
       db.run(sql, function(err) {
@@ -20,14 +18,14 @@ module.exports = {
         } else {
           resolve({
             success: false,
-            message: "I couldn't find any listings that belonged to you with the IDs given."
+            message: 'Something went wrong.. please try again, or notify the author if this keeps happening.'
           });
         }
-      });
-    });
+      })
+    })
   },
 
   valid(args) {
-    return !!args.primary;
+    return ['name'].includes(args.primary) && !!args.secondary
   }
 }

@@ -1,5 +1,4 @@
 const { prefix, token } = require('./config.json');
-const userIsAdmin = require('./cat_modules/admin_check');
 const inputParse = require('./cat_modules/parse_input');
 const Discord = require('discord.js');
 const db = require('./cat_modules/db');
@@ -20,38 +19,43 @@ for (const file of commandFiles) {
 
 db.connect('./db/catalogue.db');
 
+const user = require('./cat_modules/user');
+
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
+  const name = getRelativeName(message);
   const args = inputParse.run(message, client.commands);
-  const action = client.commands.get(args.action);
 
-  if (!action) {
-    return promptHelp(message.channel, args.user);
-  }
-
-  if (action.adminLocked) {
-    if (!userIsAdmin.run(args.userId)) {
-      return promptHelp(message.channel, args.user);
+  user.findOrCreate(message.author.id, name).then(user => {
+    args.user = user;
+  
+    const action = client.commands.get(args.action);
+    if (!action) {
+      return promptHelp(message.channel, name);
     }
-  }
 
-  if (!action.valid(args)) {
-    return replyTo(message.channel, args.user, {
-      success: false,
-      message: `Here's how you use that \`${ action.usage}\`. See \`${prefix} help\` for more usage information.`
-    });
-  }
+    if (action.adminLocked && !!!user.admin) {
+      return promptHelp(message.channel, name);
+    }
 
-  try {
-    action.execute(args).then((result) => {
-      replyTo(message.channel, args.user, result);
-    }).catch((err) => {
-      logger.info(err)
-    });
-  } catch (error) {
-    logger.info(`${error}`);
-    message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
-  }
+    if (!action.valid(args)) {
+      return replyTo(message.channel, name, {
+        success: false,
+        message: `Here's how you use that \`${action.usage}\`. See \`${prefix} help\` for more usage information.`
+      });
+    }
+
+    try {
+      action.execute(args).then((result) => {
+        replyTo(message.channel, name, result);
+      }).catch((err) => {
+        logger.info(err)
+      });
+    } catch (error) {
+      logger.info(`${error}`);
+      message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
+    }
+  });
 });
 
 function promptHelp(channel, user) {
@@ -82,6 +86,14 @@ function segmentedResponse(responseMessage) {
 
 function messageStart(actionSuccess, user) {
   return actionSuccess ? `Hi, ${user}! ` : `Sorry, ${user}. `
+}
+
+function getRelativeName(message) {
+  if (message.member) {
+    return message.member.nickname || message.author.username;
+  }
+
+  return message.author.username;
 }
 
 function replyTo(channel, user, result) {
