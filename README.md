@@ -69,33 +69,47 @@ Let's say you have a listing where you're selling 32 books for 10 gold at spawn,
 * Updating the price: `!cat update -p 10 : 20 gold`
 * Updating the loction: `!cat update -l 10 : plot 5`
 
-### Removing a listing
+### Removing listings
 
 The simplest way to remove a listing, is:
 
 `!cat remove [listing ID]`
 
-### Bulk removal
+Multiple listings can be removed by adding more IDs:
 
-Sometimes you may want to remove many listings at once. This can be done with a comma-separated list of listing IDs, for example:
+`!cat remove [comma-separated listing IDs]`
 
-`!cat remove 1, 2, 3` would remove listings with IDs of 1, 2, and 3.
+# Admin
 
-### Removal of listings owned by another user
-
-Admins skip the owner check when removing listings. This is so that inappropriate listings, or listings owned by an inactive user, can be removed. The remove command is identical to the existing one but admins may want to use the IDs instead of item names:
-
-`!cat remove [listing id]`
-
-### Purging a user
-
-If an inactive user has many listings then we can purge them from the catalogue. This is an admin-locked command:
-
-`!cat purge [username]`
+An admin user can delete listings owned by another user, and remove users from the catalogue entirely.
 
 ### Adding admins
 
-A user can be made an admin by adding their Discord user ID to the config.
+Only admins can add other admins:
+
+`!cat admin [add|remove] : [Discord ID]`
+
+### Listing users
+
+Returns some information about all users the catalogue currently has:
+
+`!cat users`
+
+### Deleting listings owned by another user
+
+An admin can delete other users' listings by:
+
+`!cat delete [listing id]`
+
+Multiple listings can be removed by adding more IDs:
+
+`!cat delete [comma-separated listing IDs]`
+
+### Removing a user from the catalogue
+
+If a user is no longer active then they, and all their listings, can be removed fom the catalogue:
+
+`!cat purge [Discord ID]`
 
 # Help output
 
