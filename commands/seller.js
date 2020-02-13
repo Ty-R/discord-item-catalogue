@@ -1,6 +1,6 @@
 module.exports = {
   name: 'seller',
-  usage: '!cat seller name : [seller name]',
+  usage: 'seller name : [seller name]',
   execute(args) {
     const db = require('../cat_modules/db').load();
     let sql = `UPDATE users

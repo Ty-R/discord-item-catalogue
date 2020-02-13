@@ -41,7 +41,7 @@ client.on('message', message => {
     if (!action.valid(args)) {
       return replyTo(message.channel, name, {
         success: false,
-        message: `Here's how you use that \`${action.usage}\`. See \`${prefix} help\` for more usage information.`
+        message: `Here's how you use that \`${prefix} ${action.usage}\`. See \`${prefix} help\` for more usage information.`
       });
     }
 

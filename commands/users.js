@@ -1,7 +1,7 @@
 module.exports = {
   name: 'users',
   adminLocked: true,
-  usage: '!cat users',
+  usage: 'users',
   execute(args) {
     const db = require('../cat_modules/db').load();
 

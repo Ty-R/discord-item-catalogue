@@ -1,6 +1,6 @@
 module.exports = {
   name: 'add',
-  usage: '!cat add [item]:[price]',
+  usage: 'add [item]:[price]',
   execute(args) {
     const db = require('../cat_modules/db').load();
     const sql = `INSERT INTO listings (item, price, userId, location)

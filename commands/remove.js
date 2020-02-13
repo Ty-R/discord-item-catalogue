@@ -1,6 +1,6 @@
 module.exports = {
   name: 'remove',
-  usage: '!cat remove [listing ID]',
+  usage: 'remove [listing ID]',
   execute(args) {
     const db = require('../cat_modules/db').load();
 
