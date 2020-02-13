@@ -1,5 +1,19 @@
 # Discord Catalogue Bot
 
+# Setup
+
+1. Clone or download this repository
+2. In the newly created directory, run: `npm install`
+3. Rename `config.json.example` to `config.json` and fill in the fields within it:
+    * Prefix is the command that will trigger the bot
+    * Token is the token of the bot generated in the portal
+4. Rename `help.json.example` to `help.json` and fill in the fields within it
+5. Invite the bot to a server
+
+From here, running: `node cat` in the bot directory will start the bot.
+
+# Usage
+
 Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them.
 
 ### Adding a new listing
@@ -111,6 +125,3 @@ If a user is no longer active then they, and all their listings, can be removed 
 
 `!cat purge [Discord ID]`
 
-# Help output
-
-`!cat help` will return a message defined in a file called `help.json`. This file doesn't exist by default so it'll need creating. Refer to the Discord API for information on what should be in this file (embedded message), but a file called `help.json.example` would be a good starting point.
