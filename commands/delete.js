@@ -1,7 +1,7 @@
 module.exports = {
   name: 'delete',
   adminLocked: true,
-  usage: '!cat delete [listing ID]',
+  usage: 'delete [listing ID]',
   execute(args) {
     const db = require('../cat_modules/db').load();
 

@@ -1,7 +1,7 @@
 module.exports = {
   name: 'purge',
   adminLocked: true,
-  usage: '!cat purge [Discord ID]',
+  usage: 'purge [Discord ID]',
   execute(args) {
     const db = require('../cat_modules/db').load();
 

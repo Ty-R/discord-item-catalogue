@@ -1,7 +1,7 @@
 module.exports = {
   name: 'admin',
   adminLocked: true,
-  usage: '!cat admin [add|remove]:[Discord ID]',
+  usage: 'admin [add|remove]:[Discord ID]',
   execute(args) {
     const db = require('../cat_modules/db').load();
     let sql = `UPDATE users

@@ -1,6 +1,6 @@
 module.exports = {
   name: 'update',
-  usage: '!cat update [option] [listing ID]:[updated value]',
+  usage: 'update [option] [listing ID]:[updated value]',
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
     const db = require('../cat_modules/db').load();

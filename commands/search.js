@@ -1,6 +1,6 @@
 module.exports = {
   name: 'search',
-  usage: '!cat search [option] [search term]',
+  usage: 'search [option] [search term]',
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
     const db = require('../cat_modules/db').load();
