@@ -1,5 +1,7 @@
 # Discord Catalogue Bot
 
+Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to search for them.
+
 # Setup
 
 1. Clone or download this repository
@@ -14,7 +16,7 @@ From here, running: `node cat` in the bot directory will start the bot.
 
 # Usage
 
-Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to query them.
+All commands are run in Discord, and the prefix (`!cat`) may vary depending on the configuration of the bot.
 
 ### Adding a new listing
 
