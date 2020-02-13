@@ -6,11 +6,16 @@ module.exports = {
     const db = require('../cat_modules/db').load();
 
     function formatUser(user) {
-      return `• **id:** ${user.id}, **DiscordID:** ${user.discordId}, **name:** ${user.name}, **admin:** ${user.admin}`;
+      return `• **DiscordID:** ${user.discordId}, **admin:** ${!!user.admin}, **name:** ${user.name}, **listings:** ${user.listings}`;
     }
 
+    const sql = `SELECT users.*, count(listings.id) AS listings
+                 FROM users
+                 LEFT JOIN listings ON listings.userId = users.id
+                 GROUP BY users.id`
+
     return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM users', (err, users) => {
+      db.all(sql, (err, users) => {
         if (err) reject(err);
 
         users = users.map(user => {
