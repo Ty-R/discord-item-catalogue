@@ -1,6 +1,8 @@
 # Discord Catalogue Bot
 
-Catalogue is a bot designed to make it easier to keep track of who is selling what. It allows sellers to add listings, and buyers to search for them.
+Catalogue is a Discord bot for keeping track of items or services being sold by users. Sellers can add 'listings' to the catalogue for what they're selling, how much for, and where, while buyers can search through these listings to find out if what they're looking for is being sold.
+
+One example of how this could be used is for an in-game market/shop system with Discord server advertisements - owners of shops can add their inventories to the catalogue so that users can quickly search without having to visit each shop.
 
 # Setup
 
