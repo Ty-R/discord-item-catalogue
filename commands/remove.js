@@ -1,13 +1,14 @@
 module.exports = {
   name: 'remove',
+  requiredArgs: ['ids'],
   usage: 'remove [listing ID]',
-  execute(args) {
+  execute(args, user) {
     const db = require('../cat_modules/db').load();
 
-    const ids = args.primary.split(',').map(id => `"${id}"`);
+    const ids = args.ids.split(',').map(id => `"${id}"`);
     const sql = `DELETE FROM listings
                  WHERE id in (${ids})
-                 AND userId = "${args.user.id}"`;
+                 AND userId = "${user.id}"`;
 
     return new Promise((resolve, reject) => {
       db.run(sql, function(err) {
@@ -25,9 +26,5 @@ module.exports = {
         }
       });
     });
-  },
-
-  valid(args) {
-    return !!args.primary;
   }
 }

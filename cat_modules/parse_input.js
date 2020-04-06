@@ -1,34 +1,10 @@
-exports.run = (message, commands) => {
-  const logger = require('winston');
-  const actions = commands.map(c => c.name);
-  const args = {};
-  const re = `(${actions.join('|')})\\s?(\\-(.\\w?)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
+exports.run = (message, action) => {
+  const pattern = {
+    "add": "(?<item>[^:]*):(?<price>[^:]*)",
+    "remove": "(?<listing>.*)",
+    "search": "(?<focus>(name|user|listings|seller)\\b)?\\s?(?<term>.*)"
+  }[action]
 
-  function toSafeString(str) {
-    return str.replace(/[^ \w-@*()\[\]_#,\.'’]+/g, '').trim();
-  }
-
-  function tidyArgs(args) {
-    Object.keys(args).forEach((key) => {
-      if (args[key] == null) {
-        delete args[key];
-      } else {
-        args[key] = toSafeString(args[key]);
-      }
-    });
-    logger.info(JSON.stringify(args));
-    return args;
-  }
-
-  const matchedArgs = message.content.match(re);
-  
-  if (!matchedArgs) return args;
-
-  args.action = matchedArgs[1];
-  args.flag = matchedArgs[3]
-  args.primary = matchedArgs[4];
-  args.secondary = matchedArgs[5];
-  args.optional = matchedArgs[6];
-
-  return tidyArgs(args);
+  const args = message.content.match(`${action}\\s+${pattern}`);
+  return args ? args.groups : {};
 }

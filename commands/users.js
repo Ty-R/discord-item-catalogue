@@ -1,6 +1,7 @@
 module.exports = {
   name: 'users',
   adminLocked: true,
+  requiredArgs: [],
   usage: 'users',
   execute(args) {
     const db = require('../cat_modules/db').load();
@@ -28,9 +29,5 @@ module.exports = {
         });
       })
     });
-  },
-
-  valid(args) {
-    return true;
   }
 }

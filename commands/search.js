@@ -1,17 +1,19 @@
 module.exports = {
   name: 'search',
-  usage: 'search [option] [search term]',
+  requiredArgs: ['term'],
+  usage: 'search [search term]',
   execute(args) {
-    const fieldFromFlag = require('../cat_modules/field_from_flag');
     const db = require('../cat_modules/db').load();
 
-    const field = fieldFromFlag.run(args.flag);
+    const focus = args.focus || 'item'
     
     let sql = `SELECT listings.*, users.name 
                FROM listings
                INNER JOIN users on users.id = listings.userId
-               WHERE LOWER(${field})
-               LIKE LOWER("%${args.primary.replace('*', '')}%")` 
+               WHERE LOWER("${focus}")
+               LIKE LOWER("%${args.term.replace('*', '')}%")` 
+
+    console.log(sql)
  
     function resultMessage(result) {
       const details = `[**id:** ${result.id}, **owner:** ${result.name}] `;
@@ -25,11 +27,14 @@ module.exports = {
     }
 
     function verbose() {
-      return (args.flag && args.flag.includes('v'));
+      return true
+      // return (args.flag && args.flag.includes('v'));
     }
 
     return new Promise((resolve, reject) => {
       db.all(sql, (err, listings) => {
+
+        console.log(listings)
         if (err) reject(err);
 
         if (listings.length > 0) {
@@ -44,14 +49,10 @@ module.exports = {
         } else {
           resolve({
             success: false,
-            message: `That ${field} search returned no results.`
+            message: `That ${focus} search returned no results.`
           });
         }
       });
     });
-  },
-
-  valid(args) {
-    return !!args.primary;
   }
 }

@@ -21,24 +21,33 @@ db.connect('./db/catalogue.db');
 
 const user = require('./cat_modules/user');
 
+function actionFromMessage(message) {
+  return client.commands.find(cmd => cmd.name === message.content.match('\\s([^\\s]*\\b)\\s?')[1]);
+}
+
+function requiredArgsMet(givenArgs, requiredArgs) {
+  return requiredArgs.every((arg) => Object.keys(givenArgs).includes(arg));
+}
+
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
   const name = getRelativeName(message);
-  const args = inputParse.run(message, client.commands);
+  const action = actionFromMessage(message);
+
+  if (!action) {
+    return promptHelp(message.channel, name);
+  }
+
+  const args = inputParse.run(message, action.name);
+
+  console.log(args)
 
   user.findOrCreate(message.author.id, name).then(user => {
-    args.user = user;
-  
-    const action = client.commands.get(args.action);
-    if (!action) {
-      return promptHelp(message.channel, name);
-    }
-
     if (action.adminLocked && !!!user.admin) {
       return promptHelp(message.channel, name);
     }
 
-    if (!action.valid(args)) {
+    if (!requiredArgsMet(args, action.requiredArgs)) {
       return replyTo(message.channel, name, {
         success: false,
         message: `Here's how you use that \`${prefix} ${action.usage}\`. See \`${prefix} help\` for more usage information.`
@@ -46,7 +55,7 @@ client.on('message', message => {
     }
 
     try {
-      action.execute(args).then((result) => {
+      action.execute(args, user).then((result) => {
         replyTo(message.channel, name, result);
       }).catch((err) => {
         logger.info(err)

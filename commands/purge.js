@@ -1,13 +1,14 @@
 module.exports = {
   name: 'purge',
   adminLocked: true,
+  requiredArgs: ['discord_id'],
   usage: 'purge [Discord ID]',
   execute(args) {
     const db = require('../cat_modules/db').load();
 
     return new Promise((resolve, reject) => {
       db.run(`DELETE FROM users
-              WHERE discordId = "${args.primary}"`, function(err) {
+              WHERE discordId = "${args.discord_id}"`, function(err) {
         if (err) reject(err);
         if (this.changes > 0) {
           resolve({
@@ -22,9 +23,5 @@ module.exports = {
         }
       });
     });
-  },
-
-  valid(args) {
-    return !!args.primary;
   }
 }

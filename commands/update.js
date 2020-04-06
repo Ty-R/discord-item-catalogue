@@ -1,6 +1,7 @@
 module.exports = {
   name: 'update',
-  usage: 'update [option] [listing ID]:[updated value]',
+  requiredArgs: ['id', 'field', 'value'],
+  usage: 'update [listing ID] [listing field]:[updated value]',
   execute(args) {
     const fieldFromFlag = require('../cat_modules/field_from_flag');
     const db = require('../cat_modules/db').load();
@@ -27,9 +28,5 @@ module.exports = {
         }
       });
     });
-  },
-
-  valid(args) {
-    return !!args.flag && !!args.primary && !!args.secondary;
   }
 }

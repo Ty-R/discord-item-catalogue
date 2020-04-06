@@ -1,14 +1,15 @@
 module.exports = {
   name: 'admin',
   adminLocked: true,
+  requiredArgs: ['action', 'discord_id'],
   usage: 'admin [add|remove]:[Discord ID]',
   execute(args) {
     const db = require('../cat_modules/db').load();
     let sql = `UPDATE users
                SET admin = ?
-               WHERE discordId = "${args.secondary}"`;
+               WHERE discordId = "${args.discord_id}"`;
 
-    const val = args.primary === 'add' ? '1' : '0'
+    const val = args.action === 'add' ? '1' : '0'
 
     return new Promise((resolve, reject) => {
       db.run(sql, val, function(err) {
@@ -26,9 +27,5 @@ module.exports = {
         }
       })
     })
-  },
-
-  valid(args) {
-    return ['add', 'remove'].includes(args.primary) && !!args.secondary
   }
 }

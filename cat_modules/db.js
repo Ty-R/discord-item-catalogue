@@ -28,3 +28,23 @@ module.exports = {
     return _db;
   }
 }
+
+
+// _db.run(`CREATE TABLE IF NOT EXISTS sellers (
+//   id         INTEGER PRIMARY KEY,
+//   name       TEXT,
+//   location   TEXT,
+//   userId     INTEGER,
+//   FOREIGN KEY(userId)
+//   REFERENCES users(id)
+//   ON DELETE CASCADE)`);
+
+// _db.run(`CREATE TABLE IF NOT EXISTS listings (
+//   id       INTEGER PRIMARY KEY,
+//   item     TEXT,
+//   price    TEXT,
+//   sellerId INTEGER,
+//   FOREIGN KEY(sellerId)
+//   REFERENCES sellers(id)
+//   ON DELETE CASCADE)`);
+// });
