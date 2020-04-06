@@ -14,11 +14,13 @@ module.exports = {
         if (err) reject(err);
         if (this.changes > 0) {
           resolve({
+            changes: this.changes,
             success: true,
             message: "That's all done for you."
           });
         } else {
           resolve({
+            changes: this.changes,
             success: false,
             message: "I couldn't find any listings that belonged to you with the IDs given."
           });

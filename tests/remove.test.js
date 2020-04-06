@@ -1,29 +1,74 @@
 const remove = require('../commands/remove');
-require('./test.setup')
+const testHelper = require('./test.setup');
 
-describe('Removing', () => {
-  const args = {
-    user:   'User',
-    action: 'remove'
-  }
+afterEach(() => {
+  return testHelper.cleanDb();
+});
 
-  it('should not allow removing other users listings', () => {
-    args.primary = '4';
-    return remove.execute(args).then(result => expect(result.message).toMatch("I couldn't find any listings that belonged to you with the IDs given."));
+const args = {
+  user: { id: 1, discordId: '1' },
+  primary: '1',
+}
+
+describe("When removing other user's listing", () => {
+  console.log('1')
+  beforeEach(() => {
+    return testHelper.addListings({
+      userId: 2,
+      count: 1
+    });
   });
 
-  it('should allow removing listings the user created', () => {
-    args.primary = '1';
-    return remove.execute(args).then(result => expect(result.message).toMatch("That's all done for you."));
+  it('should respond with an error', () => {
+    return remove.execute(args).then(result => {
+      expect(result.success).toBe(false);
+      expect(result.changes).toBe(0);
+    });
+  });
+});
+
+describe('When removing a listing', () => {
+  console.log('2')
+  beforeEach(() => {
+    return testHelper.addListings({
+      userId: 1,
+      count: 1
+    });
   });
 
-  // it('should allow removing listings in bulk', () => {
-  //   args.primary = '1, 2';
-  //   return remove.execute(args).then(result => expect(result.message).toMatch("That's all done for you."));
-  // });
+  it('should remove one listing', () => {
+    console.log('3')
+    return remove.execute(args).then(result => {
+      expect(result.success).toBe(true);
+      expect(result.changes).toBe(1);
+    });
+  });
+});
 
-  it('should handle IDs belonging to no listing', () => {
-    args.primary = '10000';
-    return remove.execute(args).then(result => expect(result.message).toMatch("I couldn't find any listings that belonged to you with the IDs given."));
+describe('When removing two listings at once', () => {
+  console.log('4')
+  beforeEach(() => {
+    return testHelper.addListings({
+      userId: 1,
+      count: 2
+    });
+  });
+
+  it('should remove both listings', () => {
+    args.primary = '1, 2';
+    return remove.execute(args).then(result => {
+      expect(result.success).toBe(true);
+      expect(result.changes).toBe(2);
+    });
+  });
+});
+
+describe("When removing a listing that doesn't exist", () => {
+  console.log('5')
+  it('should respond with an error', () => {
+    return remove.execute(args).then(result => {
+      expect(result.success).toBe(false);
+      expect(result.changes).toBe(0);
+    });
   });
 });

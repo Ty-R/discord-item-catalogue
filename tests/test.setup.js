@@ -3,13 +3,33 @@ const sqlite = require('../cat_modules/db');
 
 const db = sqlite.load();
 
-beforeAll(() => {
-  const sql = `INSERT INTO listings (seller, item, price, location)
-               VALUES (?, ?, ?, ?)`;
-  db.run(sql, ['User', '1 book', '5 gold', 'plot 5']);
-  db.run(sql, ['User2', '2 candles', '1 gold', 'plot 1']);
-});
+module.exports = {
+   addUserByDiscordId(discordId) {
+    const sql = `INSERT INTO users (discordId, name)
+                 VALUES (?, ?)`;
 
-afterAll(() => {
-  db.run('DELETE FROM listings');
-});
+    db.run(sql, [discordId, 'User']);  
+  },
+
+  addListing(userId) {
+    const sql = `INSERT INTO listings (item, price, location, userId)
+                 VALUES (?, ?, ?, ?)`;
+    db.run(sql, ['1 book', '5 gold', 'plot 5', userId])
+  },
+
+  addListings(data) {
+    return new Promise((resolve) => {
+      for (let step = 0; step <= data.count; step++) {
+        module.exports.addListing(data.userId)
+      }
+      resolve();
+    })
+  },
+
+  async cleanDb() {
+    await Promise.resolve(
+      db.run('DELETE FROM users'),
+      db.run('DELETE FROM listings')
+    )
+  }
+}
