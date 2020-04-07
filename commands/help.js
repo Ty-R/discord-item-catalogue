@@ -7,9 +7,5 @@ module.exports = {
       success: true,
       message: description
     });
-  },
-
-  valid(args) {
-    return true;
   }
 }

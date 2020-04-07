@@ -1,28 +1,15 @@
-// module.exports = {
-//   name: 'seller',
-//   requiredArgs: [],
-//   usage: 'seller name : [seller name]',
-//   execute(args) {
-//     const db = require('../cat_modules/db').load();
-//     let sql = `UPDATE users
-//                SET name = "${args.secondary}"
-//                WHERE discordId = "${args.user.discordId}"`;
+const db = require('../cat_modules/db').load();
 
-//     return new Promise((resolve, reject) => {
-//       db.run(sql, function(err) {
-//         if (err) reject(err);
-//         if (this.changes > 0) {
-//           resolve({
-//             success: true,
-//             message: "That's all done for you."
-//           });
-//         } else {
-//           resolve({
-//             success: false,
-//             message: 'Something went wrong.. please try again, or notify the author if this keeps happening.'
-//           });
-//         }
-//       })
-//     })
-//   }
-// }
+module.exports = {
+  name: 'seller',
+  subCommands: {
+    list: {
+    },
+    add: {
+    },
+    remove: {
+    },
+    inventory: {
+    }
+  }
+}

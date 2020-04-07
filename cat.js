@@ -1,5 +1,6 @@
 const { prefix, token } = require('./config.json');
 const inputParse = require('./cat_modules/parse_input');
+const inputValidate = require('./cat_modules/validate_input');
 const Discord = require('discord.js');
 const db = require('./cat_modules/db');
 const fs = require('fs');
@@ -21,45 +22,35 @@ db.connect('./db/catalogue.db');
 
 const user = require('./cat_modules/user');
 
-function actionFromMessage(message) {
-  return client.commands.find(cmd => cmd.name === message.content.match('\\s([^\\s]*\\b)\\s?')[1]);
-}
-
-function requiredArgsMet(givenArgs, requiredArgs) {
-  return requiredArgs.every((arg) => Object.keys(givenArgs).includes(arg));
-}
-
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
   const name = getRelativeName(message);
-  const action = actionFromMessage(message);
+  const input = inputParse.run(message);
 
-  if (!action) {
+  const command = client.commands.get(input.command);
+  if (!command) {
     return promptHelp(message.channel, name);
   }
 
-  const args = inputParse.run(message, action.name);
+  const subCommand = command.subCommands[input.subCommand];
+  if (!subCommand) {
+    return promptHelp(message.channel, name);
+  }
 
-  console.log(args)
-
+  const argsMet = inputValidate.run(input.args, subCommand);
+  if (!argsMet) {
+    return replyTo(message.channel, name, {
+      success: false,
+      message: `Here's how you use that \`${prefix} ${subCommand.usage}\`. See \`${prefix} help\` for more usage information.`
+    });
+  }
   user.findOrCreate(message.author.id, name).then(user => {
     if (action.adminLocked && !!!user.admin) {
-      return promptHelp(message.channel, name);
-    }
-
-    if (!requiredArgsMet(args, action.requiredArgs)) {
-      return replyTo(message.channel, name, {
-        success: false,
-        message: `Here's how you use that \`${prefix} ${action.usage}\`. See \`${prefix} help\` for more usage information.`
-      });
+      // return promptHelp(message.channel, name);
     }
 
     try {
-      action.execute(args, user).then((result) => {
-        replyTo(message.channel, name, result);
-      }).catch((err) => {
-        logger.info(err)
-      });
+      // do the thing
     } catch (error) {
       logger.info(`${error}`);
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
