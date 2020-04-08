@@ -1,12 +1,14 @@
 const { prefix, token } = require('./config.json');
 const inputParse = require('./cat_modules/parse_input');
-const inputValidate = require('./cat_modules/validate_input');
+const validator = require('./cat_modules/validator');
+const responder = require('./cat_modules/responder');
 const Discord = require('discord.js');
-const db = require('./cat_modules/db');
 const fs = require('fs');
-
 let logger = require('./logger'); 
     logger = require('winston'); // requiring the file above runs the code to create a default logger
+const db = require('./cat_modules/db');
+      db.connect('./db/catalogue.db');
+const user = require('./cat_modules/user');
 
 const client = new Discord.Client();
       client.commands = new Discord.Collection();
@@ -18,39 +20,19 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-db.connect('./db/catalogue.db');
-
-const user = require('./cat_modules/user');
-
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
-  const name = getRelativeName(message);
+  const username = getRelativeName(message);
   const input = inputParse.run(message);
 
-  const command = client.commands.get(input.command);
-  if (!command) {
-    return promptHelp(message.channel, name);
-  }
-
-  const subCommand = command.subCommands[input.subCommand];
-  if (!subCommand) {
-    return promptHelp(message.channel, name);
-  }
-
-  const argsMet = inputValidate.run(input.args, subCommand);
-  if (!argsMet) {
-    return replyTo(message.channel, name, {
-      success: false,
-      message: `Here's how you use that \`${prefix} ${subCommand.usage}\`. See \`${prefix} help\` for more usage information.`
-    });
-  }
-  user.findOrCreate(message.author.id, name).then(user => {
-    if (action.adminLocked && !!!user.admin) {
-      // return promptHelp(message.channel, name);
+  user.findOrCreate(message.author.id, username).then(user => {
+    const validatorResponse = validator.run(input, client.commands, user.admin, message.channel);
+    if (!validatorResponse.success) {
+      return responder.respond(message.channel, user.name, validatorResponse)
     }
-
     try {
-      // do the thing
+      const output = validatorResponse.subCommand.execute(validatorResponse.args, user);
+      return responder.respond(message.channel, user.name, output)
     } catch (error) {
       logger.info(`${error}`);
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
@@ -58,51 +40,12 @@ client.on('message', message => {
   });
 });
 
-function promptHelp(channel, user) {
-  replyTo(channel, user, {
-    success: false,
-    message: `I don't understand that. See \`${prefix} help\` for more usage information.`
-  });
-}
-
-function segmentedResponse(responseMessage) {
-  const segments = [];
-  let currentMessage = '';
-  messageLines = responseMessage.split("\n");
-
-  messageLines.forEach(line => {
-    line 
-    if ((currentMessage.length + line.length) <= 2000) {
-      currentMessage = currentMessage + line + "\n";
-    } else {
-      segments.push(currentMessage);
-      currentMessage = '';
-    }
-  });
-
-  segments.push(currentMessage);
-  return segments;
-}
-
-function messageStart(actionSuccess, user) {
-  return actionSuccess ? `Hi, ${user}! ` : `Sorry, ${user}. `
-}
-
 function getRelativeName(message) {
   if (message.member) {
     return message.member.nickname || message.author.username;
   }
 
   return message.author.username;
-}
-
-function replyTo(channel, user, result) {
-  if (typeof(result.message) === 'string') {
-    result.message = messageStart(result.success, user) + result.message;
-    segmentedResponse(result.message).forEach(response => channel.send(response));
-  } else {
-    channel.send(result.message);
-  }
 }
 
 client.login(token);

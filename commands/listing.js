@@ -4,9 +4,9 @@ module.exports = {
   name: 'listing',
   subCommands: {
     add: {
-      argsPattern: "(?<item>[^:]*):(?<price>[^:]*)",
-      usage: 'listing add [item]:[price]',
-  
+      argsPattern: "(?<item>[^:]*):(?<price>[^:]\\s@(?<seller>.*)*)",
+      usage: 'listing add [item]:[price] @[seller]',
+      description: 'Add a new listing',
       execute(args, user) {
         const sql = `INSERT INTO listings (item, price, userId)
                      VALUES (?, ?, ?)`;
@@ -26,7 +26,7 @@ module.exports = {
     remove: {
       argsPattern: "(?<listingIds>[0-9\\,]+)",
       usage: 'listing remove [listing ID]',
-
+      description: 'Remove an existing listing',
       execute(args, user) {
         const ids = args.listingIDs.split(',').map(id => `"${id}"`);
         const sql = `DELETE FROM listings
@@ -55,7 +55,7 @@ module.exports = {
     search: {
       argsPattern: "(?<focus>(user|item|price|seller))\s?(?<term>.+)",
       usage: 'listing search <focus> [term]',
-
+      description: 'Search for a listing',
       execute(args) {
         const focus = args.focus || 'item'
     
@@ -108,7 +108,7 @@ module.exports = {
     update: {
       argsPattern: "",
       usage: 'listing update [listing IDs] [field]:[value]',
-
+      description: 'Update a listing',
       execute(args, user) {
         const ids = args.listingIds.split(',').map(id => `"${id}"`);
         let sql = `UPDATE listings
@@ -132,6 +132,18 @@ module.exports = {
             }
           });
         });
+      }
+    },
+
+    help: {
+      usage: 'listing help',
+      description: 'Shows this',
+      execute() {
+        return {
+          success: true,
+          type: 'help',
+          message: module.exports.subCommands
+        }
       }
     }
   }
