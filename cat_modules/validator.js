@@ -1,10 +1,6 @@
 exports.run = (input, commands, userIsAmin) => {
   const { prefix } = require('../config.json');
 
-  function subCommandPatternMatch(args, subCommand) {
-    return args.match(subCommand.argsPattern)
-  }
-
   // Check command actually exists
   const command = commands.get(input.command);
   if (!command) {
@@ -29,10 +25,10 @@ exports.run = (input, commands, userIsAmin) => {
   }
 
   // Check if sub-command matches the expected pattern
-  const args = subCommandPatternMatch(input.args, subCommand);
+  const args = input.args.match(subCommand.argsPattern)
   if (!args) {
     return {
-      message: `Here's how you use that \`${prefix} ${subCommand.usage}\`. See \`${prefix} help\` for more usage information.`
+      message: `Here's how you use that \`${prefix} ${subCommand.usage}\`.`
     }
   }
 

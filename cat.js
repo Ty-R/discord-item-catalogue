@@ -26,13 +26,16 @@ client.on('message', message => {
   const input = inputParse.run(message);
 
   user.findOrCreate(message.author.id, username).then(user => {
-    const validatorResponse = validator.run(input, client.commands, user.admin, message.channel);
+    const validatorResponse = validator.run(input, client.commands, user.admin);
     if (!validatorResponse.success) {
       return responder.respond(message.channel, user.name, validatorResponse)
     }
     try {
-      const output = validatorResponse.subCommand.execute(validatorResponse.args, user);
-      return responder.respond(message.channel, user.name, output)
+      validatorResponse.subCommand.execute(validatorResponse.args, user).then((result) => {
+        return responder.respond(message.channel, user.name, result)
+      }).catch((err) => {
+        logger.info(err)
+     });
     } catch (error) {
       logger.info(`${error}`);
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
@@ -44,7 +47,6 @@ function getRelativeName(message) {
   if (message.member) {
     return message.member.nickname || message.author.username;
   }
-
   return message.author.username;
 }
 
