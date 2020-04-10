@@ -38,9 +38,11 @@ A listing can be searched for by item. The given term does not need to be exact:
 
 #### Updating a listing
 
-Updating a listing takes an ID followed by a colon separated key/value for the field to update, and the value to update it with respectively:
+Each listing has an ID and this ID is used to update a listing. The colon-separated key/value is the field to update and teh value to update it to:
 
 ![](example_images/listing_update.png)
+
+Multiple listing can be updated by passing more IDs (`!cat listing update 1, 2, 3 [field]:[value]`)
 
 #### Removing a listing
 
@@ -48,22 +50,24 @@ Each listing has an ID and this ID is used to remove it from the catalogue:
 
 ![](example_images/listing_remove.png)
 
+Multiple listing can be removed by passing more IDs (`!cat listing remove 1, 2, 3`)
+
 ## Admin
 
 Firstly, the help command:
 
-IMAGE
+![](example_images/admin_help.png)
 
 #### Adding/Removing admins
 
-IMAGE
+![](example_images/admin_add_remove.png)
 
 #### Removing listings
 
-Identical to the standard [removal command](#)
+Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would bypass the ownership check.
 
 #### Purging a user
 
 If a user is no longer active then they, and all their listings, can be removed from the catalogue:
 
-IMAGE
+![](example_images/admin_purge.png)
