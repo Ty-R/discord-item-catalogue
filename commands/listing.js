@@ -10,7 +10,7 @@ module.exports = {
       execute(args, user) {     
         return db.run(
           `INSERT INTO listings (item, price, userId, location)
-           VALUES (${args.item}, ${args.price}, ${user.id}, ${args.seller})`
+           VALUES ("${args.item}", "${args.price}", ${user.id}, "${args.seller}")`
         );
       }
     },
@@ -18,13 +18,13 @@ module.exports = {
     remove: {
       usage: 'listing remove [listing ID]',
       description: 'Remove an existing listing',
-      argsPattern: "(?<listingIds>[0-9,]+)",
+      argsPattern: "(?<listingIds>[0-9,\\s]+)",
       execute(args, user) {
         const ids = args.listingIds.split(',').map(id => `"${id}"`);
         let sql = `DELETE FROM listings
-                   WHERE id in (${ids})`
+                   WHERE id in (${ids})`;
         
-        if (!user.admin) sql = sql + `AND userId = "${user.id}"`
+        if (!user.admin) sql = sql + `AND userId = "${user.id}"`;
 
         return db.run(sql);
       }
@@ -48,12 +48,12 @@ module.exports = {
     update: {
       usage: 'listing update [listing IDs] [field]:[value]',
       description: 'Update a listing',
-      argsPattern: "",
+      argsPattern: "(?<listingIds>[0-9,\\s]+)\\s(?<field>item|price|location)\\s?:\\s?(?<value>.+)",
       execute(args, user) {
         const ids = args.listingIds.split(',').map(id => `"${id}"`);
         return db.run(
           `UPDATE listings
-           SET ${args.focus} = ${args.value}
+           SET "${args.field}" = "${args.value}"
            WHERE id in (${ids})
            AND userId = "${user.id}"`
         );

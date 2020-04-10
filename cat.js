@@ -1,13 +1,15 @@
 const { prefix, token } = require('./config.json');
-const inputParse = require('./cat_modules/parse_input');
-const validator = require('./cat_modules/validator');
-const responder = require('./cat_modules/responder');
+const inputParse  = require('./cat_modules/parse_input');
+const validator   = require('./cat_modules/validator');
+const responder   = require('./cat_modules/responder');
 const Discord = require('discord.js');
-const fs = require('fs');
-let logger = require('./logger'); 
-    logger = require('winston'); // requiring the file above runs the code to create a default logger
+const fs      = require('fs');
+
+let logger = require('./cat_modules/logger'); 
+    logger = require('winston');
 const db = require('./cat_modules/db');
       db.connect('./db/catalogue.db');
+
 const user = require('./cat_modules/user');
 
 const client = new Discord.Client();
@@ -26,18 +28,19 @@ client.on('message', message => {
   const input = inputParse.run(message);
 
   user.findOrCreate(message.author.id, username).then(user => {
+    logger.info(`${user.name} -- ${JSON.stringify(input)}`);
     const validatorResponse = validator.run(input, client.commands, user.admin);
     if (!validatorResponse.success) {
-      return responder.respond(message.channel, user.name, validatorResponse)
+      return responder.respond(message.channel, user.name, validatorResponse);
     }
     try {
-      validatorResponse.subCommand.execute(validatorResponse.args, user).then((result) => {
-        return responder.respond(message.channel, user.name, result)
+      validatorResponse.command.execute(validatorResponse.args, user).then((result) => {
+        return responder.respond(message.channel, user.name, result);
       }).catch((err) => {
-        logger.info(err)
+        logger.error(err);
      });
     } catch (error) {
-      logger.info(`${error}`);
+      logger.error(`${error}`);
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
     }
   });

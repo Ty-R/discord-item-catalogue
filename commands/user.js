@@ -9,11 +9,23 @@ module.exports = {
       execute() {
         return db.all(
           `SELECT users.*, count(listings.id) AS listings
-          FROM users
-          LEFT JOIN listings ON listings.userId = users.id
-          GROUP BY users.id`, 'listings'
+           FROM users
+           LEFT JOIN listings ON listings.userId = users.id
+           GROUP BY users.id`, 'users'
         );
       }
     },
+
+    help: {
+      usage: 'user help',
+      description: 'Shows this.',
+      execute() {
+        return Promise.resolve({
+          success: true,
+          type: 'help',
+          message: module.exports.subCommands
+        });
+      }
+    }
   }
 }

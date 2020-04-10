@@ -1,4 +1,4 @@
-const subCommandsFormatter = require('./help_formatting');
+const { prefix } = require('../config.json');
 
 module.exports = {
   segmentedResponse(responseMessage) {
@@ -36,7 +36,23 @@ module.exports = {
   },
 
   respondWithHelp(channel, subCommands) {
-    const formattedsubCommands = subCommandsFormatter.run(subCommands);
+    const formattedsubCommands = module.exports.formatSubCommandHelp(subCommands);
     channel.send(`\`\`\`${formattedsubCommands}\`\`\``);
+  },
+
+  formatSubCommandHelp(subCommands) {
+    const subCommandKeys = Object.keys(subCommands);
+
+    const usages = subCommandKeys.map(subcmd => subCommands[subcmd].usage);
+    const longest = usages.reduce((a, b) => a.length > b.length ? a : b).length;
+  
+    const helpEntries = subCommandKeys.map(function(cmd) {
+      let subcmd = subCommands[cmd];
+      let spacing = ' '.repeat((longest + 2) - subcmd.usage.length);
+  
+      return `${prefix} ${subcmd.usage} ${spacing} # ${subcmd.description}`;
+    });
+  
+    return helpEntries.join("\n");
   }
 }

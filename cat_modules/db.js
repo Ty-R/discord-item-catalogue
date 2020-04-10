@@ -15,6 +15,7 @@ module.exports = {
                item     TEXT,
                price    TEXT,
                userId   INTEGER,
+               location TEXT,
                FOREIGN KEY(userId)
                REFERENCES users(id)
                ON DELETE CASCADE)`);

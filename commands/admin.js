@@ -13,7 +13,7 @@ module.exports = {
           `UPDATE users
            SET admin = 1
            WHERE discordId = "${args.discordId}"`
-        )
+        );
       }
     },
 
@@ -26,19 +26,19 @@ module.exports = {
           `UPDATE users
            SET admin = 0
            WHERE discordId = "${args.discordId}"`
-        )
+        );
       }
     },
 
     purge: {
-      usage: 'users purge [Discord ID]',
+      usage: 'admin purge [Discord ID]',
       description: 'Purge a user from the catalogue.',
       argsPattern: '(?<discordId>.+)',
       execute(args) {
         return db.run(
           `DELETE FROM users
            WHERE discordId = "${args.discordId}"`
-        )
+        );
       }
     },
   
