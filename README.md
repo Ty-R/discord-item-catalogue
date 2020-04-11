@@ -38,7 +38,7 @@ A listing can be searched for by item. The given term does not need to be exact:
 
 #### Updating a listing
 
-Each listing has an ID and this ID is used to update a listing. The colon-separated key/value is the field to update and teh value to update it to:
+Each listing has an ID and this ID is used to update a listing. The colon-separated key/value is the field to update and the value to update it to:
 
 ![](example_images/listing_update.png)
 

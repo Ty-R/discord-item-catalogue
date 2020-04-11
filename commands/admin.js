@@ -6,7 +6,7 @@ module.exports = {
   subCommands: {
     add: {
       usage: 'admin add [Discord ID]',
-      description: 'Make a user a catalogue admin.',
+      description: 'Make a user a catalogue admin',
       argsPattern: '(?<discordId>.+)',
       execute(args) {
         return db.run(
@@ -19,7 +19,7 @@ module.exports = {
 
     remove: {
       usage: 'admin remove [Discord ID]',
-      description: 'Remove admin status from a user.',
+      description: 'Remove admin status from a user',
       argsPattern: '(?<discordId>.+)',
       execute(args) {
         return db.run(
@@ -32,7 +32,7 @@ module.exports = {
 
     purge: {
       usage: 'admin purge [Discord ID]',
-      description: 'Purge a user from the catalogue.',
+      description: 'Purge a user from the catalogue',
       argsPattern: '(?<discordId>.+)',
       execute(args) {
         return db.run(
@@ -44,7 +44,7 @@ module.exports = {
   
     help: {
       usage: 'admin help',
-      description: 'Shows this.',
+      description: 'Shows this',
       execute() {
         return Promise.resolve({
           success: true,

@@ -1,7 +1,7 @@
 const db = require('./db').load();
 
 module.exports = {
-  run(sql) {
+  run(sql, errMsg) {
     return new Promise((resolve, reject) => {
       db.run(sql, function(err) {
         if (err) reject(err);
@@ -13,7 +13,7 @@ module.exports = {
         } else {
           resolve({
             success: false,
-            message: "Something didn't quite go to plan, was the command definitely correct?"
+            message: errMsg || "Something didn't quite go to plan, was the command definitely correct?"
           });
         }
       });
@@ -23,7 +23,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.all(sql, (err, rows) => {
         if (err) reject(err);
-        if (rows.length > 0) {
+        if (rows && rows.length > 0) {
           resolve({
             success: true,
             message: `Here's what I found:\n\n${module.exports.formats[format].format(rows)}`

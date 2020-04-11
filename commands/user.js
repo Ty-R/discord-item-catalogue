@@ -5,7 +5,7 @@ module.exports = {
   subCommands: {
     list: {
       usage: 'user list',
-      description: 'Lists all users known to the catalogue.',
+      description: 'Lists all users known to the catalogue',
       execute() {
         return db.all(
           `SELECT users.*, count(listings.id) AS listings
@@ -18,7 +18,7 @@ module.exports = {
 
     help: {
       usage: 'user help',
-      description: 'Shows this.',
+      description: 'Shows this',
       execute() {
         return Promise.resolve({
           success: true,
