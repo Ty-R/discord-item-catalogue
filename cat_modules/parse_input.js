@@ -1,34 +1,7 @@
-exports.run = (message, commands) => {
-  const logger = require('winston');
-  const actions = commands.map(c => c.name);
-  const args = {};
-  const re = `(${actions.join('|')})\\s?(\\-(.\\w?)\\s)?([^:]*)(?::([^:@]*\\b)(?:\\s@(.*))?)?`;
-
-  function toSafeString(str) {
-    return str.replace(/[^ \w-@*()\[\]_#,\.'’]+/g, '').trim();
-  }
-
-  function tidyArgs(args) {
-    Object.keys(args).forEach((key) => {
-      if (args[key] == null) {
-        delete args[key];
-      } else {
-        args[key] = toSafeString(args[key]);
-      }
-    });
-    logger.info(JSON.stringify(args));
-    return args;
-  }
-
-  const matchedArgs = message.content.match(re);
+exports.run = (message) => {
+  // The responsibility of this is to take a command from a user
+  // and return the command, the sub-command, and the remainder as formatted args.
+  const args = message.content.match("\\s(?<command>[^\\s]*)\\s?(?<subCommand>[^\\s]*)\\s?(?<args>.*)")
   
-  if (!matchedArgs) return args;
-
-  args.action = matchedArgs[1];
-  args.flag = matchedArgs[3]
-  args.primary = matchedArgs[4];
-  args.secondary = matchedArgs[5];
-  args.optional = matchedArgs[6];
-
-  return tidyArgs(args);
+  return args ? args.groups : {};
 }

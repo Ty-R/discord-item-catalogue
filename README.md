@@ -7,125 +7,71 @@ One example of how this could be used is for an in-game market/shop system with 
 # Setup
 
 1. Clone or download this repository
-2. In the newly created directory, run: `npm install`
-3. Rename `config.json.example` to `config.json` and fill in the fields within it:
-    * Prefix is the command that will trigger the bot
-    * Token is the token of the bot generated in the portal
-4. Rename `help.json.example` to `help.json` and fill in the fields within it
+2. In the newly created directory, run: `$ npm install`
+3. Rename `config.json.example` to `config.json` and modify as needed
+4. Rename `help.json.example` to `help.json` and modify as needed
 5. Invite the bot to a server
 
-From here, running: `node cat` in the bot directory will start the bot.
+From here, running: `$ node cat` in the bot directory will start the bot.
 
 # Usage
 
 All commands are run in Discord, and the prefix (`!cat`) may vary depending on the configuration of the bot.
 
-### Adding a new listing
+## Listings
 
-The simplest way to add a listing, is:
+Firstly, the help command:
 
-`!cat add [item]:[price]`
+![](example_images/listing_help.png)
 
-Specifying a location is also supported by following the above with `@[location]`, a full example might be:
+#### Adding a new listing
 
-`!cat add 1 book:5 gold @spawn`
+A listing can be added by telling the bot what you want to add and for how much. Optionally a location can be give too:
 
-### Searching for listings
+![](example_images/listing_add.png)
 
-The simplest way to search for a listing, is:
+#### Searching for a listing
 
-`!cat search [item]`
+A catalogue search will look through various fields. Firstly it'll look for listings by name, then it'll look for listings by location, and finally, by user. Results will be returned in this order. The given term does not need to be exact:
 
-It's possible to change the focus of the search using flags:
+![](example_images/listing_search.png)
 
-* `-i` - searches by item (default if unspecified)
-* `-u` - searches by user
-* `-p` - searches by price
-* `-l` - searches by location
+#### Updating a listing
 
-Some examples:
+Each listing has an ID which is used to update it. The colon-separated key/value is the field to update and the value to update it to. Currently, the fields that can be changed are:
 
-* Searching for all listings containing 'book': `!cat search book`
-* Searching for all listings by a user called Bob: `!cat search -u Bob`
-* Searching for all listings for items sold at spawn: `!cat search -l spawn`
+* item
+* price
+* location
 
-# Advanced usage
+![](example_images/listing_update.png)
 
-### Detailed search
+Multiple listings can be updated by passing more comma-separated IDs (`!cat listing update 1, 2, 3 [field]:[value]`)
 
-`v` is an additional flag that can be passed to the search command for a more detailed output. The output is the same but it is prepended with the ID and owner of the listing, for example:
+#### Removing a listing
 
-`!cat search -v book`
+Each listing has an ID which is used to remove it from the catalogue:
 
-May result in a listing like:
+![](example_images/listing_remove.png)
 
-`* [id: 1, owner: Bob] Bob's shop is selling 5 books for 1 gold`
+Multiple listings can be removed by passing more comma-separated IDs (`!cat listing remove 1, 2, 3`)
 
-This flag can be stacked with the focus flags, for example:
+## Admin
 
-* Detailed item search `!cat search -v book`
-* Detailed user search`!cat search -vu Bob`
-* Detailed location search: `!cat search -vl spawn`
+Firstly, the help command:
 
-### Updating a listing
+![](example_images/admin_help.png)
 
-Updating a listing takes 3 parts:
+#### Adding/Removing admins
 
-1. The flag - used to specify which part of the listing to update (item name, price, location etc.)
-2. The listing ID - obtainable through the detailed search
-3. The new value - this value will be applied to the field specified using the flag
+![](example_images/admin_add_remove.png)
 
-The flags in this case are similar to the ones used in searching:
+#### Removing listings
 
-* `-i` - updates the name of the item
-* `-p` - updates the price of the item
-* `-l` - updates the location of the item
+Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would bypass the ownership check.
 
-Let's say you have a listing where you're selling 32 books for 10 gold at spawn, and the ID of that listing is 10. You'd update each field by for example:
+#### Purging a user
 
-* Updating the item: `!cat update -i 10 : 64 books`
-* Updating the price: `!cat update -p 10 : 20 gold`
-* Updating the loction: `!cat update -l 10 : plot 5`
+If a user is no longer active then they, and all their listings, can be removed from the catalogue:
 
-### Removing listings
-
-The simplest way to remove a listing, is:
-
-`!cat remove [listing ID]`
-
-Multiple listings can be removed by adding more IDs:
-
-`!cat remove [comma-separated listing IDs]`
-
-# Admin
-
-An admin user can delete listings owned by another user, and remove users from the catalogue entirely.
-
-### Adding admins
-
-Only admins can add other admins:
-
-`!cat admin [add|remove] : [Discord ID]`
-
-### Listing users
-
-Returns some information about all users the catalogue currently has:
-
-`!cat users`
-
-### Deleting listings owned by another user
-
-An admin can delete other users' listings by:
-
-`!cat delete [listing id]`
-
-Multiple listings can be removed by adding more IDs:
-
-`!cat delete [comma-separated listing IDs]`
-
-### Removing a user from the catalogue
-
-If a user is no longer active then they, and all their listings, can be removed fom the catalogue:
-
-`!cat purge [Discord ID]`
-
+![](example_images/admin_purge.png)
