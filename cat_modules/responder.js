@@ -37,7 +37,7 @@ module.exports = {
 
   respondWithHelp(channel, subCommands) {
     const formattedsubCommands = module.exports.formatSubCommandHelp(subCommands);
-    channel.send(`\`\`\`diff\n${formattedsubCommands}\`\`\``);
+    channel.send(`\`\`\`${formattedsubCommands}\`\`\``);
   },
 
   formatSubCommandHelp(subCommands) {

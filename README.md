@@ -38,19 +38,23 @@ A catalogue search will look through various fields. Firstly it'll look for list
 
 #### Updating a listing
 
-Each listing has an ID and this ID is used to update a listing. The colon-separated key/value is the field to update and the value to update it to:
+Each listing has an ID which is used to update it. The colon-separated key/value is the field to update and the value to update it to. Currently, the fields that can be changed are:
+
+* item
+* price
+* location
 
 ![](example_images/listing_update.png)
 
-Multiple listing can be updated by passing more IDs (`!cat listing update 1, 2, 3 [field]:[value]`)
+Multiple listings can be updated by passing more comma-separated IDs (`!cat listing update 1, 2, 3 [field]:[value]`)
 
 #### Removing a listing
 
-Each listing has an ID and this ID is used to remove it from the catalogue:
+Each listing has an ID which is used to remove it from the catalogue:
 
 ![](example_images/listing_remove.png)
 
-Multiple listing can be removed by passing more IDs (`!cat listing remove 1, 2, 3`)
+Multiple listings can be removed by passing more comma-separated IDs (`!cat listing remove 1, 2, 3`)
 
 ## Admin
 

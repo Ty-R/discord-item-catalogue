@@ -32,23 +32,23 @@ module.exports = {
 
     search: {
       usage: 'listing search [term]',
-      description: 'Search for a listing by item, location, or owner.',
+      description: 'Search for a listing by item, location, or owner',
       argsPattern: "(?<term>.+)",
       execute(args) {
         const term = `%${args.term.replace('*', '')}%`;
-        const sql =           `SELECT listings.id, listings.item, listings.price, listings.location, users.name 
-        FROM listings
-        INNER JOIN users on users.id = listings.userId
-        WHERE LOWER("item") LIKE LOWER("${term}")
-           OR LOWER("location") LIKE LOWER("${term}")
-           OR LOWER("name") LIKE LOWER("${term}")
-        ORDER BY
-        CASE
-          WHEN LOWER("item") LIKE '${term}' THEN 1
-          WHEN LOWER("location") LIKE '${term}' THEN 2
-          WHEN LOWER("name") LIKE '${term}' THEN 3
-          ELSE 4
-        END`
+        const sql = `SELECT listings.id, listings.item, listings.price, listings.location, users.name 
+                     FROM listings
+                     INNER JOIN users on users.id = listings.userId
+                     WHERE LOWER("item") LIKE LOWER("${term}")
+                       OR LOWER("location") LIKE LOWER("${term}")
+                       OR LOWER("name") LIKE LOWER("${term}")
+                     ORDER BY
+                     CASE
+                       WHEN LOWER("item") LIKE '${term}' THEN 1
+                       WHEN LOWER("location") LIKE '${term}' THEN 2
+                       WHEN LOWER("name") LIKE '${term}' THEN 3
+                       ELSE 4
+                     END`
 
         return db.all(sql, 'listings');
       }
