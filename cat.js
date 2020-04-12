@@ -37,10 +37,12 @@ client.on('message', message => {
       validatorResponse.command.execute(validatorResponse.args, user).then((result) => {
         return responder.respond(message.channel, user.name, result);
       }).catch((err) => {
+        console.log(err)
         logger.error(err);
      });
     } catch (error) {
       logger.error(`${error}`);
+      console.log(error)
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
     }
   });

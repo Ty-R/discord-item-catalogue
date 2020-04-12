@@ -19,6 +19,7 @@ module.exports = {
       });
     });
   },
+
   all(sql, format) {
     return new Promise((resolve, reject) => {
       db.all(sql, (err, rows) => {
@@ -38,18 +39,43 @@ module.exports = {
     });
   },
 
+  get(sql) {
+    return new Promise((resolve, reject) => {
+      db.get(sql, (err, row)=>{
+        if (err) reject(err);
+        resolve(row)
+      });
+    });
+  },
+
+  getAll(sql) {
+    return new Promise((resolve, reject) => {
+      db.all(sql, (err, rows)=>{
+        if (err) reject(err);
+        resolve(rows)
+      });
+    });
+  },
+
   formats: {
+    users: {
+      format(rows) {
+        return rows.map((row) => {
+          return `• **DiscordID:** ${row.discordId}, **Name:** ${row.name}, **Sellers:** ${row.sellers}, **Listings:** ${row.listings}`;
+        }).join("\n");
+      }
+    },
+    sellers: {
+      format(rows) {
+        return rows.map((row) => {
+          return `• [${row.id}] **Name:** ${row.name}, **Listings:** ${row.listings}`;
+        }).join("\n");
+      }
+    },
     listings: {
       format(rows) {
         return rows.map((row) => {
           return `• [${row.id}]  **${row.location || row.name}** is selling **${row.item}** for **${row.price}**`;
-        }).join("\n");
-      }
-    },
-    users: {
-      format(rows) {
-        return rows.map((row) => {
-          return `• **DiscordID:** ${row.discordId}, **admin:** ${row.admin}, **name:** ${row.name}, **listings:** ${row.listings}`;
         }).join("\n");
       }
     }

@@ -4,14 +4,16 @@ module.exports = {
   name: 'listing',
   subCommands: {
     add: {
-      usage: 'listing add [item]:[price] @<seller>',
+      usage: 'listing add [item]:[price] @[seller name]',
       description: 'Add a new listing',
-      argsPattern: "(?<item>[^:]*\\b)\\s?:\\s?(?<price>[^@]+[^\\s@])(?:\\s@)?(?<seller>.*)",
-      execute(args, user) {     
-        return db.run(
-          `INSERT INTO listings (item, price, userId, location)
-           VALUES ("${args.item}", "${args.price}", ${user.id}, "${args.seller}")`
-        );
+      argsPattern: "(?<item>[^:]+\\b)\\s?:\\s?(?<price>[^@]+)\\s+@(?<sellerName>.+)",
+      execute(args, user) {
+        return db.get(`SELECT id FROM sellers WHERE name = "${args.sellerName}" AND userId = "${user.id}"`).then(seller => {
+          return db.run(
+            `INSERT INTO listings (item, price, sellerId)
+             VALUES ("${args.item}", "${args.price}", "${seller.id}")`
+          );
+        })
       }
     },
 
