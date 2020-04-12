@@ -50,8 +50,7 @@ module.exports = {
           ELSE 4
         END`
 
-        return db.all(sql, 'listings'
-        );
+        return db.all(sql, 'listings');
       }
     },
 

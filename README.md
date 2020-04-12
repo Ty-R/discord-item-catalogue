@@ -32,7 +32,7 @@ A listing can be added by telling the bot what you want to add and for how much.
 
 #### Searching for a listing
 
-A listing can be searched for by item. The given term does not need to be exact:
+A catalogue search will look through various fields. Firstly it'll look for listings by name, then it'll look for listings by location, and finally, by user. Results will be returned in this order. The given term does not need to be exact:
 
 ![](example_images/listing_search.png)
 
