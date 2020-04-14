@@ -15,6 +15,8 @@ module.exports = {
                 name       TEXT,
                 location   TEXT,
                 icon       TEXT,
+                colour     STRING,
+                description TEXT,
                 userId     INTEGER,
                 FOREIGN KEY(userId)
                 REFERENCES users(id)

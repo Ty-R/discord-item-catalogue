@@ -9,6 +9,7 @@ module.exports = {
       argsPattern: "(?<item>[^:]+\\b)\\s?:\\s?(?<price>[^@]+)\\s+@(?<sellerName>.+)",
       execute(args, user) {
         return db.get(`SELECT id FROM sellers WHERE name = "${args.sellerName}" AND userId = "${user.id}"`).then(seller => {
+          if (!seller) return Promise.resolve({ message: "You don't have a seller by that name, are you sure it's correct?" })
           return db.run(
             `INSERT INTO listings (item, price, sellerId)
              VALUES ("${args.item}", "${args.price}", "${seller.id}")`
@@ -38,18 +39,17 @@ module.exports = {
       argsPattern: "(?<term>.+)",
       execute(args) {
         const term = `%${args.term.replace('*', '')}%`;
-        const sql = `SELECT listings.id, listings.item, listings.price, listings.location, users.name 
+        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name
                      FROM listings
-                     INNER JOIN users on users.id = listings.userId
+                     INNER JOIN sellers on sellers.id = listings.sellerId
                      WHERE LOWER("item") LIKE LOWER("${term}")
-                       OR LOWER("location") LIKE LOWER("${term}")
                        OR LOWER("name") LIKE LOWER("${term}")
+                     LIMIT 10;
                      ORDER BY
                      CASE
                        WHEN LOWER("item") LIKE '${term}' THEN 1
-                       WHEN LOWER("location") LIKE '${term}' THEN 2
-                       WHEN LOWER("name") LIKE '${term}' THEN 3
-                       ELSE 4
+                       WHEN LOWER("name") LIKE '${term}' THEN 2
+                       ELSE 3
                      END`
 
         return db.all(sql, 'listings');

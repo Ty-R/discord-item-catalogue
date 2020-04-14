@@ -5,7 +5,7 @@ module.exports = {
   subCommands: {
     list: {
       usage: 'seller list',
-      description: 'Lists all sellers known to the catalogue',
+      description: 'Lists all sellers',
       execute() {
         return db.all(
           `SELECT sellers.*, count(listings.id) AS listings
@@ -18,7 +18,7 @@ module.exports = {
 
     add: {
       usage: 'seller add [name]',
-      description: 'Add a new seller',
+      description: 'Adds a new seller',
       argsPattern: "(?<sellerName>.+)",
       execute(args, user) {
         return db.run(
@@ -30,7 +30,7 @@ module.exports = {
 
     remove: {
       usage: 'seller remove [seller ID]',
-      description: 'Remove a seller',
+      description: 'Removes a seller',
       argsPattern: "(?<sellerId>[0-9]+)",
       execute(args, user) {
         let sql = `DELETE FROM sellers
@@ -43,23 +43,34 @@ module.exports = {
     },
 
     update: {
-      usage: 'seller update [seller ID] [field]:[value]',
-      description: 'Update a seller',
-      argsPattern: "(?<sellerId>[0-9]+)\\s(?<field>name|location|icon)\\s?:\\s?(?<value>.+)",
+      usage: 'seller update [seller ID] [field]:[value|unset]',
+      description: 'Updates a seller',
+      argsPattern: "(?<sellerId>[0-9]+)\\s(?<field>name|location|icon|description)\\s?:\\s?(?<value>.+)",
       execute(args, user) {
         const errOnFail = "I couldn't find a seller with that ID that belongs to you."
+        if (args.field === 'icon' && args.value === 'unset') args.value = null;
+
         return db.run(
           `UPDATE sellers
-           SET "${args.field}" = "${args.value}"
+           SET "${args.field}" = nullif("${args.value}", "null")
            WHERE id = "${args.sellerId}"
            AND userId = "${user.id}"`, errOnFail
         );
       }
     },
 
+    inventory: {
+      usage: 'seller inventory [seller name]',
+      description: 'Lists the inventory of a seller',
+      argsPattern: "(?<sellerName>.+)",
+      execute(args) {
+
+      }
+    },
+
     info: {
-      usage: 'seller info [seller ID]',
-      description: 'See information about the seller',
+      usage: 'seller info [seller name]',
+      description: 'Shows information about a seller',
       argsPattern: "(?<sellerName>.+)",
       execute(args) {
         return db.get(`SELECT sellers.*, users.name AS "owner" FROM sellers LEFT JOIN users ON users.id = sellers.userId WHERE sellers.name = "${args.sellerName}"`).then(seller => {
@@ -68,28 +79,30 @@ module.exports = {
               success: true,
               message: {
                 "embed": {
-                  "color":3447003,
+                  "color": `${seller.colour || '3447003'}`,
                   "thumbnail": {
                     "url": `${seller.icon || ''}`
                   },
                   "fields": [
                     {
                       "name": "Name",
-                      "value": `${seller.name}`,
-                      "inline": true
+                      "value": `${seller.name}`
                     },
                     {
                       "name": "Location",
-                      "value": `${seller.location || '--'}`,
-                      "inline": true
+                      "value": `${seller.location || '--'}`
+                    },
+                    {
+                      "name": `No. Listings`,
+                      "value": Object.keys(listings).length
                     },
                     {
                       "name": "Owner",
-                      "value": `${seller.owner}`,
+                      "value": `${seller.owner}`
                     },
                     {
-                      "name": `Listings (${Object.keys(listings).length})`,
-                      "value": listings.map((listing) => `${listing.item} for ${listing.price}`).join("\n") || 'No listings'
+                      "name": `Description`,
+                      "value": `${seller.description || '--'}`
                     }
                   ]
                 }
