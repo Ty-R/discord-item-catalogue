@@ -1,4 +1,4 @@
-const { prefix, token } = require('./config.json');
+const { prefix, token, status, statusType } = require('./config.json');
 const inputParse  = require('./cat_modules/parse_input');
 const validator   = require('./cat_modules/validator');
 const responder   = require('./cat_modules/responder');
@@ -14,6 +14,10 @@ const user = require('./cat_modules/user');
 
 const client = new Discord.Client();
       client.commands = new Discord.Collection();
+
+      client.on("ready", () => {
+        client.user.setActivity(status, { type: statusType})
+      })
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -37,12 +41,10 @@ client.on('message', message => {
       validatorResponse.command.execute(validatorResponse.args, user).then((result) => {
         return responder.respond(message.channel, user.name, result);
       }).catch((err) => {
-        console.log(err)
         logger.error(err);
      });
     } catch (error) {
       logger.error(`${error}`);
-      console.log(error)
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
     }
   });

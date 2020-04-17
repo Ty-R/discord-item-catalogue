@@ -41,6 +41,13 @@ exports.run = (input, commands, userIsAmin) => {
     };
   }
 
+  // Sub-command expected but none given
+  if (!input.subCommand && command.subCommands) {
+    return {
+      message: `You're missing the sub-command. See \`${prefix} ${command.name} help\` for usage information.`
+    };
+  }
+
   return {
     success: true,
     command

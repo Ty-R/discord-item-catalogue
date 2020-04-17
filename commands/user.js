@@ -7,12 +7,7 @@ module.exports = {
       usage: 'user list',
       description: 'Lists all users known to the catalogue',
       execute() {
-        return db.all(
-          `SELECT users.*, count(listings.id) AS listings
-           FROM users
-           LEFT JOIN listings ON listings.userId = users.id
-           GROUP BY users.id`, 'users'
-        );
+        return db.all('SELECT * FROM users', 'users');
       }
     },
 

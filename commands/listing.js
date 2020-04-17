@@ -8,11 +8,12 @@ module.exports = {
       description: 'Add a new listing',
       argsPattern: "(?<item>[^:]+\\b)\\s?:\\s?(?<price>[^@]+)\\s+@(?<sellerName>.+)",
       execute(args, user) {
-        return db.get(`SELECT id FROM sellers WHERE name = "${args.sellerName}" AND userId = "${user.id}"`).then(seller => {
-          if (!seller) return Promise.resolve({ message: "You don't have a seller by that name, are you sure it's correct?" })
+        return db.get(`SELECT id FROM sellers WHERE LOWER(name) = LOWER("${args.sellerName}") AND userId = "${user.id}"`).then(result => {
+          if (result.success === false) return result;
+          if (!result) return Promise.resolve({ message: "You don't have a seller by that name, are you sure it's correct?" })
           return db.run(
-            `INSERT INTO listings (item, price, sellerId)
-             VALUES ("${args.item}", "${args.price}", "${seller.id}")`
+            `INSERT INTO listings (item, price, sellerId, userId)
+             VALUES ("${args.item}", "${args.price}", "${result.id}", "${user.id}")`
           );
         })
       }
@@ -35,7 +36,7 @@ module.exports = {
 
     search: {
       usage: 'listing search [term]',
-      description: 'Search for a listing by item, location, or owner',
+      description: 'Search for a listing by item or seller',
       argsPattern: "(?<term>.+)",
       execute(args) {
         const term = `%${args.term.replace('*', '')}%`;
@@ -59,10 +60,21 @@ module.exports = {
     update: {
       usage: 'listing update [listing IDs] [field]:[value]',
       description: 'Update a listing',
-      argsPattern: "(?<listingIds>[0-9,\\s]+)\\s(?<field>item|price|location)\\s?:\\s?(?<value>.+)",
+      argsPattern: "(?<listingIds>[0-9,\\s]+)\\s(?<field>item|price|seller)\\s?:\\s?(?<value>.+)",
       execute(args, user) {
         const ids = args.listingIds.split(',').map(id => `"${id}"`);
         const errOnFail = "I couldn't find any listings that belonged to you with the IDs given."
+
+        if (args.field === 'seller') {
+          return db.get(`SELECT id FROM sellers WHERE LOWER(name) = LOWER("${args.value}") AND userId = "${user.id}"`).then(seller => {
+            if (!seller) return Promise.resolve({ message: "You don't have a seller by that name, are you sure it's correct?" });
+            return db.run(`UPDATE listings
+                           SET "sellerId" = "${seller.id}"
+                           WHERE id in (${ids})
+                           AND userId = "${user.id}"`, errOnFail);
+          });
+        }
+
         return db.run(
           `UPDATE listings
            SET "${args.field}" = "${args.value}"

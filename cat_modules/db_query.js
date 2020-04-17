@@ -39,11 +39,18 @@ module.exports = {
     });
   },
 
-  get(sql) {
+  get(sql, errMsg) {
     return new Promise((resolve, reject) => {
       db.get(sql, (err, row)=>{
         if (err) reject(err);
-        resolve(row)
+        if (row) {
+          resolve(row);
+        } else {
+          resolve({
+            success: false,
+            message: errMsg || `I was unable to find anything.`
+          });
+        }
       });
     });
   },
@@ -52,7 +59,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.all(sql, (err, rows)=>{
         if (err) reject(err);
-        resolve(rows)
+        resolve(rows);
       });
     });
   },
@@ -61,21 +68,28 @@ module.exports = {
     users: {
       format(rows) {
         return rows.map((row) => {
-          return `• **DiscordID:** ${row.discordId}, **Name:** ${row.name}, **Sellers:** ${row.sellers}, **Listings:** ${row.listings}`;
+          return `• [${row.discordId}] ${row.name}`;
         }).join("\n");
       }
     },
     sellers: {
       format(rows) {
         return rows.map((row) => {
-          return `• [${row.id}] **Name:** ${row.name}, **Listings:** ${row.listings}`;
+          return `• [${row.id}] ${row.name}`;
         }).join("\n");
       }
     },
     listings: {
       format(rows) {
         return rows.map((row) => {
-          return `• [${row.id}]  **${row.location || row.name}** is selling **${row.item}** for **${row.price}**`;
+          return `• [${row.id}]  **${row.name}** is selling **${row.item}** for **${row.price}**`;
+        }).join("\n");
+      }
+    },
+    inventory: {
+      format(rows) {
+        return rows.map((row) => {
+          return `• [${row.id}] ${row.item} for ${row.price}`;
         }).join("\n");
       }
     }

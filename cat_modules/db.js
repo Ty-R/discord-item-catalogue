@@ -26,6 +26,7 @@ module.exports = {
                id       INTEGER PRIMARY KEY,
                item     TEXT,
                price    TEXT,
+               userId   INTEGER
                sellerId INTEGER,
                FOREIGN KEY(sellerId)
                REFERENCES sellers(id)

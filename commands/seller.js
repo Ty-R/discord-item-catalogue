@@ -37,8 +37,14 @@ module.exports = {
                    WHERE id in (${args.sellerId})`;
         
         if (!user.admin) sql = sql + ` AND userId = "${user.id}"`;
-        const errOnFail = "I couldn't find a seller with that ID that belongs to you."
-        return db.run(sql, errOnFail);
+
+        return db.getAll(`SELECT * from listings WHERE sellerId = "${args.sellerId}"`).then(listings => {
+          if (listings.length) {
+            return Promise.resolve({message: "This seller has listings and cannot be removed. Either remove the listings or move them to another seller."});
+          }
+          const errOnFail = "I couldn't find a seller with that ID that belongs to you."
+          return db.run(sql, errOnFail);
+        });
       }
     },
 
@@ -47,7 +53,7 @@ module.exports = {
       description: 'Updates a seller',
       argsPattern: "(?<sellerId>[0-9]+)\\s(?<field>name|location|icon|description)\\s?:\\s?(?<value>.+)",
       execute(args, user) {
-        const errOnFail = "I couldn't find a seller with that ID that belongs to you."
+        const errOnFail = "I couldn't find any sellers that belonged to you with the IDs given."
         if (args.field === 'icon' && args.value === 'unset') args.value = null;
 
         return db.run(
@@ -64,7 +70,12 @@ module.exports = {
       description: 'Lists the inventory of a seller',
       argsPattern: "(?<sellerName>.+)",
       execute(args) {
+        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name
+                     FROM listings
+                     INNER JOIN sellers on sellers.id = listings.sellerId
+                     WHERE LOWER(name) = LOWER("${args.sellerName}")`
 
+        return db.all(sql, 'inventory');
       }
     },
 
@@ -73,41 +84,48 @@ module.exports = {
       description: 'Shows information about a seller',
       argsPattern: "(?<sellerName>.+)",
       execute(args) {
-        return db.get(`SELECT sellers.*, users.name AS "owner" FROM sellers LEFT JOIN users ON users.id = sellers.userId WHERE sellers.name = "${args.sellerName}"`).then(seller => {
-          return db.getAll(`SELECT * from listings WHERE sellerId = "${seller.id}"`).then(listings => {
-            return Promise.resolve({
-              success: true,
-              message: {
-                "embed": {
-                  "color": `${seller.colour || '3447003'}`,
-                  "thumbnail": {
-                    "url": `${seller.icon || ''}`
+        const sql = `SELECT sellers.*, users.name AS "owner"
+                     FROM sellers
+                     LEFT JOIN users ON users.id = sellers.userId
+                     WHERE LOWER(sellers.name) = LOWER("${args.sellerName}")`;
+
+        const errOnFail = "I couldn't find a seller by that name."
+        return db.get(sql, errOnFail).then(result => {
+          if (result.success === false) return result;
+          return Promise.resolve({
+            success: true,
+            message: {
+              "embed": {
+                "color": `${result.colour || '3447003'}`,
+                "thumbnail": {
+                  "url": `${result.icon || ''}`
+                },
+                "fields": [
+                  {
+                    "name": "ID",
+                    "value": `${result.id}`,
+                    'inline': true,
                   },
-                  "fields": [
-                    {
-                      "name": "Name",
-                      "value": `${seller.name}`
-                    },
-                    {
-                      "name": "Location",
-                      "value": `${seller.location || '--'}`
-                    },
-                    {
-                      "name": `No. Listings`,
-                      "value": Object.keys(listings).length
-                    },
-                    {
-                      "name": "Owner",
-                      "value": `${seller.owner}`
-                    },
-                    {
-                      "name": `Description`,
-                      "value": `${seller.description || '--'}`
-                    }
-                  ]
-                }
+                  {
+                    "name": "Name",
+                    "value": `${result.name}`,
+                    'inline': true,
+                  },
+                  {
+                    "name": "Location",
+                    "value": `${result.location || '--'}`
+                  },
+                  {
+                    "name": "Owner",
+                    "value": `${result.owner}`
+                  },
+                  {
+                    "name": `Description`,
+                    "value": `${result.description || '--'}`
+                  }
+                ]
               }
-            });
+            }
           });
         });
       }
