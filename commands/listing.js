@@ -25,7 +25,6 @@ module.exports = {
                      LIMIT 1`;
 
         return db.get(sql, errOnFail).then(result => {
-          console.log(result)
           if (result.success === false) return result;
           return db.run(
             `INSERT INTO listings (item, price, sellerId, userId)
