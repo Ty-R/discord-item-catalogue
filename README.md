@@ -1,8 +1,6 @@
 # Discord Catalogue Bot
 
-Catalogue is a Discord bot for keeping track of items or services being sold by users. Sellers can add 'listings' to the catalogue for what they're selling, how much for, and where, while buyers can search through these listings to find out if what they're looking for is being sold.
-
-One example of how this could be used is for an in-game market/shop system with Discord server advertisements - owners of shops can add their inventories to the catalogue so that users can quickly search without having to visit each shop.
+Catalogue is a Discord bot that allows the creation of sellers and listings. A seller might be, for example, a shop, and listings would be what that shop sells. Those selling can create sellers and listings, and those buying can search against these to find what they're looking for.
 
 # Setup
 
@@ -18,60 +16,142 @@ From here, running: `$ node cat` in the bot directory will start the bot.
 
 All commands are run in Discord, and the prefix (`!cat`) may vary depending on the configuration of the bot.
 
+## Sellers
+
+A seller is needed to add listings. There is no limit to how many sellers a user can have, or how many listings a seller can have. Several seller commands require the ID of a seller. This can be obtained from `!cat seller list` or `!cat seller info [:name]`.
+
+### Adding a new seller
+
+All that's needed to add a seller is a name.
+
+**Usage:** `!cat seller add [:name]`\
+**Example:** `!cat seller add My Shop`
+
+### Listing sellers
+
+**Usage:** `!cat seller list`
+
+### Modifying a seller
+
+The only thing needed to create a seller was a name but there are a few other optional fields that can be updated to provide more information. The fields that can be modified are:
+
+* name
+* location
+* description
+* icon
+
+**Usage:** `!cat seller update [:id] [:field]: [:value]`\
+**Example:** `!cat seller update 123 description: A description of my shop`
+
+Some things to note:
+
+* Icon should be a URL
+* The icon can be unset by using `unset` as the value
+* Discord character limits apply (e.g. max of 1024 characters in the description)
+
+### Seller profile
+
+Useful if a user wants more information about a seller. Along side the name, it'll show the other optional values.
+
+**Usage:** `!cat seller info [:name]`\
+**Example:** `!cat seller info My Shop`
+
+### Seller inventory
+
+Allows users to query for all listings under a seller.
+
+**Usage:** `!cat seller inventory [:name]`\
+**Example:** `!cat seller inventory My Shop`
+
+### Default seller
+
+When a listing is added (more on this in the listings section), a seller needs to be specified. A user can set one of their sellers as a default so that they do not need to specify a seller each time.
+
+**Usage:** `!cat seller default [:id]`\
+**Example:** `!cat seller default 123`
+
+### Removing a seller
+
+If a user no longer wishes to have a seller in the catalogue they can remove it.
+
+**Usage:** `!cat seller remove [:id]`\
+**Example:** `!cat seller remove 123`
+
+Some things to note:
+
+* A seller cannot be removed if it has listings
+* Only one seller can be removed at a time
+* Removing a seller set as default will unset it
+
 ## Listings
 
-Firstly, the help command:
+A listing is an item or service for a price. They belong to sellers and can be searched for by users. Several listing commands require the ID of a listing. This can be obtained from `!cat listing search [:term]` or `!cat seller inventory [:name]`.
 
-![](example_images/listing_help.png)
+### Adding a listing
 
-#### Adding a new listing
+To add a listing, a user needs to specify what is being sold, how much for, and where:
 
-A listing can be added by telling the bot what you want to add and for how much. Optionally a location can be give too:
+**Usage:** `!cat listing add [:item]: [:price] @[:seller name]`\
+**Example:** `!cat listing add 5 books: 1 gold @My Shop`
 
-![](example_images/listing_add.png)
+Some things to note:
 
-#### Searching for a listing
+* If a user has set a default seller then they can omit the `@[:seller name]`
+* Default seller can be overridden per listing by passing a different seller using `@[:seller name]`
 
-A catalogue search will look through various fields. Firstly it'll look for listings by name, then it'll look for listings by location, and finally, by user. Results will be returned in this order. The given term does not need to be exact:
+### Searching listings
 
-![](example_images/listing_search.png)
+A user can search for listings by the name of the item or service, or the seller:
 
-#### Updating a listing
+**Usage:** `!cat listing search [:term]`\
+**Example 1:** `!cat listing search 5 books`\
+**Example 2:** `!cat listing search My Shop`
 
-Each listing has an ID which is used to update it. The colon-separated key/value is the field to update and the value to update it to. Currently, the fields that can be changed are:
+Some things to note:
+
+* Search is partial; "book" would return any listings with book in the listing or seller name
+* Search is capped at 10 results
+
+### Modfying a listing
+
+Any part of a listing can be modified - the fields of it, or the seller it belongs to. The fields that can be modified are:
 
 * item
 * price
-* location
+* seller
 
-![](example_images/listing_update.png)
+**Usage:** `!cat listing update [:id] [:field]: [:value]`\
+**Example 1:** `!cat listing update 123 item: 10 books`\
+**Example 2:** `!cat listing update 123 seller: My Other Shop`
 
-Multiple listings can be updated by passing more comma-separated IDs (`!cat listing update 1, 2, 3 [field]:[value]`)
+Something to note:
 
-#### Removing a listing
+* Many listings can be updated at once by passing more (comma-separated) IDs
 
-Each listing has an ID which is used to remove it from the catalogue:
+### Removing a listing
 
-![](example_images/listing_remove.png)
+**Usage:** `!cat listing remove [:id]`\
+**Example:** `!cat listing remove 123`
 
-Multiple listings can be removed by passing more comma-separated IDs (`!cat listing remove 1, 2, 3`)
+Something to note:
+
+* Many listings can be removed at once by passing more (comma-separated) IDs
 
 ## Admin
 
-Firstly, the help command:
+A catalogue admin can modify or remove the sellers and listings of other users. They can also remove a user from the catalogue entirely. Most admin commands around users require the user's Discord ID. This can be obtained by: `!cat user list`.
 
-![](example_images/admin_help.png)
+### Adding or Removing admins
 
-#### Adding/Removing admins
+**Usage:** `!cat admin add [:discord id]`\
+**Usage:** `!cat admin remove [:discord id]`
 
-![](example_images/admin_add_remove.png)
+### Removing listings
 
-#### Removing listings
+Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would skip the ownership check.
 
-Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would bypass the ownership check.
-
-#### Purging a user
+### Purging a user
 
 If a user is no longer active then they, and all their listings, can be removed from the catalogue:
 
-![](example_images/admin_purge.png)
+**Usage:** `!cat admin purge [:discord id]`

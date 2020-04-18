@@ -7,7 +7,7 @@ module.exports = {
     add: {
       usage: 'admin add [Discord ID]',
       description: 'Make a user a catalogue admin',
-      argsPattern: '(?<discordId>.+)',
+      argsPattern: /(?<discordId>.+)/,
       execute(args) {
         return db.run(
           `UPDATE users
@@ -20,7 +20,7 @@ module.exports = {
     remove: {
       usage: 'admin remove [Discord ID]',
       description: 'Remove admin status from a user',
-      argsPattern: '(?<discordId>.+)',
+      argsPattern: /(?<discordId>.+)/,
       execute(args) {
         return db.run(
           `UPDATE users
@@ -33,7 +33,7 @@ module.exports = {
     purge: {
       usage: 'admin purge [Discord ID]',
       description: 'Purge a user from the catalogue',
-      argsPattern: '(?<discordId>.+)',
+      argsPattern: /(?<discordId>.+)/,
       execute(args) {
         return db.run(
           `DELETE FROM users
