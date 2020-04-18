@@ -19,7 +19,7 @@ module.exports = {
     add: {
       usage: 'seller add [name]',
       description: 'Adds a new seller',
-      argsPattern: "(?<sellerName>.+)",
+      argsPattern: /(?<sellerName>.+)/,
       execute(args, user) {
         return db.run(
           `INSERT INTO sellers (name, userId)
@@ -31,10 +31,10 @@ module.exports = {
     remove: {
       usage: 'seller remove [seller ID]',
       description: 'Removes a seller',
-      argsPattern: "(?<sellerId>[0-9]+)",
+      argsPattern: /(?<sellerId>[0-9]+)/,
       execute(args, user) {
         let sql = `DELETE FROM sellers
-                   WHERE id in (${args.sellerId})`;
+                   WHERE id = ${args.sellerId}`;
         
         if (!user.admin) sql = sql + ` AND userId = "${user.id}"`;
 
@@ -50,10 +50,10 @@ module.exports = {
 
     update: {
       usage: 'seller update [seller ID] [field]:[value|unset]',
-      description: 'Updates a seller',
-      argsPattern: "(?<sellerId>[0-9]+)\\s(?<field>name|location|icon|description)\\s?:\\s?(?<value>.+)",
+      description: 'Updates the field of a seller - name, location, icon, description',
+      argsPattern: /(?<sellerId>[0-9]+)\s(?<field>name|location|icon|description)\s*:\s*(?<value>.+)/,
       execute(args, user) {
-        const errOnFail = "I couldn't find any sellers that belonged to you with the IDs given."
+        const errOnFail = "I couldn't find any sellers that belong to you with the IDs given."
         if (args.field === 'icon' && args.value === 'unset') args.value = null;
 
         return db.run(
@@ -68,7 +68,7 @@ module.exports = {
     inventory: {
       usage: 'seller inventory [seller name]',
       description: 'Lists the inventory of a seller',
-      argsPattern: "(?<sellerName>.+)",
+      argsPattern: /(?<sellerName>.+)/,
       execute(args) {
         const sql = `SELECT listings.id, listings.item, listings.price, sellers.name
                      FROM listings
@@ -82,7 +82,7 @@ module.exports = {
     info: {
       usage: 'seller info [seller name]',
       description: 'Shows information about a seller',
-      argsPattern: "(?<sellerName>.+)",
+      argsPattern: /(?<sellerName>.+)/,
       execute(args) {
         const sql = `SELECT sellers.*, users.name AS "owner"
                      FROM sellers
@@ -127,6 +127,23 @@ module.exports = {
               }
             }
           });
+        });
+      }
+    },
+
+    default: {
+      usage: 'seller default [seller ID]',
+      description: 'Sets a default seller for new listings',
+      argsPattern: /(?<sellerId>[0-9]+)/,
+      execute(args, user) {
+        const errOnFail = `I couldn't find a seller with that ID that belongs to you.`
+        return db.get(`SELECT id FROM sellers WHERE id = ${args.sellerId} AND userId = "${user.id}"`, errOnFail).then(result => {
+          if (result.success === false) return result;
+          return db.run(
+            `UPDATE users
+             SET defaultSeller = ${result.id}
+             WHERE id = "${user.id}"`, errOnFail
+          );
         });
       }
     },

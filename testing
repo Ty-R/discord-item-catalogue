@@ -1,0 +1,64 @@
+This bot has no tests yet so this is a checklist to verify it works as expected:
+
+-- Minimum to add listing --
+
+1. !cat seller add My Seller
+2. !cat listing add item:price @my seller
+
+-- Searching listings --
+
+1. !cat seller add My Seller
+2. !cat listing add item:price @my seller
+3. !cat listing search ite
+4. !cat listing search my sell
+
+-- Listing manipulation --
+
+1. !cat seller add My Seller
+1. !cat seller add My Seller2
+3. !cat listing add item:price @my seller
+4. !cat listing update [:id] item: item2
+5. !cat listing update [:id] price: price2
+6. !cat listing update [:id] seller: my seller2
+7. !cat listing remove [:id]
+
+-- Seller manipulation --
+
+1. !cat seller add My Seller
+2. !cat seller info my seller
+3. !cat seller update [:id] name: My Seller2
+4. !cat seller update [:id] location: earth
+5. !cat seller update [:id] description: my shop description
+6. !cat seller update [:id] icon: [URL]
+7. !cat seller info my seller2
+8. !cat seller remove [:id]
+
+-- Default seller --
+
+1. !cat seller add My Seller
+2. !cat seller default [:id]
+3. !cat listing add item:price
+4. !cat seller remove [:id]
+5. !cat listing add item:price
+
+-- Overide default seller --
+
+1. !cat seller add My Seller
+2. !cat seller add My seller2
+3. !cat seller default [:id of "My Seller"]
+4. !cat listing add item:price @my seller2
+
+-- Bulk update --
+
+1. !cat seller add My Seller
+2. !cat listing add item:price @my seller
+3. !cat listing add item2:price2 @my seller
+4. !cat listing update [:ids] price: price3
+
+-- Bulk remove --
+
+1. !cat seller add My Seller
+2. !cat listing add item:price @my seller
+3. !cat listing add item2:price2 @my seller
+4. !cat listing remove [:ids]
+

@@ -15,9 +15,9 @@ const user = require('./cat_modules/user');
 const client = new Discord.Client();
       client.commands = new Discord.Collection();
 
-      client.on("ready", () => {
-        client.user.setActivity(status, { type: statusType})
-      })
+client.on("ready", () => {
+  client.user.setActivity(status, { type: statusType})
+})
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -40,8 +40,8 @@ client.on('message', message => {
     try {
       validatorResponse.command.execute(validatorResponse.args, user).then((result) => {
         return responder.respond(message.channel, user.name, result);
-      }).catch((err) => {
-        logger.error(err);
+      }).catch((error) => {
+        logger.error(error);
      });
     } catch (error) {
       logger.error(`${error}`);
