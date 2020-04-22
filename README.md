@@ -139,7 +139,9 @@ Something to note:
 
 ## Admin
 
-A catalogue admin can modify or remove the sellers and listings of other users. They can also remove a user from the catalogue entirely. Most admin commands around users require the user's Discord ID. This can be obtained by: `!cat user list`.
+**Note:** Adding the first admin is slightly different from adding subsequent admins. This can be done by adding your Discord ID to the config and running: `!cat user makemeadmin`. This technique may change in the future.
+
+A catalogue admin can modify or remove the sellers and listings of other users. Most admin commands around users require the user's Discord ID. This can be obtained by: `!cat user list`.
 
 ### Adding or Removing admins
 
