@@ -36,7 +36,8 @@ module.exports = {
   },
 
   respondWithHelp(channel, subCommands) {
-    const formattedsubCommands = module.exports.formatSubCommandHelp(subCommands);
+    const filteredSubCommands = module.exports.filterSubCommands(subCommands)
+    const formattedsubCommands = module.exports.formatSubCommandHelp(filteredSubCommands);
     channel.send(`\`\`\`${formattedsubCommands}\`\`\``);
   },
 
@@ -54,5 +55,10 @@ module.exports = {
     });
   
     return helpEntries.join("\n");
+  },
+
+  filterSubCommands(subCommands) {
+    Object.keys(subCommands).map(sc => { if (subCommands[sc].excludeFromHelp) delete subCommands[sc] });
+    return subCommands;
   }
 }

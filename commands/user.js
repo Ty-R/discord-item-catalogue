@@ -11,6 +11,20 @@ module.exports = {
       }
     },
 
+    makemeadmin: {
+      usage: 'admin self',
+      description: 'Make yourself an admin',
+      excludeFromHelp: true,
+      execute() {
+        const { adminDiscordId } = require('../config.json');
+        return db.run(
+          `UPDATE users
+           SET admin = 1
+           WHERE discordId = "${adminDiscordId}"`
+        );
+      }
+    },
+
     help: {
       usage: 'user help',
       description: 'Shows this',

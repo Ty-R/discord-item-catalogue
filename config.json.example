@@ -1,4 +1,7 @@
 {
 	"prefix": "!cat",
-	"token": ""
+	"token": "",
+	"status": "!cat help",
+	"statusType": "PLAYING",
+	"adminDiscordId": ""
 }
