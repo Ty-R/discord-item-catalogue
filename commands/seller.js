@@ -53,7 +53,7 @@ module.exports = {
       description: 'Updates the field of a seller - name, location, icon, description',
       argsPattern: /(?<sellerId>[0-9]+)\s(?<field>name|location|icon|description)\s*:\s*(?<value>.+)/,
       execute(args, user) {
-        const errOnFail = "I couldn't find any sellers that belong to you with the IDs given."
+        const errOnFail = "I couldn't find any sellers that belong to you with the ID given."
         if (args.field === 'icon' && args.value === 'unset') args.value = null;
 
         return db.run(
