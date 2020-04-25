@@ -13,7 +13,7 @@ module.exports = {
           return Promise.resolve({ message: "You need to specify a seller to add this listing to." });
         }
 
-        const errOnFail = `You don't have a seller named "${args.sellerName}".`;
+        const errOnFail = `You don't have a seller with that name. Has it been created? If not, you need to create it first using the \`seller\` command.`;
         const sql = `SELECT *
                      FROM sellers
                      WHERE userId = ${user.id}

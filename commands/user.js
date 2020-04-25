@@ -15,8 +15,10 @@ module.exports = {
       usage: 'admin self',
       description: 'Make yourself an admin',
       excludeFromHelp: true,
-      execute() {
+      execute(args, user) {
         const { adminDiscordId } = require('../config.json');
+        if (user.discordId !== adminDiscordId) return Promise.resolve({ message: "You don't have permission to use that command." });
+
         return db.run(
           `UPDATE users
            SET admin = 1
