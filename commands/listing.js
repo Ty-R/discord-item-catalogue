@@ -2,7 +2,7 @@ const db = require('../cat_modules/db_query');
 
 module.exports = {
   name: 'listing',
-  description: "A listing is an item or service for a price. They must belong to a seller",
+  description: "A listing is an item or service for a price. Listings belong to sellers",
   subCommands: {
     add: {
       usage: 'listing add [item]:[price] @[seller name]',
