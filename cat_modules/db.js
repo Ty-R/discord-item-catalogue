@@ -10,7 +10,7 @@ module.exports = {
          discordId      TEXT UNIQUE,
          name           TEXT,
          admin          BOOLEAN DEFAULT 0,
-         defaultSeller  INTEGER)`
+         defaultSeller  INTEGER REFERENCES sellers(id) ON DELETE SET NULL)`
       );
 
       _db.run(
@@ -26,23 +26,16 @@ module.exports = {
       );
 
       _db.run(
-        `CREATE TRIGGER IF NOT EXISTS nullifyDefaultSeller AFTER DELETE ON sellers
-         BEGIN
-          UPDATE users SET defaultSeller = NULL
-            WHERE defaultSeller = OLD.id;
-         END;`
-      );
-
-      _db.run(
         `CREATE TABLE IF NOT EXISTS listings (
          id       INTEGER PRIMARY KEY,
          item     TEXT,
          price    TEXT,
-         userId   INTEGER,
-         sellerId INTEGER,
-         FOREIGN KEY(sellerId) REFERENCES sellers(id) ON DELETE CASCADE)`
+         userId   INTEGER REFERENCES users(id) ON DELETE CASCADE,
+         sellerId INTEGER REFERENCES sellers(id))`
       );
     });
+
+    _db.get("PRAGMA foreign_keys = ON")
 
     return _db;
   },
