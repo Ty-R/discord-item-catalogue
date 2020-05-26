@@ -3,5 +3,6 @@
 	"token": "",
 	"status": "!cat help",
 	"statusType": "PLAYING",
-	"adminDiscordId": ""
+	"adminDiscordId": "",
+	"searchCap": "10"
 }
