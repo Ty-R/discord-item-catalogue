@@ -101,16 +101,15 @@ Some things to note:
 
 ### Searching listings
 
-A user can search for listings by the name of the item or service, or the seller:
+A user can search for listings by name:
 
 **Usage:** `!cat listing search [:term]`\
-**Example 1:** `!cat listing search 5 books`\
-**Example 2:** `!cat listing search My Shop`
+**Example 1:** `!cat listing search books`\
 
 Some things to note:
 
 * Search is partial; "book" would return any listings with book in the listing or seller name
-* Search is capped at 10 results
+* Search is capped at 10 by default but can be changed in the config
 
 ### Modfying a listing
 
