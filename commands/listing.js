@@ -1,4 +1,5 @@
 const db = require('../cat_modules/db_query');
+const { searchCap } = require('../config.json');
 
 module.exports = {
   name: 'listing',
@@ -59,14 +60,7 @@ module.exports = {
                      FROM listings
                      INNER JOIN sellers on sellers.id = listings.sellerId
                      WHERE LOWER("item") LIKE LOWER("${term}")
-                       OR LOWER("name") LIKE LOWER("${term}")
-                     LIMIT 10;
-                     ORDER BY
-                     CASE
-                       WHEN LOWER("item") LIKE '${term}' THEN 1
-                       WHEN LOWER("name") LIKE '${term}' THEN 2
-                       ELSE 3
-                     END`
+                     LIMIT ${searchCap}`
 
         return db.all(sql, 'listings');
       }
