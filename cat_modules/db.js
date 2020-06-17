@@ -21,6 +21,7 @@ module.exports = {
          icon        TEXT,
          colour      STRING,
          description TEXT,
+         active      BOOLEAN DEFAULT 1,
          userId      INTEGER,
          FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE)`
       );

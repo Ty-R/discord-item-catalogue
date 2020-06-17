@@ -56,10 +56,11 @@ module.exports = {
       argsPattern: /(?<term>.+)/,
       execute(args) {
         const term = `%${args.term.replace('*', '')}%`;
-        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name
+        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name, sellers.active
                      FROM listings
                      INNER JOIN sellers on sellers.id = listings.sellerId
-                     WHERE LOWER("item") LIKE LOWER("${term}")
+                     WHERE sellers.active = 1
+                     AND LOWER("item") LIKE LOWER("${term}")
                      LIMIT ${searchCap}`
 
         return db.all(sql, 'listings');
