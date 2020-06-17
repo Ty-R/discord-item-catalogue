@@ -109,7 +109,11 @@ module.exports = {
                   {
                     "name": "Name",
                     "value": `${result.name}`,
-                    'inline': true,
+                    'inline': true
+                  },
+                  {
+                    "name": "Active",
+                    "value": `${result.active ? 'Yes' : 'No'}`
                   },
                   {
                     "name": "Location",
@@ -145,6 +149,21 @@ module.exports = {
              WHERE id = "${user.id}"`, errOnFail
           );
         });
+      }
+    },
+
+    toggle: {
+      usage: 'seller toggle [seller ID]',
+      description: 'Toggle seller visibility',
+      argsPattern: /(?<sellerId>[0-9]+)/,
+      execute(args, user) {
+        const errOnFail = `I couldn't find a seller with that ID that belongs to you.`
+        let sql = `UPDATE sellers
+                   SET active = NOT active
+                   WHERE id = "${args.sellerId}"`
+
+        if (!user.admin) sql = sql + ` AND userId = "${user.id}"`;
+        return db.run(sql, errOnFail);
       }
     },
 
