@@ -16,6 +16,26 @@ From here, running: `$ node cat` in the bot directory will start the bot.
 
 All commands are run in Discord, and the prefix (`!cat`) may vary depending on the configuration of the bot.
 
+* [Sellers](#sellers)
+  * [Add a seller](#adding-a-new-seller)
+  * [List sellers](#listing-sellers)
+  * [Update a seller](#modifying-a-seller)
+  * [Seller profile](#seller-profile)
+  * [Seller inventory](#seller-inventory)
+  * [Default seller](#default-seller)
+  * [Remove a seller](#removing-a-seller)
+  * [Toggle seller visibility](#toggle-seller-visibility)
+* [Listings](#listings)
+  * [Add a listing](#adding-a-listing)
+  * [Search listings](#searching-listings)
+  * [Update listings](#modfying-a-listing)
+  * [Remove listings](#removing-a-listing)
+* [Admin](#admin)
+  * [Add | Remove admins](#adding-or-removing-admins)
+  * [Remove listings](#removing-listings)
+  * [Toggle sellers](#toggle-sellers)
+  * [Purge user](#purging-a-user)
+
 ## Sellers
 
 A seller is needed to add listings. There is no limit to how many sellers a user can have, or how many listings a seller can have. Several seller commands require the ID of a seller. This can be obtained from `!cat seller list` or `!cat seller info [:name]`.
@@ -82,6 +102,19 @@ Some things to note:
 * A seller cannot be removed if it has listings
 * Only one seller can be removed at a time
 * Removing a seller set as default will unset it
+
+### Toggle seller visibility
+
+If a user is temporarily inactive then we can toggle the visibility of their listings.
+
+**Usage:** `!cat seller toggle [:id]`\
+**Example:** `!cat seller toggle 123`
+
+Some things to note:
+
+* This will mark them as inactive in their seller profile
+* Listings owned by inactive sellers will not be returned when searched
+* Sellers can still be queried directly using seller commands
 
 ## Listings
 
@@ -150,6 +183,10 @@ A catalogue admin can modify or remove the sellers and listings of other users. 
 ### Removing listings
 
 Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would skip the ownership check.
+
+### Toggle sellers
+
+Seller toggle is identical to the standard [toggle command](#toggle-seller-visibility) except an admin would skip the ownership check.
 
 ### Purging a user
 
