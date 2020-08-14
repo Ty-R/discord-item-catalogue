@@ -137,11 +137,11 @@ Some things to note:
 A user can search for listings by name:
 
 **Usage:** `!cat listing search [:term]`\
-**Example 1:** `!cat listing search books`\
+**Example 1:** `!cat listing search books`
 
 Some things to note:
 
-* Search is partial; "book" would return any listings with book in the listing or seller name
+* Search is partial; "book" would return any listings with book in the name
 * Search is capped at 10 by default but can be changed in the config
 
 ### Modfying a listing
