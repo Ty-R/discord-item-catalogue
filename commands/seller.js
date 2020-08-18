@@ -87,9 +87,10 @@ module.exports = {
         const sql = `SELECT sellers.*, users.name AS "owner"
                      FROM sellers
                      LEFT JOIN users ON users.id = sellers.userId
-                     WHERE LOWER(sellers.name) = LOWER("${args.sellerName}")`;
+                     WHERE LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")
+                     OR sellers.id = "${args.sellerName}"`;
 
-        const errOnFail = "I couldn't find a seller by that name."
+        const errOnFail = "I couldn't find that seller."
         return db.get(sql, errOnFail).then(result => {
           if (result.success === false) return result;
           return Promise.resolve({
