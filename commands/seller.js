@@ -56,11 +56,14 @@ module.exports = {
         const errOnFail = "I couldn't find any sellers that belong to you with the ID given."
         if (args.field === 'icon' && args.value === 'unset') args.value = null;
 
+        let sql = `UPDATE sellers
+                   SET "${args.field}" = nullif("${args.value}", "null")
+                   WHERE id = "${args.sellerId}"`
+
+        if (!user.admin) sql = sql + ` AND userId = "${user.id}"`;
+
         return db.run(
-          `UPDATE sellers
-           SET "${args.field}" = nullif("${args.value}", "null")
-           WHERE id = "${args.sellerId}"
-           AND userId = "${user.id}"`, errOnFail
+          sql, errOnFail
         );
       }
     },

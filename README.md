@@ -33,6 +33,7 @@ All commands are run in Discord, and the prefix (`!cat`) may vary depending on t
 * [Admin](#admin)
   * [Add | Remove admins](#adding-or-removing-admins)
   * [Remove listings](#removing-listings)
+  * [Update sellers](#update-sellers)
   * [Toggle sellers](#toggle-sellers)
   * [Purge user](#purging-a-user)
 
@@ -183,6 +184,10 @@ A catalogue admin can modify or remove the sellers and listings of other users. 
 ### Removing listings
 
 Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would skip the ownership check.
+
+### Update sellers
+
+Seller update is identical to the standard [update command](#modifying-a-seller) except an admin would skip the ownership check.
 
 ### Toggle sellers
 
