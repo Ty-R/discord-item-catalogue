@@ -76,7 +76,8 @@ module.exports = {
         const sql = `SELECT listings.id, listings.item, listings.price, sellers.name
                      FROM listings
                      INNER JOIN sellers on sellers.id = listings.sellerId
-                     WHERE LOWER(name) = LOWER("${args.sellerName}")`
+                     WHERE LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")
+                     OR sellers.id = "${args.sellerName}"`
 
         return db.all(sql, 'inventory');
       }
