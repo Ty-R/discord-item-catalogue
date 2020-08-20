@@ -42,9 +42,10 @@ client.on('message', message => {
         return responder.respond(message.channel, user.name, result);
       }).catch((error) => {
         logger.error(error);
+        message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
      });
     } catch (error) {
-      logger.error(`${error}`);
+      logger.error(error);
       message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
     }
   });
