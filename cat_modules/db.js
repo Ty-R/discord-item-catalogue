@@ -16,14 +16,13 @@ module.exports = {
       _db.run(
         `CREATE TABLE IF NOT EXISTS sellers (
          id          INTEGER PRIMARY KEY,
-         name        TEXT,
+         name        TEXT UNIQUE,
          location    TEXT,
          icon        TEXT,
          colour      STRING,
          description TEXT,
          active      BOOLEAN DEFAULT 1,
-         userId      INTEGER,
-         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE)`
+         userId      INTEGER REFERENCES users(id) ON DELETE CASCADE)`
       );
 
       _db.run(
@@ -32,11 +31,11 @@ module.exports = {
          item     TEXT,
          price    TEXT,
          userId   INTEGER REFERENCES users(id) ON DELETE CASCADE,
-         sellerId INTEGER REFERENCES sellers(id))`
+         sellerId INTEGER REFERENCES sellers(id) ON DELETE CASCADE)`
       );
     });
 
-    _db.get("PRAGMA foreign_keys = ON")
+    _db.get("PRAGMA foreign_keys = ON");
 
     return _db;
   },

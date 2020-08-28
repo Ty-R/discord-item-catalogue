@@ -1,9 +1,9 @@
 const { prefix, token, status, statusType } = require('./config.json');
-const inputParse  = require('./cat_modules/parse_input');
-const validator   = require('./cat_modules/validator');
-const responder   = require('./cat_modules/responder');
+const inputParse = require('./cat_modules/parse_input');
+const validator = require('./cat_modules/validator');
+const responder = require('./cat_modules/responder');
 const Discord = require('discord.js');
-const fs      = require('fs');
+const fs = require('fs');
 
 let logger = require('./cat_modules/logger'); 
     logger = require('winston');
@@ -16,7 +16,7 @@ const client = new Discord.Client();
       client.commands = new Discord.Collection();
 
 client.on("ready", () => {
-  client.user.setActivity(status, { type: statusType})
+  client.user.setActivity(status, { type: statusType});
 })
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -27,28 +27,32 @@ for (const file of commandFiles) {
 }
 
 client.on('message', message => {
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
-  const username = getRelativeName(message);
-  const input = inputParse.run(message);
+  try {
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
+    const username = getRelativeName(message);
+    const input = inputParse.run(message);
 
-  user.findOrCreate(message.author.id, username).then(user => {
-    logger.info(`${user.name} -- ${JSON.stringify(input)}`);
-    const validatorResponse = validator.run(input, client.commands, user.admin);
-    if (!validatorResponse.success) {
-      return responder.respond(message.channel, user.name, validatorResponse);
-    }
-    try {
+    user.findOrCreate(message.author.id, username).then(user => {
+      logger.info(`${user.name} -- ${JSON.stringify(input)}`);
+
+      const validatorResponse = validator.run(input, client.commands, user.admin);
+
+      if (!validatorResponse.success) {
+        return responder.respond(message.channel, user.name, validatorResponse);
+      }
+
       validatorResponse.command.execute(validatorResponse.args, user).then((result) => {
         return responder.respond(message.channel, user.name, result);
       }).catch((error) => {
         logger.error(error);
         message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
-     });
-    } catch (error) {
-      logger.error(error);
-      message.channel.send("Oops.. something went wrong. Please notify the author with how you did this.");
-    }
-  });
+        console.log(error)
+      });
+    });
+  } catch(error) {
+    logger.error(error);
+    console.log(error)
+  };
 });
 
 function getRelativeName(message) {

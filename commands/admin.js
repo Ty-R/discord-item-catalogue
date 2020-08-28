@@ -4,28 +4,20 @@ module.exports = {
   name: 'admin',
   adminLocked: true,
   subCommands: {
-    add: {
-      usage: 'admin add [Discord ID]',
-      description: 'Make a user a catalogue admin',
+    toggle: {
+      usage: 'admin toggle [Discord ID]',
+      description: 'Toggle the admin status of a user',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
         return db.run(
-          `UPDATE users
-           SET admin = 1
-           WHERE discordId = "${args.discordId}"`
-        );
-      }
-    },
+          {
+            query: `UPDATE users
+                    SET admin = NOT admin
+                    WHERE discordId = "${args.discordId}"`,
+            success: "I've done that for you.",
+            fail: "I was unable to change the admin status of that user."
+          }
 
-    remove: {
-      usage: 'admin remove [Discord ID]',
-      description: 'Remove admin status from a user',
-      argsPattern: /(?<discordId>.+)/,
-      execute(args) {
-        return db.run(
-          `UPDATE users
-           SET admin = 0
-           WHERE discordId = "${args.discordId}"`
         );
       }
     },

@@ -1,4 +1,4 @@
-const db = require('../cat_modules/db').load();
+const db = require('../cat_modules/db_query');
 
 module.exports = {
   name: 'seller',
@@ -7,24 +7,25 @@ module.exports = {
       usage: 'seller list',
       description: 'Lists all sellers',
       execute() {
-        const query = `SELECT sellers.*, count(listings.id) AS listings
-                       FROM sellers
-                       LEFT JOIN listings ON listings.sellerID = sellers.id
-                       GROUP BY sellers.id`
-
         return new Promise((resolve, reject) => {
-          db.all(query, (err, rows) => {
-            if (err) reject(err);
-            if (rows && rows.length > 0) {
+          db.all({
+            query: `SELECT sellers.*, count(listings.id) AS listings
+                    FROM sellers
+                    LEFT JOIN listings ON listings.sellerID = sellers.id
+                    GROUP BY sellers.id`
+          }).then((sellers) => {
+            if (sellers.length > 0) {
               resolve({
                 success: true,
-                message: `Here's what I found:\n\n${rows.map((row) => `• [${row.id}] ${row.name}`).join("\n")}`
+                message: "Here you go:\n\n" + sellers.map(seller => `• [${seller.id}] ${seller.name}`).join("\n")
               });
             } else {
               resolve({
                 message: 'There are no sellers in the catalogue yet.'
               });
-            }
+            };
+          }).catch((reason) => {
+            reject(reason);
           });
         });
       }
@@ -35,131 +36,78 @@ module.exports = {
       description: 'Adds a new seller',
       argsPattern: /(?<sellerName>.+)/,
       execute(args, user) {
-        const query = `INSERT INTO sellers (name, userId)
-                       VALUES ("${args.sellerName}", ${user.id})`;
-
-        return new Promise((resolve, reject) => {
-          db.run(query, function(err) {
-            if (err) reject(err);
-            if (this.changes > 0) {
-              resolve({
-                success: true,
-                message: "That's all done for you."
-              });
-            } else {
-              resolve({
-                message: 'I was unable to add a seller by that name.'
-              });
-            }
-          });
+        return db.run({
+          query: `INSERT INTO sellers (name, userId)
+                  VALUES ("${args.sellerName}", ${user.id})`,
+          success: "I've added that seller for you.",
+          fail: 'I was unable to add that seller.'
         });
       }
     },
 
     remove: {
-      usage: 'seller remove [seller ID]',
+      usage: 'seller remove [id]',
       description: 'Removes a seller and any listings it holds',
       argsPattern: /(?<sellerId>[0-9]+)/,
       execute(args, user) {
-        let query = `DELETE FROM sellers
-                     WHERE id = ${args.sellerId}`;
-
-        if (!user.admin) query = query + ` AND userId = "${user.id}"`;
-
-        return new Promise((resolve, reject) => {
-          db.run(query, function(err) {
-            if (err) reject(err);
-            if (this.changes > 0) {
-              resolve({
-                success: true,
-                message: "That seller, and any listings it had, have been removed from the catalogue."
-              });
-            } else {
-              resolve({
-                message: 'I was unable to find your seller with that ID.'
-              });
-            }
-          });
+        return db.run({
+          query: `DELETE FROM sellers
+                  WHERE id = ${args.sellerId}
+                  ${user.admin ? '' : `AND userId = ${user.id}`}`,
+          success: 'That seller, and any listings it had, have been removed from the catalogue.',
+          fail: 'I was unable to find your seller with that ID.'
         });
       }
     },
 
     update: {
-      usage: 'seller update [seller ID] [field]:[value|unset]',
+      usage: 'seller update [id] [field]:[value|unset]',
       description: 'Updates the field of a seller - name, location, icon, description',
       argsPattern: /(?<sellerId>[0-9]+)\s(?<field>name|location|icon|description)\s*:\s*(?<value>.+)/i,
       execute(args, user) {
         const field = args.field.toLowerCase();
-
-        if (field === 'icon' && args.value === 'unset') args.value = null;
-
-        let query = `UPDATE sellers
-                     SET "${field}" = nullif("${args.value}", "null")
-                     WHERE id = "${args.sellerId}"`
-
-        if (!user.admin) query = query + ` AND userId = "${user.id}"`;
-
-        return new Promise((resolve, reject) => {
-          db.run(query, function(err) {
-            if (err) reject(err);
-            if (this.changes > 0) {
-              resolve({
-                success: true,
-                message: `I've updated that seller's ${args.field} for you.`
-              });
-            } else {
-              resolve({
-                message: 'I was unable to find your seller with that ID.'
-              });
-            }
-          });
+        if (args.value === 'unset') args.value = null;
+        return db.run({
+          query: `UPDATE sellers
+                  SET "${field}" = nullif("${args.value}", "null")
+                  WHERE id = "${args.sellerId}"
+                  ${user.admin ? '' : `AND userId = ${user.id}`}`,
+          success: `I've updated that seller's ${args.field} for you.`,
+          fail: 'I was unable to find your seller with that ID.'
         });
       }
     },
 
     inventory: {
-      usage: 'seller inventory [seller name]',
+      usage: 'seller inventory [name]',
       description: 'Lists the inventory of a seller',
       argsPattern: /(?<sellerName>.+)/,
       execute(args) {
-        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name
-                     FROM listings
-                     INNER JOIN sellers on sellers.id = listings.sellerId
-                     WHERE LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")
-                     OR sellers.id = "${args.sellerName}"`
-
-        return new Promise((resolve, reject) => {
-          db.all(query, (err, rows) => {
-            if (err) reject(err);
-            if (rows && rows.length > 0) {
-              resolve({
-                success: true,
-                message: `Here's what I found:\n\n${rows.map((row) => `• [${row.id}] ${row.item} for ${row.price}`).join("\n")}`
-              });
-            } else {
-              resolve({
-                message: "That seller either doesn't exist or has no listings yet."
-              });
-            }
-          });
+        return db.run({
+          query: `SELECT listings.id, listings.item, listings.price, sellers.name
+                  FROM listings
+                  INNER JOIN sellers on sellers.id = listings.sellerId
+                  WHERE LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")
+                  OR sellers.id = "${args.sellerName}"`,
+          success: "Here's what I found",
+          fail: "That seller either doesn't exist or has no listings yet."
         });
       }
     },
 
     info: {
-      usage: 'seller info [seller name]',
+      usage: 'seller info [name|id]',
       description: 'Shows information about a seller',
       argsPattern: /(?<sellerName>.+)/,
       execute(args) {
-        const query = `SELECT sellers.*, users.name AS "owner"
-                       FROM sellers
-                       LEFT JOIN users ON users.id = sellers.userId
-                       WHERE LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")
-                       OR sellers.id = "${args.sellerName}"`;
-
         return new Promise((resolve, reject) => {
-          db.get(query, (err, seller) => {
-            if (err) reject(err);
+          db.get({
+            query: `SELECT sellers.*, users.name AS "owner"
+                    FROM sellers
+                    LEFT JOIN users ON users.id = sellers.userId
+                    WHERE LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")
+                    OR sellers.id = "${args.sellerName}"`
+          }).then((seller) => {
             if (seller) {
               resolve({
                 success: true,
@@ -199,72 +147,56 @@ module.exports = {
                     ]
                   }
                 }
-              });
+              })
             } else {
               resolve({
                 message: 'I was unable to find that seller.'
               });
             }
+          }).catch(reason => {
+            reject(reason);
           });
         });
       }
     },
 
     default: {
-      usage: 'seller default [seller ID]',
+      usage: 'seller default [id]',
       description: 'Sets a default seller for new listings',
       argsPattern: /(?<sellerId>[0-9]+)/,
       execute(args, user) {
-        const query = `UPDATE users
-                       SET defaultSeller = EXISTS (SELECT id FROM sellers WHERE id = ${args.sellerId} AND userId = ${user.id})
-                       WHERE id = "${user.id}"`
-
-        return new Promise((resolve, reject) => {
-          db.run(query, function(err) {
-            if (err && !err.code.includes('SQLITE_CONSTRAINT')) reject(err);
-            
-            if (this.changes > 0) {
-              resolve({
-                success: true,
-                message: "I've set that as your default seller."
-              });
-            } else {
-              resolve({
-                message: 'I was unable to find your seller with that ID.'
-              });
-            }
+        return db.get({
+          query: `SELECT id FROM sellers WHERE id = ${args.sellerId} AND userId = ${user.id}`
+        }).then(seller => {
+          if (seller) return db.run({
+            query: `UPDATE users
+                    SET defaultSeller = ${seller.id}
+                    WHERE id = ${user.id}`,
+            success: "I've set that as your default seller.",
+            fail: 'I was unable to set that as your default seller.'
           });
+
+          return Promise.resolve({
+            message: 'I was unable to find your seller by that ID.'
+          });
+        }).catch(reason => {
+          return Promise.reject(reason);
         });
       }
     },
 
     toggle: {
-      usage: 'seller toggle [seller ID]',
+      usage: 'seller toggle [id]',
       description: 'Toggle seller visibility',
       argsPattern: /(?<sellerId>[0-9]+)/,
       execute(args, user) {
-        let query = `UPDATE sellers
-                     SET active = NOT active
-                     WHERE id = "${args.sellerId}"`
-
-        if (!user.admin) query = query + ` AND userId = "${user.id}"`;
-
-        return new Promise((resolve, reject) => {
-          db.run(query, function(err) {
-            console.log(query)
-            console.log(this)
-            if (err) reject(err);
-            if (this.changes > 0) {
-              resolve({
-                success: true,
-                message: `I've toggled that seller for you`
-              });
-            } else {
-              resolve({
-                message: 'I was unable to find your seller with that ID.'
-              });
-            }
-          });
+        if (user.admin) user.id = user.id;
+        return db.run({
+          query: `UPDATE sellers
+                  SET active = NOT active
+                  WHERE id = "${args.sellerId}"`,
+          success: "I've toggled that seller for you",
+          fail: 'I was unable to find your seller with that ID.'
         });
       }
     },

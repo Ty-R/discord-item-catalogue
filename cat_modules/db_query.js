@@ -1,68 +1,65 @@
 const db = require('./db').load();
 
 module.exports = {
-  run(sql, errMsg) {
+  run(args) {
     return new Promise((resolve, reject) => {
-      db.run(sql, function(err) {
+      db.run(args.query, function(err) {
         if (err) reject(err);
         if (this.changes > 0) {
           resolve({
             success: true,
-            message: "That's all done for you."
+            message: args.success
           });
         } else {
           resolve({
-            success: false,
-            message: errMsg || "Something didn't quite go to plan, was the command definitely correct?"
+            message: args.fail
           });
         }
       });
     });
   },
 
-  all(sql, format) {
+  all(args) {
     return new Promise((resolve, reject) => {
-      db.all(sql, (err, rows) => {
-        if (err) reject(err);
-        if (rows && rows.length > 0) {
-          resolve({
-            success: true,
-            message: `Here's what I found:\n\n${module.exports.formats[format].format(rows)}`
-          });
-        } else {
-          resolve({
-            success: false,
-            message: `I was unable to find anything.`
-          });
-        }
-      });
-    });
-  },
-
-  get(sql, errMsg) {
-    return new Promise((resolve, reject) => {
-      db.get(sql, (err, row)=>{
-        if (err) reject(err);
-        if (row) {
-          resolve(row);
-        } else {
-          resolve({
-            success: false,
-            message: errMsg || `I was unable to find anything.`
-          });
-        }
-      });
-    });
-  },
-
-  getAll(sql) {
-    return new Promise((resolve, reject) => {
-      db.all(sql, (err, rows)=>{
+      db.all(args.query, (err, rows) => {
         if (err) reject(err);
         resolve(rows);
       });
     });
   },
+
+  get(args) {
+    return new Promise((resolve, reject) => {
+      db.get(args.query, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+  },
+
+  // getAll(args) {
+  //   return new Promise((resolve, reject) => {
+  //     db.get(args.query, (err, row) => {
+  //       if (err) reject(err);
+  //       if (row) {
+  //         resolve(row);
+  //       } else {
+  //         resolve({
+  //           message: args.fail
+  //         });
+  //       }
+  //     });
+  //   });
+  // },
+
+  // getAll(sql) {
+  //   return new Promise((resolve, reject) => {
+  //     db.all(sql, (err, rows)=>{
+  //       if (err) reject(err);
+  //       resolve(rows);
+  //     });
+  //   });
+  // },
 
   formats: {
     users: {
@@ -92,6 +89,13 @@ module.exports = {
           return `• [${row.id}] ${row.item} for ${row.price}`;
         }).join("\n");
       }
+    },
+    profile: {
+      format(args) {
+        return {
+
+        }
+      }
     }
-  }
+  },
 }

@@ -1,4 +1,4 @@
-const db = require('../cat_modules/db_query');
+const db = require('../cat_modules/db').load();
 const { searchCap } = require('../config.json');
 
 module.exports = {
@@ -6,47 +6,61 @@ module.exports = {
   description: "A listing is an item or service for a price. Listings belong to sellers",
   subCommands: {
     add: {
-      usage: 'listing add [item]:[price] > [seller name]',
+      usage: 'listing add [item]:[price] > [seller id]',
       description: 'Add a new listing',
       argsPattern: /(?<item>[^:]+[^\s])\s*:\s*(?<price>.+?)\s*(?=>\s*(?<sellerName>.+)|$)/,
       execute(args, user) {
-        if (!args.sellerName && !user.defaultSeller) {
-          return Promise.resolve({ message: "You need to specify a seller to add this listing to." });
-        }
+        return db.get({
+          query: `SELECT id FROM sellers
+                  WHERE userId = ${user.id}
+                  AND id IN (${args.sellerName || null}, ${user.defaultSeller})
+                  ORDER BY CASE
+                    WHEN id = "${args.sellerName}" THEN 1
+                    ELSE 2
+                  END
+                  LIMIT 1`
+        }).then(seller => {
+          if (seller) return db.run({
+            query: `INSERT INTO listings (item, price, userId, sellerId)
+                    VALUES ("${args.item}", "${args.price}", "${user.id}", "${seller.id}")`,
+            success: "I've added that listing for you."
+          });
 
-        const errOnFail = `You don't have a seller with that name. Has it been created? If not, you need to create it first using the \`seller\` command.`;
-        const sql = `SELECT *
-                     FROM sellers
-                     WHERE userId = ${user.id}
-                     AND LOWER(name) = LOWER("${args.sellerName}") OR id = ${user.defaultSeller}
-                     ORDER BY CASE
-                       WHEN LOWER(name) = LOWER("${args.sellerName}") THEN 1
-                       ELSE 2
-                     END
-                     LIMIT 1`;
-
-        return db.get(sql, errOnFail).then(result => {
-          if (result.success === false) return result;
-          return db.run(
-            `INSERT INTO listings (item, price, sellerId, userId)
-             VALUES ("${args.item}", "${args.price}", "${result.id}", "${user.id}")`
-          );
+          return Promise.resolve({
+            message: 'I was unable to find a seller to add that listing to.'
+          });
+        }).catch(reason => {
+          return Promise.reject(reason);
         })
       }
     },
 
     remove: {
-      usage: 'listing remove [listing ID]',
+      usage: 'listing remove [id]',
       description: 'Remove an existing listing',
       argsPattern: /(?<listingIds>[0-9,\s]+)/,
       execute(args, user) {
-        const ids = args.listingIds.split(',').map(id => `"${id}"`);
-        let sql = `DELETE FROM listings
-                   WHERE id in (${ids})`;
-        
-        if (!user.admin) sql = sql + ` AND userId = "${user.id}"`;
-        const errOnFail = "I couldn't find any listings that belong to you with the IDs given."
-        return db.run(sql, errOnFail);
+        const ids = args.listingIds.split(',').map(id => `${id}`);
+        let query = `DELETE FROM listings
+                     WHERE id IN (${ids})`;
+
+        if (!user.admin) query = query + ` AND userId = "${user.id}"`;
+
+        return new Promise((resolve, reject) => {
+          db.run(query, function(err) {
+            if (err) reject(err);
+            if (this.changes > 0) {
+              resolve({
+                success: true,
+                message: "I've done that for you."
+              });
+            } else {
+              resolve({
+                message: "I was unable to find any of your sellers with the IDs given."
+              });
+            }
+          });
+        });
       }
     },
 
@@ -68,7 +82,7 @@ module.exports = {
     },
 
     update: {
-      usage: 'listing update [listing IDs] [field]:[value]',
+      usage: 'listing update [id] [field]:[value]',
       description: 'Update the item, price, or seller of a listing',
       argsPattern: /(?<listingIds>[0-9,\s]+)\s(?<field>item|price|seller)\s*:\s*(?<value>.+)/,
       execute(args, user) {

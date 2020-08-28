@@ -13,6 +13,6 @@ exports.run = (message) => {
   // cat_modules/validator.js performs the validations against the input groups
   // between presence of commands and the pattern of the args.
   // Expected arg patterns are defined in each sub-command (e.g. commands/admin.js)
-  const command = message.content.match(/\s+?(?<command>[^\s]+)\s*(?<subCommand>[^\s]*)\s*(?<args>.*)/)
+  const command = message.content.match(/\s+?(?<command>[^\s]+)\s*(?<subCommand>[^\s]*)\s*(?<args>.*)/);
   return command ? command.groups : {};
 }
