@@ -8,7 +8,7 @@ module.exports = {
     add: {
       usage: 'listing add [item]:[price] @[seller name]',
       description: 'Add a new listing',
-      argsPattern: /(?<item>[^:]+\b)\s*:\s*(?<price>[^@]+?)\s*(?=@(?<sellerName>.+)|$)/,
+      argsPattern: /(?<item>[^:]+[^\s])\s*:\s*(?<price>[^@]+?)\s*(?=@(?<sellerName>.+)|$)/,
       execute(args, user) {
         if (!args.sellerName && !user.defaultSeller) {
           return Promise.resolve({ message: "You need to specify a seller to add this listing to." });
