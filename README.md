@@ -125,13 +125,13 @@ A listing is an item or service for a price. They belong to sellers and can be s
 
 To add a listing, a user needs to specify what is being sold, how much for, and where:
 
-**Usage:** `!cat listing add [:item]: [:price] @[:seller name]`\
-**Example:** `!cat listing add 5 books: 1 gold @My Shop`
+**Usage:** `!cat listing add [:item]: [:price] > [:seller name]`\
+**Example:** `!cat listing add 5 books: 1 gold > My Shop`
 
 Some things to note:
 
-* If a user has set a default seller then they can omit the `@[:seller name]`
-* Default seller can be overridden per listing by passing a different seller using `@[:seller name]`
+* If a user has set a default seller then they can omit the `> [:seller name]`
+* Default seller can be overridden per listing by passing a different seller using `> [:seller name]`
 
 ### Searching listings
 

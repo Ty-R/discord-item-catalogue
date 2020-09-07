@@ -6,9 +6,9 @@ module.exports = {
   description: "A listing is an item or service for a price. Listings belong to sellers",
   subCommands: {
     add: {
-      usage: 'listing add [item]:[price] @[seller name]',
+      usage: 'listing add [item]:[price] > [seller name]',
       description: 'Add a new listing',
-      argsPattern: /(?<item>[^:]+[^\s])\s*:\s*(?<price>[^@]+?)\s*(?=@(?<sellerName>.+)|$)/,
+      argsPattern: /(?<item>[^:]+[^\s])\s*:\s*(?<price>.+?)\s*(?=>\s*(?<sellerName>.+)|$)/,
       execute(args, user) {
         if (!args.sellerName && !user.defaultSeller) {
           return Promise.resolve({ message: "You need to specify a seller to add this listing to." });
