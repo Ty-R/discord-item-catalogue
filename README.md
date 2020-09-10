@@ -29,6 +29,7 @@ All commands are run in Discord, and the prefix (`!cat`) may vary depending on t
   * [Add a listing](#adding-a-listing)
   * [Search listings](#searching-listings)
   * [Update listings](#modfying-a-listing)
+  * [Move listings](#move-a-listing)
   * [Remove listings](#removing-a-listing)
 * [Admin](#admin)
   * [Add | Remove admins](#adding-or-removing-admins)
@@ -143,7 +144,7 @@ Some things to note:
 A user can search for listings by name:
 
 **Usage:** `!cat listing search [:term]`\
-**Example 1:** `!cat listing search books`
+**Example:** `!cat listing search books`
 
 Some things to note:
 
@@ -152,19 +153,23 @@ Some things to note:
 
 ### Modfying a listing
 
-Any part of a listing can be modified - the fields of it, or the seller it belongs to. The fields that can be modified are:
-
-* item
-* price
-* seller
+Modify the name or price of a listing:
 
 **Usage:** `!cat listing update [:id] [:field]: [:value]`\
-**Example 1:** `!cat listing update 123 item: 10 books`\
-**Example 2:** `!cat listing update 123 seller: My Other Shop`
+**Example:** `!cat listing update 123 item: 10 books`\
 
 Something to note:
 
 * Many listings can be updated at once by passing more (comma-separated) IDs
+
+### Moving a listing
+
+Move listings from one seller to another:
+
+**Usage:** `!cat listing move [:id] > [:seller id]`\
+**Example 1:** `!cat listing move 123 > 456`
+
+* Many listings can be moved at once by passing more (comma-separated) IDs
 
 ### Removing a listing
 

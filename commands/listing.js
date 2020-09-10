@@ -1,4 +1,4 @@
-const db = require('../cat_modules/db').load();
+const db = require('../cat_modules/db_query');
 const { searchCap } = require('../config.json');
 
 module.exports = {
@@ -10,28 +10,30 @@ module.exports = {
       description: 'Add a new listing',
       argsPattern: /(?<item>[^:]+[^\s])\s*:\s*(?<price>.+?)\s*(?=>\s*(?<sellerName>.+)|$)/,
       execute(args, user) {
-        return db.get({
-          query: `SELECT id FROM sellers
-                  WHERE userId = ${user.id}
-                  AND id IN (${args.sellerName || null}, ${user.defaultSeller})
-                  ORDER BY CASE
-                    WHEN id = "${args.sellerName}" THEN 1
-                    ELSE 2
-                  END
-                  LIMIT 1`
-        }).then(seller => {
-          if (seller) return db.run({
-            query: `INSERT INTO listings (item, price, userId, sellerId)
-                    VALUES ("${args.item}", "${args.price}", "${user.id}", "${seller.id}")`,
-            success: "I've added that listing for you."
-          });
+        const id = args.sellerName || user.defaultSeller;
+        if (!id) return Promise.resolve({
+          message: "I don't know where to add that listing - no seller specified and no default seller set."
+        });
 
-          return Promise.resolve({
-            message: 'I was unable to find a seller to add that listing to.'
+        return db.get({
+          query: `SELECT * FROM sellers
+                  WHERE userId = ${user.id}
+                  AND id = ${id}`
+        }).then(seller => {
+          if (!seller) return {
+            message: "I was unable to find your seller with that ID."
+          }
+
+          return db.run({
+            query: `INSERT INTO listings (item, price, userId, sellerId)
+                    VALUES ("${args.item}", "${args.price}", "${user.id}", "${seller.id}")`
+          }).then(() => {
+            return {
+              success: true,
+              message: `I've added that listing to "${seller.name}" for you.`
+            }
           });
-        }).catch(reason => {
-          return Promise.reject(reason);
-        })
+        }).catch(error => Promise.reject(error));
       }
     },
 
@@ -40,27 +42,22 @@ module.exports = {
       description: 'Remove an existing listing',
       argsPattern: /(?<listingIds>[0-9,\s]+)/,
       execute(args, user) {
-        const ids = args.listingIds.split(',').map(id => `${id}`);
-        let query = `DELETE FROM listings
-                     WHERE id IN (${ids})`;
-
-        if (!user.admin) query = query + ` AND userId = "${user.id}"`;
-
-        return new Promise((resolve, reject) => {
-          db.run(query, function(err) {
-            if (err) reject(err);
-            if (this.changes > 0) {
-              resolve({
-                success: true,
-                message: "I've done that for you."
-              });
-            } else {
-              resolve({
-                message: "I was unable to find any of your sellers with the IDs given."
-              });
+        return db.run({
+          query: `DELETE FROM listings
+                  WHERE id IN (${args.listingIds.split(',')})
+                  ${user.admin ? '' : `AND userId = "${user.id}"`}`
+        }).then(result => {
+          if (result.success) {
+            return {
+              success: true,
+              message: "Any of your listings matching the IDs given have been removed."
+            } 
+          } else {
+            return {
+              message: 'I was unable to find your listings with the IDs given.'
             }
-          });
-        });
+          }
+        }).catch(error => Promise.reject(error));
       }
     },
 
@@ -69,43 +66,85 @@ module.exports = {
       description: 'Search for a listing by item or seller',
       argsPattern: /(?<term>.+)/,
       execute(args) {
-        const term = `%${args.term.replace('*', '')}%`;
-        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name, sellers.active
-                     FROM listings
-                     INNER JOIN sellers on sellers.id = listings.sellerId
-                     WHERE sellers.active = 1
-                     AND LOWER("item") LIKE LOWER("${term}")
-                     LIMIT ${searchCap}`
-
-        return db.all(sql, 'listings');
+        return db.all({
+          query:`SELECT listings.id, listings.item, listings.price, sellers.name, sellers.active
+                 FROM listings
+                 INNER JOIN sellers on sellers.id = listings.sellerId
+                 WHERE sellers.active = 1
+                 AND LOWER("item") LIKE LOWER("%${args.term}%")
+                 LIMIT ${searchCap}`
+        }).then(listings => {
+          if (listings.length > 0) {
+            return {
+              success: true,
+              message: "Here's what I found:\n\n" + listings.map(row => `• [${row.id}]  **${row.name}** is selling **${row.item}** for **${row.price}**`).join("\n")
+            };
+          } else {
+            return {
+              message: `I was unable to find any listing names containing "${args.term}"`
+            };
+          };
+        }).catch(error => Promise.reject(error));
       }
     },
 
     update: {
       usage: 'listing update [id] [field]:[value]',
-      description: 'Update the item, price, or seller of a listing',
-      argsPattern: /(?<listingIds>[0-9,\s]+)\s(?<field>item|price|seller)\s*:\s*(?<value>.+)/,
+      description: 'Update the item or price of a listing',
+      argsPattern: /(?<listingIds>[0-9,\s]+)\s(?<field>item|price)\s*:\s*(?<value>.+)/,
       execute(args, user) {
-        const ids = args.listingIds.split(',').map(id => `"${id}"`);
-        const errOnFail1 = "I couldn't find any listings that belong to you with the IDs given."
+        return db.run({
+          query: `UPDATE listings
+                  SET "${args.field}" = "${args.value}"
+                  WHERE id in (${args.listingIds.split(',')})
+                  AND userId = "${user.id}"`
+        }).then(result => {
+          if (result.success) {
+            return {
+              success: true,
+              message: "That's all done."
+            }
+          } else {
+            return {
+              message: 'I was unable to find your listings with the IDs given.'
+            }
+          }
+        })
+      }
+    },
 
-        if (args.field === 'seller') {
-          const errOnFail2 = `I couldn't find a seller named "${args.value}" that belongs to you.`;
-          return db.get(`SELECT id FROM sellers WHERE LOWER(name) = LOWER("${args.value}") AND userId = "${user.id}"`, errOnFail2).then(result => {
-            if (result.success === false) return result;
-            return db.run(`UPDATE listings
-                           SET "sellerId" = "${result.id}"
-                           WHERE id in (${ids})
-                           AND userId = "${user.id}"`, errOnFail1);
-          });
-        }
+    move: {
+      usage: 'listing move [id] > [seller id]',
+      description: 'Move a listing to a different seller',
+      argsPattern: /(?<listingIds>[0-9,\s]+)\s*>\s*(?<sellerId>.+)/,
+      execute(args, user) {
+        return db.get({
+          query: `SELECT * FROM sellers
+                  WHERE id = "${args.sellerId}"
+                  AND userId = "${user.id}"`
+        }).then(seller => {
+          if (!seller) return {
+            message: 'I was unable to find your seller with that ID.'
+          }
 
-        return db.run(
-          `UPDATE listings
-           SET "${args.field}" = "${args.value}"
-           WHERE id in (${ids})
-           AND userId = "${user.id}"`, errOnFail1
-        );
+          return db.run({
+            query: `UPDATE listings
+                    SET "sellerId" = "${seller.id}"
+                    WHERE id in (${args.listingIds.split(',')})
+                    AND userId = "${user.id}"`
+          }).then(result => {
+            if (result.success) {
+              return {
+                success: true,
+                message: `I've moved any of your listings with those IDs to "${seller.name}"`
+              }
+            } else {
+              return {
+                message: 'I was unable to find your listings with the IDs given.'
+              }
+            }
+          }).catch(error => Promise.reject(error));
+        }).catch(error => Promise.reject(error));
       }
     },
 

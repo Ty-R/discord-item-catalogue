@@ -9,16 +9,21 @@ module.exports = {
       description: 'Toggle the admin status of a user',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
-        return db.run(
-          {
-            query: `UPDATE users
-                    SET admin = NOT admin
-                    WHERE discordId = "${args.discordId}"`,
-            success: "I've done that for you.",
-            fail: "I was unable to change the admin status of that user."
+        return db.run({
+          query: `UPDATE users
+                  SET admin = NOT admin
+                  WHERE discordId = "${args.discordId}"`
+        }).then(result => {
+          if (result.success) {
+            return {
+              message: "I've toggled that user's admin status."
+            }
+          } else {
+            return {
+              message: 'I was unable to find a user using that Discord ID.'
+            }
           }
-
-        );
+        });
       }
     },
 
@@ -27,10 +32,20 @@ module.exports = {
       description: 'Purge a user from the catalogue',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
-        return db.run(
-          `DELETE FROM users
-           WHERE discordId = "${args.discordId}"`
-        );
+        return db.run({
+          query: `DELETE FROM users
+                  WHERE discordId = "${args.discordId}"`
+        }).then(result => {
+          if (result.success) {
+            return {
+              message: "I've removed that user, their sellers, and their listings from the catalogue."
+            }
+          } else {
+            return {
+              message: 'I was unable to find a user using that Discord ID.'
+            }
+          }
+        });
       }
     },
   
