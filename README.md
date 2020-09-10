@@ -48,6 +48,10 @@ All that's needed to add a seller is a name.
 **Usage:** `!cat seller add [:name]`\
 **Example:** `!cat seller add My Shop`
 
+Something to note:
+
+* The seller name cannot contain the "`:`" character
+
 ### Listing sellers
 
 **Usage:** `!cat seller list`
@@ -132,6 +136,7 @@ Some things to note:
 
 * If a user has set a default seller then they can omit the `> [:seller name]`
 * Default seller can be overridden per listing by passing a different seller using `> [:seller name]`
+* The item and price cannot contain the "`:`" character
 
 ### Searching listings
 
