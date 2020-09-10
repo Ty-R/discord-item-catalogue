@@ -25,26 +25,34 @@ exports.run = (input, commands, userIsAmin) => {
       };
     }
 
-    // Check if args contains multiple colons
-    if ((input.args.match(/:/g) || []).length > 1) {
-      return {
-        message: 'The character "`:`" is reserved for internal use and cannot exist outside of the separator.'
-      };
-    }
+    if (subCommand.argsPattern) {
+      const args = input.args.match(subCommand.argsPattern);
 
-    // Check if sub-command matches the expected pattern
-    const args = input.args.match(subCommand.argsPattern);
+      // Check if given args matched the expected args pattern
+      if (!args) {
+        return {
+          message: `Here's how you use that \`${prefix} ${subCommand.usage}\`.`
+        };
+      }
 
-    if (!args) {
+      // Check if any of the arg groups contain a colon
+      if (Object.values(args.groups).some(arg => arg && arg.includes(':'))) {
+        return {
+          message: 'The character "`:`" is reserved for internal use and cannot exist outside of the separator.'
+        };
+      }
+
+      // All good
       return {
-        message: `Here's how you use that \`${prefix} ${subCommand.usage}\`.`
+        success: true,
+        args: args.groups,
+        command: subCommand
       };
     }
 
     // All good
     return {
       success: true,
-      args: args.groups,
       command: subCommand
     };
   }
