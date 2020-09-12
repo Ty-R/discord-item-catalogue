@@ -1,4 +1,4 @@
-const db = require('../cat_modules/db_query');
+const db = require("../db/config");
 
 module.exports = {
   name: 'user',
@@ -7,7 +7,12 @@ module.exports = {
       usage: 'user list',
       description: 'Lists all users known to the catalogue',
       execute() {
-        return db.all('SELECT * FROM users', 'users');
+        return db('users').then(users => {
+          return {
+            success: true,
+            message: "Here they are:\n\n" + users.map(user => `• [${user.discordId}] ${user.name}`).join("\n")
+          }
+        });
       }
     },
 
@@ -19,11 +24,14 @@ module.exports = {
         const { adminDiscordId } = require('../config.json');
         if (user.discordId !== adminDiscordId) return Promise.resolve({ message: "You don't have permission to use that command." });
 
-        return db.run(
-          `UPDATE users
-           SET admin = 1
-           WHERE discordId = "${adminDiscordId}"`
-        );
+        return db('users')
+          .where({ discordId: adminDiscordId })
+          .update({ admin: 1 }).then(() => {
+            return {
+              success: true,
+              message: "I've made you an admin."
+            }
+          })
       }
     },
 

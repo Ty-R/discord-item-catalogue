@@ -1,4 +1,4 @@
-const db = require('../cat_modules/db_query');
+const db = require("../db/config");
 
 module.exports = {
   name: 'admin',
@@ -9,18 +9,18 @@ module.exports = {
       description: 'Toggle the admin status of a user',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
-        return db.run({
-          query: `UPDATE users
-                  SET admin = NOT admin
-                  WHERE discordId = "${args.discordId}"`
-        }).then(result => {
-          if (result.success) {
+        return db('users')
+          .where({ discordId: args.discordId })
+          .update({
+            admin: db.raw('NOT admin')
+          }).then(result => {
+          if (result) {
             return {
-              message: "I've toggled that user's admin status."
+              message: "That's all done for you."
             }
           } else {
             return {
-              message: 'I was unable to find a user using that Discord ID.'
+              message: "I couldn't find that user."
             }
           }
         });
@@ -32,20 +32,19 @@ module.exports = {
       description: 'Purge a user from the catalogue',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
-        return db.run({
-          query: `DELETE FROM users
-                  WHERE discordId = "${args.discordId}"`
-        }).then(result => {
-          if (result.success) {
-            return {
-              message: "I've removed that user, their sellers, and their listings from the catalogue."
+        return db('users')
+          .where({ discordId: args.discordId })
+          .del().then(result => {
+            if (result) {
+              return {
+                message: "I've removed that user, their sellers, and their listings from the catalogue."
+              }
+            } else {
+              return {
+                message: 'I was unable to find a user using that Discord ID.'
+              }  
             }
-          } else {
-            return {
-              message: 'I was unable to find a user using that Discord ID.'
-            }
-          }
-        });
+          });
       }
     },
   

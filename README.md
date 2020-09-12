@@ -32,7 +32,7 @@ All commands are run in Discord, and the prefix (`!cat`) may vary depending on t
   * [Move listings](#move-a-listing)
   * [Remove listings](#removing-a-listing)
 * [Admin](#admin)
-  * [Add | Remove admins](#adding-or-removing-admins)
+  * [Add or remove admins](#adding-or-removing-admins)
   * [Remove listings](#removing-listings)
   * [Update sellers](#update-sellers)
   * [Toggle sellers](#toggle-sellers)
@@ -49,11 +49,9 @@ All that's needed to add a seller is a name.
 **Usage:** `!cat seller add [:name]`\
 **Example:** `!cat seller add My Shop`
 
-Something to note:
-
-* The seller name cannot contain the "`:`" character
-
 ### Listing sellers
+
+Lists all sellers in the catalogue.
 
 **Usage:** `!cat seller list`
 
@@ -77,7 +75,7 @@ Some things to note:
 
 ### Seller profile
 
-Useful if a user wants more information about a seller. Along side the name, it'll show the other optional values.
+Seller profile cotains information about the seller - the ID, owner, whether they're active, the location, and description.
 
 **Usage:** `!cat seller info [:name]`\
 **Example:** `!cat seller info My Shop`
@@ -96,6 +94,10 @@ When a listing is added (more on this in the listings section), a seller needs t
 **Usage:** `!cat seller default [:id]`\
 **Example:** `!cat seller default 123`
 
+Something to note:
+
+* You can find out your current default seller by running the command without giving it an ID
+
 ### Removing a seller
 
 If a user no longer wishes to have a seller in the catalogue they can remove it.
@@ -105,7 +107,6 @@ If a user no longer wishes to have a seller in the catalogue they can remove it.
 
 Some things to note:
 
-* A seller cannot be removed if it has listings
 * Only one seller can be removed at a time
 * Removing a seller set as default will unset it
 
@@ -120,7 +121,7 @@ Some things to note:
 
 * This will mark them as inactive in their seller profile
 * Listings owned by inactive sellers will not be returned when searched
-* Sellers can still be queried directly using seller commands
+* Inactive sellers can still be queried directly using seller commands
 
 ## Listings
 
@@ -130,14 +131,13 @@ A listing is an item or service for a price. They belong to sellers and can be s
 
 To add a listing, a user needs to specify what is being sold, how much for, and where:
 
-**Usage:** `!cat listing add [:item]: [:price] > [:seller name]`\
+**Usage:** `!cat listing add [:item]: [:price] > [:seller id]`\
 **Example:** `!cat listing add 5 books: 1 gold > My Shop`
 
 Some things to note:
 
-* If a user has set a default seller then they can omit the `> [:seller name]`
-* Default seller can be overridden per listing by passing a different seller using `> [:seller name]`
-* The item and price cannot contain the "`:`" character
+* If a user has set a default seller then they can omit the `> [:seller id]`
+* Default seller can be overridden per listing by passing a different seller using `> [:seller id]`
 
 ### Searching listings
 
@@ -148,7 +148,7 @@ A user can search for listings by name:
 
 Some things to note:
 
-* Search is partial; "book" would return any listings with book in the name
+* Search is partial; "book" would return listings with "book" anywhere in the name
 * Search is capped at 10 by default but can be changed in the config
 
 ### Modfying a listing
@@ -188,8 +188,9 @@ A catalogue admin can modify or remove the sellers and listings of other users. 
 
 ### Adding or Removing admins
 
-**Usage:** `!cat admin add [:discord id]`\
-**Usage:** `!cat admin remove [:discord id]`
+Toggles the admin status of a user.
+
+**Usage:** `!cat admin toggle [:discord id]`
 
 ### Removing listings
 
