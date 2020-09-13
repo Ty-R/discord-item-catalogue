@@ -64,6 +64,38 @@ test('Update seller - name', async () => {
   });
 });
 
+test('Update seller - location', async () => {
+  const args = {
+    sellerId: seller.id,
+    field: 'location',
+    value: 'Updated seller location'
+  };
+
+  await sellerCommand.subCommands.update.execute(args, user).then(result => {
+    expect(result.success).toBe(true);
+  });
+
+  await db('sellers').where({ id: seller.id }).first().then(seller => {
+    expect(seller.location).toBe('Updated seller location');
+  });
+});
+
+test('Update seller - description', async () => {
+  const args = {
+    sellerId: seller.id,
+    field: 'description',
+    value: 'Updated seller description'
+  };
+
+  await sellerCommand.subCommands.update.execute(args, user).then(result => {
+    expect(result.success).toBe(true);
+  });
+
+  await db('sellers').where({ id: seller.id }).first().then(seller => {
+    expect(seller.description).toBe('Updated seller description');
+  });
+});
+
 test('Clear field - location', async () => {
   seller = await db('sellers').whereNot({ location: null }).first();
 
@@ -98,9 +130,19 @@ test('Clear field - description', async () => {
   });
 });
 
-test('Seller inventory', async () => {
+test('Seller inventory by id', async () => {
   const args = {
     sellerName: seller.id
+  };
+
+  await sellerCommand.subCommands.inventory.execute(args, user).then(result => {
+    expect(result.success).toBe(true);
+  });
+});
+
+test('Seller inventory by name', async () => {
+  const args = {
+    sellerName: seller.name
   };
 
   await sellerCommand.subCommands.inventory.execute(args, user).then(result => {

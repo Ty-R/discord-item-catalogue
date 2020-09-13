@@ -131,7 +131,7 @@ module.exports = {
           .select('listings.id', 'listings.item', 'listings.price', 'sellers.name')
           .join('sellers', { 'sellers.id': 'listings.sellerId' })
           .where(function() {
-            this.whereRaw(`LOWER("sellers.name") LIKE LOWER("${args.sellerName}%")`)
+            this.whereRaw(`LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")`)
             .orWhere('sellers.id', args.sellerName)
           }).then(listings => {
             if (listings.length) {

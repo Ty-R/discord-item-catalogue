@@ -5,12 +5,13 @@ Catalogue is a Discord bot that allows the creation of sellers and listings. A s
 # Setup
 
 1. Clone or download this repository
-2. In the newly created directory, run: `$ npm install`
+2. In the newly created directory, run: `npm install`
 3. Rename `config.json.example` to `config.json` and modify as needed
 4. Rename `help.json.example` to `help.json` and modify as needed
+5. Run migations: `NODE_ENV=production npm run migrate`
 5. Invite the bot to a server
 
-From here, running: `$ node cat` in the bot directory will start the bot.
+From here, running: `node cat` in the bot directory will start the bot.
 
 # Usage
 
@@ -20,6 +21,7 @@ All commands are run in Discord, and the prefix (`!cat`) may vary depending on t
   * [Add a seller](#adding-a-new-seller)
   * [List sellers](#listing-sellers)
   * [Update a seller](#modifying-a-seller)
+  * [Clear seller field](#clear-seller-field)
   * [Seller profile](#seller-profile)
   * [Seller inventory](#seller-inventory)
   * [Default seller](#default-seller)
@@ -32,10 +34,7 @@ All commands are run in Discord, and the prefix (`!cat`) may vary depending on t
   * [Move listings](#move-a-listing)
   * [Remove listings](#removing-a-listing)
 * [Admin](#admin)
-  * [Add or remove admins](#adding-or-removing-admins)
-  * [Remove listings](#removing-listings)
-  * [Update sellers](#update-sellers)
-  * [Toggle sellers](#toggle-sellers)
+  * [Toggle admins](#adding-or-removing-admins)
   * [Purge user](#purging-a-user)
 
 ## Sellers
@@ -70,8 +69,14 @@ The only thing needed to create a seller was a name but there are a few other op
 Some things to note:
 
 * Icon should be a URL
-* The icon can be unset by using `unset` as the value
 * Discord character limits apply (e.g. max of 1024 characters in the description)
+
+### Clear seller field
+
+Used to clear fields in a seller profile. 
+
+**Usage:** `!cat seller clear [:id] [:field]`\
+**Example:** `!cat seller clear 123 description`
 
 ### Seller profile
 
@@ -92,7 +97,8 @@ Allows users to query for all listings under a seller.
 When a listing is added (more on this in the listings section), a seller needs to be specified. A user can set one of their sellers as a default so that they do not need to specify a seller each time.
 
 **Usage:** `!cat seller default [:id]`\
-**Example:** `!cat seller default 123`
+**Example:** `!cat seller default 123`\
+**Example 2:** `!cat seller default`
 
 Something to note:
 
@@ -167,9 +173,11 @@ Something to note:
 Move listings from one seller to another:
 
 **Usage:** `!cat listing move [:id] > [:seller id]`\
-**Example 1:** `!cat listing move 123 > 456`
+**Example:** `!cat listing move 123 > 456`
 
 * Many listings can be moved at once by passing more (comma-separated) IDs
+
+**Example:** `!cat listing move 1, 2, 3 > 1`
 
 ### Removing a listing
 
@@ -180,11 +188,15 @@ Something to note:
 
 * Many listings can be removed at once by passing more (comma-separated) IDs
 
+**Example:** `!cat listing remove 1, 2, 3`
+
 ## Admin
 
 **Note:** Adding the first admin is slightly different from adding subsequent admins. This can be done by adding your Discord ID to the config and running: `!cat user makemeadmin`. This technique may change in the future.
 
 A catalogue admin can modify or remove the sellers and listings of other users. Most admin commands around users require the user's Discord ID. This can be obtained by: `!cat user list`.
+
+Admins will skip the ownership check when modifying or removing listings or sellers.
 
 ### Adding or Removing admins
 
@@ -192,20 +204,12 @@ Toggles the admin status of a user.
 
 **Usage:** `!cat admin toggle [:discord id]`
 
-### Removing listings
-
-Listing removal is identical to the standard [removal command](#removing-a-listing) except an admin would skip the ownership check.
-
-### Update sellers
-
-Seller update is identical to the standard [update command](#modifying-a-seller) except an admin would skip the ownership check.
-
-### Toggle sellers
-
-Seller toggle is identical to the standard [toggle command](#toggle-seller-visibility) except an admin would skip the ownership check.
-
 ### Purging a user
 
 If a user is no longer active then they, and all their listings, can be removed from the catalogue:
 
 **Usage:** `!cat admin purge [:discord id]`
+
+# Testing
+
+Tests go under the `test/` directory and can be run with `npm run test`.

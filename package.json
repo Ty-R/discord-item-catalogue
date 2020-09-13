@@ -16,6 +16,7 @@
   },
   "scripts": {
     "test": "jest",
-    "knex": "knex"
+    "knex": "knex",
+    "migrate": "knex migrate:latest"
   }
 }

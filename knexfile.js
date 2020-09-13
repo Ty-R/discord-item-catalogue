@@ -6,10 +6,10 @@ module.exports = {
     connection: ':memory:',
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, 'migrations')
+      directory: path.join(__dirname, 'db/migrations')
     },
     seeds: {
-      directory: path.join(__dirname, 'seeds')
+      directory: path.join(__dirname, 'db/seeds')
     },
     pool: {
       afterCreate: (conn, cb) => {
@@ -24,10 +24,10 @@ module.exports = {
     },
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, 'migrations')
+      directory: path.join(__dirname, 'db/migrations')
     },
     seeds: {
-      directory: path.join(__dirname, 'seeds')
+      directory: path.join(__dirname, 'db/seeds')
     },
     pool: {
       afterCreate: (conn, cb) => {
@@ -43,7 +43,7 @@ module.exports = {
     },
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, 'migrations')
+      directory: path.join(__dirname, 'db/migrations')
     },
     pool: {
       afterCreate: (conn, cb) => {
