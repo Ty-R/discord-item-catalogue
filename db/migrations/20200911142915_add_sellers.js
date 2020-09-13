@@ -12,12 +12,12 @@ exports.up = async (knex) => {
          .references('users.id')
          .onDelete('CASCADE');
   }).then(() => {
-    console.log("created sellers");
+    return;
   });
 };
 
 exports.down = async (knex) => {
   knex.schema.dropTable("sellers").then(() => {
-    console.log('dropped sellers');
+    return;
   });
 };

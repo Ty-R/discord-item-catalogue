@@ -1,5 +1,5 @@
-const db = require("../db/config");
-const pluralise = require('pluralise')
+const db = require('../db/config');
+const pluralise = require('pluralise');
 const { searchCap } = require('../config.json');
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
             id: id
           }).first().then(seller => {
             if (!seller) return {
-              message: "I was unable to find your seller with that ID."
+              message: 'I was unable to find your seller with that ID.'
             }
 
             return db('listings')
@@ -49,7 +49,7 @@ module.exports = {
         return db('listings')
           .whereIn('id', args.listingIds.split(','))
           .where(function() {
-            if (!user.admin) this.where(userId, user.id);
+            if (!user.admin) this.where('userId', user.id);
           }).del().then(results => {
             if (results) {
               return {
@@ -97,7 +97,7 @@ module.exports = {
         return db('listings')
           .whereIn('id', args.listingIds.split(','))
           .where(function() {
-            if (!user.admin) this.where(userId, user.id);
+            if (!user.admin) this.where('userId', user.id);
           }).update(args.field, args.value).then(result => {
             if (result) {
               return {
@@ -121,7 +121,7 @@ module.exports = {
         return db('sellers')
           .where({ id: args.sellerId })
           .where(function() {
-            if (!user.admin) this.where(userId, user.id);
+            if (!user.admin) this.where('userId', user.id);
           }).first().then(seller => {
             if (!seller) return {
               message: 'I was unable to find your seller with that ID.'
@@ -130,7 +130,7 @@ module.exports = {
             return db('listings')
               .whereIn('id', args.listingIds.split(','))
               .where(function() {
-                if (!user.admin) this.where(userId, user.id);
+                if (!user.admin) this.where('userId', user.id);
               }).update({ sellerId: seller.id }).then(result => {
                 if (result) {
                   return {

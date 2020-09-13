@@ -4,7 +4,8 @@ exports.seed = (knex) => {
       {
         id: 1,
         name: 'seller1',
-        userId: 1
+        userId: 1,
+        active: 1
       },
       {
         id: 2,
@@ -18,7 +19,8 @@ exports.seed = (knex) => {
         userId: 1,
         location: 'location',
         description: 'description',
-        icon: 'icon'
+        icon: 'icon',
+        active: 1
       }
     ]);
   });

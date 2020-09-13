@@ -9,12 +9,12 @@ exports.up = async (knex) => {
          .references('sellers.id')
          .onDelete('SET NULL');
   }).then(() => {
-    console.log("created users");
+    return;
   });
 };
 
 exports.down = async (knex) => {
   knex.schema.dropTable('users').then(() => {
-    console.log("dropped users");
+    return;
   });
 };

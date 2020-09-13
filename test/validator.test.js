@@ -1,117 +1,184 @@
-const db = require("../db/config")
-const validator = require('../cat_modules/validator')
+const db = require('../db/config');
+const validator = require('../cat_modules/validator');
 const discordClient = require('../cat_modules/setup_client');
+const admin = require('../commands/admin');
 
 const client = discordClient.run();
+
+let adminUser;
+let nonAdminUser;
 
 beforeAll(async () => {
   await db.migrate.latest();
   await db.seed.run();
+  adminUser = await db('users').where({ admin: 1 }).first();
+  nonAdminUser = await db('users').where({ admin: 0 }).first();
 });
 
-test("No command", async () => {
+test('No command', async () => {
   const input = {};
-  const response = validator.run(input, client.commands);
-
-  expect(response.message).toMatch(/I don't understand that./);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/I don't understand that./);
+  });
 });
 
-test("Non-admins rejected from admin commands", async () => {
-  const user = db('users').where({ admin: 0 }).first();
-  const input = { command: "admin", subCommand:"list" };
-  const response = validator.run(input, client.commands, user.admin);
+test('Non-admins rejected from admin commands', async () => {
+  const input = {
+    command: 'admin',
+    subCommand:'help'
+  };
 
-  expect(response.message).toBe("You don't have permission to use that command.");
+  await validator.run(input, client.commands, nonAdminUser.admin).then(result => {
+    expect(result.message).toMatch(/You don't have permission to use that command./);
+  });
 });
 
-test("Admins can use admin commands", async () => {
-  const user = await db('users').where({ admin: 1 }).first();
-  const input = { command: "admin", subCommand:"help" };
-  const response = validator.run(input, client.commands, user.admin);
+test('Admins can use admin commands', async () => {
+  const input = {
+    command: 'admin',
+    subCommand:'help'
+  };
 
-  expect(response.success).toBe(true);
+  await validator.run(input, client.commands, adminUser.admin).then(result => {
+    expect(result.success).toBe(true);
+  });
 });
 
-test("Invalid sub-command", async () => {
-  const input = { command: "listing", subCommand:"boop" };
-  const response = validator.run(input, client.commands);
+test('Invalid sub-command', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'boop'
+  };
 
-  expect(response.message).toMatch(/I don't recognise that sub-command./);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/I don't recognise that sub-command./);
+  });
 });
 
-test("Missing sub-command", async () => {
-  const input = { command: "listing", subCommand:"" };;
-  const response = validator.run(input, client.commands);
+test('Missing sub-command', async () => {
+  const input = {
+    command: 'listing'
+  };
 
-  expect(response.message).toMatch(/You're missing the sub-command./);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/You're missing the sub-command./);
+  });
 });
 
-test("Reject args containing colon", async () => {
-  const input = { command: "listing", subCommand:"add", args: "ite:m : pr:ice > s:hop" };
-  const response = validator.run(input, client.commands);
+test('Reject args containing colon', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'add',
+    args:'ite:m : pr:ice > s:hop'
+  };
 
-  expect(response.message).toMatch(/The character "`:`" is reserved/);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/The character "`:`" is reserved/);
+  });
 });
 
-test("Valid args pattern - listing add", async () => {
-  const input = { command: "listing", subCommand:"add", args: "item: price > 1" };
-  const response = validator.run(input, client.commands);
+test('Valid args pattern - listing add', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'add',
+    args: 'item: price > 1'
+  };
 
-  expect(response.success).toBe(true);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.success).toBe(true);
+  });
 });
 
-test("Invalid args pattern - listing add", async () => {
-  const input = { command: "listing", subCommand:"add", args: "item > 1" };
-  const response = validator.run(input, client.commands);
+test('Invalid args pattern - listing add', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'add',
+    args: 'item > 1'
+  };
 
-  expect(response.message).toMatch(/Here's how you use that/);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/Here's how you use that/);
+  });
 });
 
-test("Valid args pattern - listing remove", async () => {
-  const input = { command: "listing", subCommand:"remove", args: "1" };
-  const response = validator.run(input, client.commands);
+test('Valid args pattern - listing remove', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'remove',
+    args: '1'
+  };
 
-  expect(response.success).toBe(true);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.success).toBe(true);
+  });
 });
 
-test("Invalid args pattern - listing remove", async () => {
-  const input = { command: "listing", subCommand:"remove", args: "boop" };
-  const response = validator.run(input, client.commands);
+test('Invalid args pattern - listing remove', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'remove',
+    args: 'boop'
+  };
 
-  expect(response.message).toMatch(/Here's how you use that/);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/Here's how you use that/);
+  });
 });
 
-test("Valid args pattern - listing search", async () => {
-  const input = { command: "listing", subCommand:"search", args: "item" };
-  const response = validator.run(input, client.commands);
+test('Valid args pattern - listing search', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'search', args: 'item'
+  };
 
-  expect(response.success).toBe(true);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.success).toBe(true);
+  });
 });
 
-test("Valid args pattern - listing update", async () => {
-  const input = { command: "listing", subCommand:"update", args: "1 price: 5 gold" };
-  const response = validator.run(input, client.commands);
+test('Valid args pattern - listing update', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'update',
+    args: '1 price: 5 gold'
+  };
 
-  expect(response.success).toBe(true);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.success).toBe(true);
+  });
 });
 
-test("Invalid args pattern - listing update", async () => {
-  const input = { command: "listing", subCommand:"update", args: "price > 5 gold" };
-  const response = validator.run(input, client.commands);
-
-  expect(response.message).toMatch(/Here's how you use that/);
+test('Invalid args pattern - listing update', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'update',
+    args: 'price > 5 gold'
+  };
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/Here's how you use that/);
+  });
 });
 
-test("Valid args pattern - listing move", async () => {
-  const input = { command: "listing", subCommand:"move", args: "1 > 2" };
-  const response = validator.run(input, client.commands);
+test('Valid args pattern - listing move', async () => {
+  const input = {
+    command: 'listing',
+    subCommand:'move',
+    args: '1 > 2'
+  };
 
-  expect(response.success).toBe(true);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.success).toBe(true);
+  });
 });
 
-test("Invalid args pattern - listing move", async () => {
-  const input = { command: "listing", subCommand:"move", args: "boop" };
-  const response = validator.run(input, client.commands);
+test('Invalid args pattern - listing move', async () => {
+  const input = { 
+    command: 'listing',
+    subCommand:'move',
+    args: 'boop'
+  };
 
-  expect(response.message).toMatch(/Here's how you use that/);
+  await validator.run(input, client.commands).then(result => {
+    expect(result.message).toMatch(/Here's how you use that/);
+  });
 });

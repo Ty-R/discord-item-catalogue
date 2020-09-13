@@ -19,24 +19,21 @@ client.on('message', message => {
     user.findOrCreate(message.author.id, username(message)).then(user => {
       logger.info(`${user.name} -- ${JSON.stringify(input)}`);
 
-      const validatorResponse = validator.run(input, client.commands, user.admin);
+      validator.run(input, client.commands, user.admin).then(result => {
+        if (!result.success) {
+          return responder.respond(message.channel, user.name, result);
+        };
 
-      if (!validatorResponse.success) {
-        return responder.respond(message.channel, user.name, validatorResponse);
-      }
-
-      validatorResponse.command.execute(validatorResponse.args, user).then((result) => {
-        return responder.respond(message.channel, user.name, result);
-      }).catch((error) => {
-        console.log(error);
-        logger.error(error);
-        message.channel.send("Oops.. something went wrong. The issue has been logged. Please notify the author with how you did this.");
-      });
-    });
+        result.command.execute(result.args, user).then((result) => {
+          return responder.respond(message.channel, user.name, result);
+        });
+      }).catch(error => { throw(error) });
+    }).catch(error => { throw(error) });
   } catch(error) {
+    message.channel.send("Oops.. something went wrong. The issue has been logged. Please notify the author with how you did this.");
     console.log(error);
     logger.error(error);
-  };
+  }
 });
 
 function username(message) {

@@ -1,15 +1,15 @@
-const path = require("path")
+const path = require('path')
 
 module.exports = {
   test: {
-    client: "sqlite3",
-    connection: ":memory:",
+    client: 'sqlite3',
+    connection: ':memory:',
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, "migrations")
+      directory: path.join(__dirname, 'migrations')
     },
     seeds: {
-      directory: path.join(__dirname, "seeds")
+      directory: path.join(__dirname, 'seeds')
     },
     pool: {
       afterCreate: (conn, cb) => {
@@ -18,16 +18,16 @@ module.exports = {
     }
   },
   development: {
-    client: "sqlite3",
+    client: 'sqlite3',
     connection: {
       filename: './db/catalogue-dev.db'
     },
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, "migrations")
+      directory: path.join(__dirname, 'migrations')
     },
     seeds: {
-      directory: path.join(__dirname, "seeds")
+      directory: path.join(__dirname, 'seeds')
     },
     pool: {
       afterCreate: (conn, cb) => {
@@ -37,13 +37,13 @@ module.exports = {
     // debug: true
   },
   production: {
-    client: "sqlite3",
+    client: 'sqlite3',
     connection: {
       filename: './db/catalogue.db'
     },
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, "migrations")
+      directory: path.join(__dirname, 'migrations')
     },
     pool: {
       afterCreate: (conn, cb) => {

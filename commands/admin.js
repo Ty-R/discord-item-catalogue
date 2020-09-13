@@ -1,4 +1,4 @@
-const db = require("../db/config");
+const db = require('../db/config');
 
 module.exports = {
   name: 'admin',
@@ -16,11 +16,12 @@ module.exports = {
           }).then(result => {
           if (result) {
             return {
+              success: true,
               message: "That's all done for you."
             }
           } else {
             return {
-              message: "I couldn't find that user."
+              message: 'I was unable to find a user using that Discord ID.'
             }
           }
         });
@@ -37,6 +38,7 @@ module.exports = {
           .del().then(result => {
             if (result) {
               return {
+                success: true,
                 message: "I've removed that user, their sellers, and their listings from the catalogue."
               }
             } else {
