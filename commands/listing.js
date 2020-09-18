@@ -54,11 +54,11 @@ module.exports = {
             if (results) {
               return {
                 success: true,
-                message: `I've remove ${pluralise.withCount(results, '% listing')} for you.`
+                message: `I've removed ${pluralise.withCount(results, '% listing')} for you.`
               }
             } else {
               return {
-                message: 'I was unable to find and of your listing with the IDs given.'
+                message: 'I was unable to find any of your listing with the IDs given.'
               }
             }
           });
@@ -98,11 +98,11 @@ module.exports = {
           .whereIn('id', args.listingIds.split(','))
           .where(function() {
             if (!user.admin) this.where('userId', user.id);
-          }).update(args.field, args.value).then(result => {
-            if (result) {
+          }).update(args.field, args.value).then(results => {
+            if (results) {
               return {
                 success: true,
-                message: "That's all done."
+                message: `I've updated the "${args.field}" of ${pluralise.withCount(results, '% listings')} for you.`
               }
             } else {
               return {
@@ -131,11 +131,11 @@ module.exports = {
               .whereIn('id', args.listingIds.split(','))
               .where(function() {
                 if (!user.admin) this.where('userId', user.id);
-              }).update({ sellerId: seller.id }).then(result => {
-                if (result) {
+              }).update({ sellerId: seller.id }).then(results => {
+                if (results) {
                   return {
                     success: true,
-                    message: `I've moved any of your listings with those IDs to "${seller.name}"`
+                    message: `I've moved ${pluralise.withCount(results, '% listings')} to "${seller.name}"`
                   }
                 } else {
                   return {

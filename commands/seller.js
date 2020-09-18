@@ -35,7 +35,7 @@ module.exports = {
             if (result) {
               return {
                 success: true,
-                message: "I've added that seller for you."
+                message: `I've added "${args.sellerName}" as a seller for you.`
               }
             } else {
               return {

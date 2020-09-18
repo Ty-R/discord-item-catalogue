@@ -132,7 +132,7 @@ test('Remove listing - invalid ID', async () => {
   };
 
   await listingCommand.subCommands.remove.execute(args, user).then(result => {
-    expect(result.message).toBe('I was unable to find and of your listing with the IDs given.');
+    expect(result.message).toBe('I was unable to find any of your listing with the IDs given.');
   });
 });
 
