@@ -1,32 +1,30 @@
-const db = require('../cat_modules/db_query');
+const db = require('../db/config');
 
 module.exports = {
   name: 'admin',
   adminLocked: true,
   subCommands: {
-    add: {
-      usage: 'admin add [Discord ID]',
-      description: 'Make a user a catalogue admin',
+    toggle: {
+      usage: 'admin toggle [Discord ID]',
+      description: 'Toggle the admin status of a user',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
-        return db.run(
-          `UPDATE users
-           SET admin = 1
-           WHERE discordId = "${args.discordId}"`
-        );
-      }
-    },
-
-    remove: {
-      usage: 'admin remove [Discord ID]',
-      description: 'Remove admin status from a user',
-      argsPattern: /(?<discordId>.+)/,
-      execute(args) {
-        return db.run(
-          `UPDATE users
-           SET admin = 0
-           WHERE discordId = "${args.discordId}"`
-        );
+        return db('users')
+          .where({ discordId: args.discordId })
+          .update({
+            admin: db.raw('NOT admin')
+          }).then(result => {
+          if (result) {
+            return {
+              success: true,
+              message: "That's all done for you."
+            }
+          } else {
+            return {
+              message: 'I was unable to find a user using that Discord ID.'
+            }
+          }
+        });
       }
     },
 
@@ -35,10 +33,20 @@ module.exports = {
       description: 'Purge a user from the catalogue',
       argsPattern: /(?<discordId>.+)/,
       execute(args) {
-        return db.run(
-          `DELETE FROM users
-           WHERE discordId = "${args.discordId}"`
-        );
+        return db('users')
+          .where({ discordId: args.discordId })
+          .del().then(result => {
+            if (result) {
+              return {
+                success: true,
+                message: "I've removed that user, their sellers, and their listings from the catalogue."
+              }
+            } else {
+              return {
+                message: 'I was unable to find a user using that Discord ID.'
+              }  
+            }
+          });
       }
     },
   

@@ -1,16 +1,14 @@
-const db = require('../cat_modules/db').load();
+const db = require('../db/config');
 
 module.exports = {
   findOrCreate(discordId, name) {
-    const sql = `INSERT OR IGNORE INTO users (discordId, name)
-                 VALUES (?, ?)`;
+    return db('users').where('discordId', discordId).first().then(user => {
+      if (user) return user;
 
-    db.run(sql, [discordId, name]);
-
-    return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM users WHERE discordId = ?`, [discordId], (err, row) => {
-        if (err) reject(err);
-        resolve(row);
+      return db('users').insert({ discordId, name }).then(() => {
+        return db('users').where('discordId', discordId).first().then(user => { 
+          return user;
+        });
       });
     });
   }

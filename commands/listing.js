@@ -1,4 +1,5 @@
-const db = require('../cat_modules/db_query');
+const db = require('../db/config');
+const pluralise = require('pluralise');
 const { searchCap } = require('../config.json');
 
 module.exports = {
@@ -6,47 +7,61 @@ module.exports = {
   description: "A listing is an item or service for a price. Listings belong to sellers",
   subCommands: {
     add: {
-      usage: 'listing add [item]:[price] > [seller name]',
+      usage: 'listing add [item]:[price] > [seller id]',
       description: 'Add a new listing',
       argsPattern: /(?<item>[^:]+[^\s])\s*:\s*(?<price>.+?)\s*(?=>\s*(?<sellerName>.+)|$)/,
       execute(args, user) {
-        if (!args.sellerName && !user.defaultSeller) {
-          return Promise.resolve({ message: "You need to specify a seller to add this listing to." });
-        }
+        const id = args.sellerName || user.defaultSeller;
+        if (!id) return Promise.resolve({
+          message: "I don't know where to add that listing - no seller specified and no default seller set."
+        });
 
-        const errOnFail = `You don't have a seller with that name. Has it been created? If not, you need to create it first using the \`seller\` command.`;
-        const sql = `SELECT *
-                     FROM sellers
-                     WHERE userId = ${user.id}
-                     AND LOWER(name) = LOWER("${args.sellerName}") OR id = ${user.defaultSeller}
-                     ORDER BY CASE
-                       WHEN LOWER(name) = LOWER("${args.sellerName}") THEN 1
-                       ELSE 2
-                     END
-                     LIMIT 1`;
+        return db('sellers')
+          .where({
+            userId: user.id,
+            id: id
+          }).first().then(seller => {
+            if (!seller) return {
+              message: 'I was unable to find your seller with that ID.'
+            }
 
-        return db.get(sql, errOnFail).then(result => {
-          if (result.success === false) return result;
-          return db.run(
-            `INSERT INTO listings (item, price, sellerId, userId)
-             VALUES ("${args.item}", "${args.price}", "${result.id}", "${user.id}")`
-          );
-        })
+            return db('listings')
+              .insert({
+                item: args.item,
+                price: args.price,
+                userId: user.id,
+                sellerId: seller.id
+              }).then(() => {
+                return {
+                  success: true,
+                  message: `I've added that listing to "${seller.name}" for you.`
+                }
+              }).catch(error => Promise.reject(error));
+          }).catch(error => Promise.reject(error));
       }
     },
 
     remove: {
-      usage: 'listing remove [listing ID]',
+      usage: 'listing remove [id]',
       description: 'Remove an existing listing',
       argsPattern: /(?<listingIds>[0-9,\s]+)/,
       execute(args, user) {
-        const ids = args.listingIds.split(',').map(id => `"${id}"`);
-        let sql = `DELETE FROM listings
-                   WHERE id in (${ids})`;
-        
-        if (!user.admin) sql = sql + ` AND userId = "${user.id}"`;
-        const errOnFail = "I couldn't find any listings that belong to you with the IDs given."
-        return db.run(sql, errOnFail);
+        return db('listings')
+          .whereIn('id', args.listingIds.split(','))
+          .where(function() {
+            if (!user.admin) this.where('userId', user.id);
+          }).del().then(results => {
+            if (results) {
+              return {
+                success: true,
+                message: `I've removed ${pluralise.withCount(results, '% listing')} for you.`
+              }
+            } else {
+              return {
+                message: 'I was unable to find any of your listing with the IDs given.'
+              }
+            }
+          });
       }
     },
 
@@ -55,43 +70,80 @@ module.exports = {
       description: 'Search for a listing by item or seller',
       argsPattern: /(?<term>.+)/,
       execute(args) {
-        const term = `%${args.term.replace('*', '')}%`;
-        const sql = `SELECT listings.id, listings.item, listings.price, sellers.name, sellers.active
-                     FROM listings
-                     INNER JOIN sellers on sellers.id = listings.sellerId
-                     WHERE sellers.active = 1
-                     AND LOWER("item") LIKE LOWER("${term}")
-                     LIMIT ${searchCap}`
-
-        return db.all(sql, 'listings');
+        return db('listings')
+          .join('sellers', { 'sellers.id': 'listings.sellerId' })
+          .where({ active: 1 })
+          .whereRaw(`LOWER("item") LIKE LOWER("%${args.term}%")`)
+          .limit(searchCap).then(results => {
+            if (results.length) {
+              return {
+                success: true,
+                message: "Here's what I found:\n\n" + results.map(result => `• [${result.id}]  **${result.name}** is selling **${result.item}** for **${result.price}**`).join("\n")
+              };
+            } else {
+              return {
+                message: `I was unable to find any listing names containing "${args.term}"`
+              };   
+            }
+          }).catch(error => Promise.reject(error));
       }
     },
 
     update: {
-      usage: 'listing update [listing IDs] [field]:[value]',
-      description: 'Update the item, price, or seller of a listing',
-      argsPattern: /(?<listingIds>[0-9,\s]+)\s(?<field>item|price|seller)\s*:\s*(?<value>.+)/,
+      usage: 'listing update [id] [field]:[value]',
+      description: 'Update the item or price of a listing',
+      argsPattern: /(?<listingIds>[0-9,\s]+)\s(?<field>item|price)\s*:\s*(?<value>.+)/,
       execute(args, user) {
-        const ids = args.listingIds.split(',').map(id => `"${id}"`);
-        const errOnFail1 = "I couldn't find any listings that belong to you with the IDs given."
+        return db('listings')
+          .whereIn('id', args.listingIds.split(','))
+          .where(function() {
+            if (!user.admin) this.where('userId', user.id);
+          }).update(args.field, args.value).then(results => {
+            if (results) {
+              return {
+                success: true,
+                message: `I've updated the "${args.field}" of ${pluralise.withCount(results, '% listings')} for you.`
+              }
+            } else {
+              return {
+                message: 'I was unable to find your listings with the IDs given.'
+              }
+            }
+          }).catch(error => Promise.reject(error));
+      }
+    },
 
-        if (args.field === 'seller') {
-          const errOnFail2 = `I couldn't find a seller named "${args.value}" that belongs to you.`;
-          return db.get(`SELECT id FROM sellers WHERE LOWER(name) = LOWER("${args.value}") AND userId = "${user.id}"`, errOnFail2).then(result => {
-            if (result.success === false) return result;
-            return db.run(`UPDATE listings
-                           SET "sellerId" = "${result.id}"
-                           WHERE id in (${ids})
-                           AND userId = "${user.id}"`, errOnFail1);
-          });
-        }
+    move: {
+      usage: 'listing move [id] > [seller id]',
+      description: 'Move a listing to a different seller',
+      argsPattern: /(?<listingIds>[0-9,\s]+)\s*>\s*(?<sellerId>.+)/,
+      execute(args, user) {
+        return db('sellers')
+          .where({ id: args.sellerId })
+          .where(function() {
+            if (!user.admin) this.where('userId', user.id);
+          }).first().then(seller => {
+            if (!seller) return {
+              message: 'I was unable to find your seller with that ID.'
+            }
 
-        return db.run(
-          `UPDATE listings
-           SET "${args.field}" = "${args.value}"
-           WHERE id in (${ids})
-           AND userId = "${user.id}"`, errOnFail1
-        );
+            return db('listings')
+              .whereIn('id', args.listingIds.split(','))
+              .where(function() {
+                if (!user.admin) this.where('userId', user.id);
+              }).update({ sellerId: seller.id }).then(results => {
+                if (results) {
+                  return {
+                    success: true,
+                    message: `I've moved ${pluralise.withCount(results, '% listings')} to "${seller.name}"`
+                  }
+                } else {
+                  return {
+                    message: 'I was unable to find your listings with the IDs given.'
+                  }
+                }
+              }).catch(error => Promise.reject(error));
+            }).catch(error => Promise.reject(error));
       }
     },
 
