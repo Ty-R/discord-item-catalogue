@@ -7,7 +7,6 @@ module.exports = {
     messageLines = responseMessage.split("\n");
   
     messageLines.forEach(line => {
-      line 
       if ((currentMessage.length + line.length) <= 2000) {
         currentMessage = currentMessage + line + "\n";
       } else {

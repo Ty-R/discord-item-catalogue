@@ -12,11 +12,14 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "cross-env": "^7.0.2",
     "jest": "^26.4.2"
   },
   "scripts": {
     "test": "jest",
     "knex": "knex",
-    "migrate": "knex migrate:latest"
+    "migrate": "cross-env NODE_ENV=production knex migrate:latest",
+    "start": "cross-env NODE_ENV=production node cat",
+    "start-dev": "node cat"
   }
 }

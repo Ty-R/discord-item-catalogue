@@ -157,7 +157,7 @@ module.exports = {
           .select('sellers.*', 'users.name AS owner')
           .leftJoin('users', { 'users.id': 'sellers.userId' })
           .where(function() {
-            this.whereRaw(`LOWER("sellers.name") LIKE LOWER("${args.sellerName}%")`)
+            this.whereRaw(`LOWER(sellers.name) LIKE LOWER("${args.sellerName}%")`)
             .orWhere('sellers.id', args.sellerName)
           }).first().then(seller => {
             if (!seller) return {

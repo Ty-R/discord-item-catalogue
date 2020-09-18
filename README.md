@@ -8,10 +8,10 @@ Catalogue is a Discord bot that allows the creation of sellers and listings. A s
 2. In the newly created directory, run: `npm install`
 3. Rename `config.json.example` to `config.json` and modify as needed
 4. Rename `help.json.example` to `help.json` and modify as needed
-5. Run migations: `NODE_ENV=production npm run migrate`
+5. Run migations: `npm migrate`
 5. Invite the bot to a server
 
-From here, running: `node cat` in the bot directory will start the bot.
+From here, running: `npm start` in the bot directory will start the bot.
 
 # Usage
 
@@ -212,4 +212,4 @@ If a user is no longer active then they, and all their listings, can be removed 
 
 # Testing
 
-Tests go under the `test/` directory and can be run with `npm run test`.
+Tests go under the `test/` directory and can be run with `npm test`.

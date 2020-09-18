@@ -24,7 +24,7 @@ client.on('message', message => {
           return responder.respond(message.channel, user.name, result);
         };
 
-        result.command.execute(result.args, user).then((result) => {
+        result.command.execute(result.args, user).then(result => {
           return responder.respond(message.channel, user.name, result);
         });
       }).catch(error => { throw(error) });
