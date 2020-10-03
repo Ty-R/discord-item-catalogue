@@ -13,7 +13,7 @@ module.exports = {
       execute(args, user) {
         const id = args.sellerName || user.defaultSeller;
         if (!id) return Promise.resolve({
-          message: "I don't know where to add that listing - no seller specified and no default seller set."
+          message: "I don't know where to add that listing - no seller ID specified and no default seller set."
         });
 
         return db('sellers')
