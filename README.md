@@ -104,6 +104,17 @@ Something to note:
 
 * You can find out your current default seller by running the command without giving it an ID
 
+### Change seller owner
+
+Ownership of a seller can be transferred to another user.
+
+**Usage:** `!cat seller owner [:id] > [:discord_id]`\
+**Example:** `!cat seller owner 123 > 98765`\
+
+Something to note:
+
+* After transfer, the previous owner will no longer be able to use the seller
+
 ### Removing a seller
 
 If a user no longer wishes to have a seller in the catalogue they can remove it.

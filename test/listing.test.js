@@ -59,7 +59,7 @@ test('Add listing - without seller, no default', async () => {
   };
 
   await listingCommand.subCommands.add.execute(args, user).then(result => {
-    expect(result.message).toBe("I don't know where to add that listing - no seller specified and no default seller set.");
+    expect(result.message).toBe("I don't know where to add that listing - no seller ID specified and no default seller set.");
   });
 });
 

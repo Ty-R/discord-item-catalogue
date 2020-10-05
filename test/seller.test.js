@@ -163,3 +163,40 @@ test('Seller default', async () => {
     expect(user.defaultSeller).toBe(seller.id);
   });
 });
+
+test('Change seller owner', async () => {
+  const args = {
+    sellerId: seller.id,
+    discordId: '2'
+  };
+
+  await sellerCommand.subCommands.owner.execute(args, user).then(result => {
+    expect(result.success).toBe(true);
+  });
+
+  await db('sellers').where({ id: seller.id }).first().then(seller => {
+    expect(seller.userId).toBe(2);
+  });
+});
+
+test('Change seller owner - invalid owner', async () => {
+  const args = {
+    sellerId: seller.id,
+    discordId: '5'
+  };
+
+  await sellerCommand.subCommands.owner.execute(args, user).then(result => {
+    expect(result.message).toBe("I can't find a user with that Discord ID.");
+  });
+});
+
+test('Change seller owner - invalid seller', async () => {
+  const args = {
+    sellerId: 5,
+    discordId: '2'
+  };
+
+  await sellerCommand.subCommands.owner.execute(args, user).then(result => {
+    expect(result.message).toBe('I was unable to find your seller by that ID.');
+  });
+});

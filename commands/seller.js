@@ -248,9 +248,11 @@ module.exports = {
       description: 'Toggle seller visibility',
       argsPattern: /(?<sellerId>[0-9]+)/,
       execute(args, user) {
-        if (user.admin) user.id = user.id;
         return db('sellers')
           .where({ id: args.sellerId })
+          .where(function() {
+            if (!user.admin) this.where('userId', user.id)
+          })
           .update({
             active: db.raw('NOT active')
           }).then(result => {
@@ -264,6 +266,39 @@ module.exports = {
                 message: 'I was unable to find your seller by that ID.'
               }
             }
+          }).catch(error => Promise.reject(error));
+      }
+    },
+
+    owner: {
+      usage: 'seller owner [id] > [discord id]',
+      description: 'Transfer seller to a new owner',
+      argsPattern: /(?<sellerId>[0-9]+)\s*>\s*(?<discordId>.+)/,
+      execute(args, user) {
+        return db('users')
+          .where({ discordId: args.discordId })
+          .first().then(newOwner => {
+            if (!newOwner) return {
+              message: "I can't find a user with that Discord ID."
+            }
+
+            return db('sellers')
+              .where({ id: args.sellerId })
+              .where(function() {
+                if (!user.admin) this.where('userId', user.id)
+              }).update({ userId: newOwner.id })
+              .then(result => {
+                if (result) {
+                  return {
+                    success: true,
+                    message: `That seller now belongs to ${newOwner.name}.`
+                  }
+                } else {
+                  return {
+                    message: 'I was unable to find your seller by that ID.'
+                  }
+                }
+              }).catch(error => Promise.reject(error));
           }).catch(error => Promise.reject(error));
       }
     },
