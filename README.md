@@ -138,7 +138,7 @@ A listing is an item or service for a price. They belong to sellers and can be s
 To add a listing, a user needs to specify what is being sold, how much for, and where:
 
 **Usage:** `!cat listing add [:item]: [:price] > [:seller id]`\
-**Example:** `!cat listing add 5 books: 1 gold > My Shop`
+**Example:** `!cat listing add 5 books: 1 gold > 123`
 
 Some things to note:
 
@@ -162,7 +162,7 @@ Some things to note:
 Modify the name or price of a listing:
 
 **Usage:** `!cat listing update [:id] [:field]: [:value]`\
-**Example:** `!cat listing update 123 item: 10 books`\
+**Example:** `!cat listing update 123 item: 10 books`
 
 Something to note:
 
