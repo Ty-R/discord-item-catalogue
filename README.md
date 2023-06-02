@@ -1,5 +1,5 @@
 # Discord Catalogue Bot
-
+a
 Catalogue is a Discord bot that allows the creation of sellers and listings. A seller might be, for example, a shop, and listings would be what that shop sells. Those selling can create sellers and listings, and those buying can search against these to find what they're looking for.
 
 # Setup
